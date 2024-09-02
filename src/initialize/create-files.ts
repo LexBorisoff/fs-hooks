@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import type { FileTree } from '../types/file-structure.types.js';
+import type { FileTree } from '../types/file-tree.types.js';
 
 export function createFiles<T extends FileTree<true>>(fileTree: T): void {
   Object.values(fileTree).forEach((file) => {

@@ -1,5 +1,5 @@
 import { getAppHomedir } from '../homedir/app-homedir.js';
-import type { FileTree } from '../types/file-structure.types.js';
+import type { FileTree } from '../types/file-tree.types.js';
 import type { OperationStructure } from './types/operations.types.js';
 import { operationsMapper } from './mappers/operations.mapper.js';
 import { pathsMapper } from './mappers/paths.mapper.js';

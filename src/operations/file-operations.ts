@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { readFile } from '@lexjs/cli-utils';
-import type { AppFile } from '../types/file-structure.types.js';
+import type { AppFile } from '../types/file-tree.types.js';
 import type { FileOperations } from './types/operations.types.js';
 
 export function fileOperations<F extends AppFile<true>>(

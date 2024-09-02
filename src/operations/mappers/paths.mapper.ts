@@ -4,7 +4,7 @@ import type {
   AppFile,
   FileTree,
   PathTree,
-} from '../../types/file-structure.types.js';
+} from '../../types/file-tree.types.js';
 
 export function pathsMapper<T extends FileTree>(
   parentPath: string,

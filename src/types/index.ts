@@ -1,1 +1,1 @@
-export * from './file-structure.types.js';
+export * from './file-tree.types.js';

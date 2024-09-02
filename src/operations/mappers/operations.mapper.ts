@@ -1,4 +1,4 @@
-import type { FileTree, PathTree } from '../../types/file-structure.types.js';
+import type { FileTree, PathTree } from '../../types/file-tree.types.js';
 import type { OperationStructure } from '../types/operations.types.js';
 import { fileOperations } from '../file-operations.js';
 

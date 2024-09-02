@@ -1,4 +1,4 @@
-import type { FileTree, AppDir } from '../../types/file-structure.types.js';
+import type { FileTree, AppDir } from '../../types/file-tree.types.js';
 
 export interface FileOperations {
   read: () => string | null;
