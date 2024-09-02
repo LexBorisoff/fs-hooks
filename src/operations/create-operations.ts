@@ -9,23 +9,3 @@ export function createOperations<S extends FileStructure>(
 ): OperationStructure<S> {
   return operationsMapper(pathsMapper(appName, fileStructure));
 }
-
-const app = createOperations('pm-cli', {
-  bin: {
-    type: 'dir',
-    children: {
-      foo: {
-        type: 'dir',
-        children: {
-          bar: {
-            type: 'file',
-          },
-        },
-      },
-    },
-  },
-});
-
-app.bin.foo.bar.write('npm run build');
-const barData = app.bin.foo.bar.read();
-console.log('barData >>>', barData);
