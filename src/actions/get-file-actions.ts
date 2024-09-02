@@ -1,11 +1,9 @@
 import fs from 'node:fs';
 import { readFile } from '@lexjs/cli-utils';
-import type { FileActions } from '../types/app-actions.types.js';
-import type { AppFile } from '../types/app-structure.types.js';
+import type { FileActions } from './types/app-actions.types.js';
+import type { AppFile } from './types/app-structure.types.js';
 
-export function createFileActions<F extends AppFile<true>>(
-  file: F,
-): FileActions {
+export function getFileActions<F extends AppFile<true>>(file: F): FileActions {
   return {
     read() {
       return readFile(file.path);
