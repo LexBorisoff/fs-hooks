@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import type { FileStructure } from '../types/file-structure.types.js';
-import { getAppHomedir } from '../app-homedir.js';
+import { getAppHomedir } from '../homedir/app-homedir.js';
 import { pathsMapper } from '../operations/mappers/paths.mapper.js';
 import { createFiles } from './create-files.js';
 

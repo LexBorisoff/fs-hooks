@@ -1,14 +1,14 @@
-interface WithPath {
+export interface WithPath {
   path: string;
   parentPath: string;
 }
 
-interface AppFileInterface {
+export interface AppFileInterface {
   type: 'file';
   data?: string | (() => string);
 }
 
-interface AppDirInterface<HasPath extends boolean> {
+export interface AppDirInterface<HasPath extends boolean> {
   type: 'dir';
   children?: FileStructure<HasPath>;
 }

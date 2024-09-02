@@ -1,12 +1,8 @@
-import * as os from 'node:os';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import os from 'node:os';
+import fs from 'node:fs';
+import path from 'node:path';
 
-export function getAppHomedir(appName: string): string {
-  if (appName === '') {
-    throw new Error('Empty app name');
-  }
-
+export function getHomedir(): string {
   const homedir = os.homedir();
   let directory: string | undefined;
   const { platform } = process;
@@ -35,5 +31,5 @@ export function getAppHomedir(appName: string): string {
     directory = homedir;
   }
 
-  return path.join(directory, 'lexjs', appName);
+  return path.join(directory, 'lexjs');
 }
