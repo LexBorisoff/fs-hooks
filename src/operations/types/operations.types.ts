@@ -1,7 +1,4 @@
-import type {
-  FileStructure,
-  AppDir,
-} from '../../types/file-structure.types.js';
+import type { FileTree, AppDir } from '../../types/file-structure.types.js';
 
 export interface FileOperations {
   read: () => string | null;
@@ -9,10 +6,10 @@ export interface FileOperations {
   clear: () => void;
 }
 
-export type OperationStructure<S extends FileStructure<false>> = {
-  [K in keyof S]: S[K] extends AppDir
-    ? S[K]['children'] extends FileStructure
-      ? OperationStructure<S[K]['children']>
+export type OperationStructure<T extends FileTree<false>> = {
+  [K in keyof T]: T[K] extends AppDir
+    ? T[K]['children'] extends FileTree
+      ? OperationStructure<T[K]['children']>
       : {}
     : FileOperations;
 };

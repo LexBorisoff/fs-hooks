@@ -2,17 +2,17 @@ import path from 'node:path';
 import type {
   AppDir,
   AppFile,
-  FileStructure,
-  PathStructure,
+  FileTree,
+  PathTree,
 } from '../../types/file-structure.types.js';
 
-export function pathsMapper<S extends FileStructure>(
+export function pathsMapper<T extends FileTree>(
   parentPath: string,
-  fileStructure: S,
-): PathStructure<S> {
-  const result = {} as PathStructure<S>;
+  fileTree: T,
+): PathTree<T> {
+  const result = {} as PathTree<T>;
 
-  Object.entries(fileStructure).forEach(([key, value]) => {
+  Object.entries(fileTree).forEach(([key, value]) => {
     const filePath = path.join(parentPath, key);
 
     if (value.type === 'file') {

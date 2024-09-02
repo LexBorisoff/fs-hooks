@@ -1,10 +1,8 @@
 import fs from 'node:fs';
-import type { FileStructure } from '../types/file-structure.types.js';
+import type { FileTree } from '../types/file-structure.types.js';
 
-export function createFiles<S extends FileStructure<true>>(
-  pathStructure: S,
-): void {
-  Object.values(pathStructure).forEach((file) => {
+export function createFiles<T extends FileTree<true>>(fileTree: T): void {
+  Object.values(fileTree).forEach((file) => {
     if (file.type === 'file') {
       fs.writeFileSync(
         file.path,

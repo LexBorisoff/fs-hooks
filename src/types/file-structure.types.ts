@@ -10,7 +10,7 @@ export interface AppFileInterface {
 
 export interface AppDirInterface<HasPath extends boolean> {
   type: 'dir';
-  children?: FileStructure<HasPath>;
+  children?: FileTree<HasPath>;
 }
 
 export type AppFile<HasPath extends boolean = false> = HasPath extends true
@@ -25,15 +25,15 @@ export type FileType<HasPath extends boolean = false> = HasPath extends true
   ? AppFile<true> | AppDir<true>
   : AppFile | AppDir<false>;
 
-export type FileStructure<HasPath extends boolean = false> = Record<
+export type FileTree<HasPath extends boolean = false> = Record<
   string,
   FileType<HasPath>
 >;
 
-export type PathStructure<S extends FileStructure<false>> = {
-  [K in keyof S]: S[K] extends AppDir
-    ? S[K]['children'] extends FileStructure<false>
-      ? AppDir<true> & { children: PathStructure<S[K]['children']> }
+export type PathTree<T extends FileTree<false>> = {
+  [K in keyof T]: T[K] extends AppDir
+    ? T[K]['children'] extends FileTree<false>
+      ? AppDir<true> & { children: PathTree<T[K]['children']> }
       : AppDir<true>
     : AppFile<true>;
 };

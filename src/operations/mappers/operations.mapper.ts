@@ -1,17 +1,13 @@
-import type {
-  FileStructure,
-  PathStructure,
-} from '../../types/file-structure.types.js';
+import type { FileTree, PathTree } from '../../types/file-structure.types.js';
 import type { OperationStructure } from '../types/operations.types.js';
 import { fileOperations } from '../file-operations.js';
 
-export function operationsMapper<
-  S extends FileStructure,
-  P extends PathStructure<S>,
->(pathStructure: P): OperationStructure<S> {
-  const result = {} as OperationStructure<S>;
+export function operationsMapper<T extends FileTree, P extends PathTree<T>>(
+  pathTree: P,
+): OperationStructure<T> {
+  const result = {} as OperationStructure<T>;
 
-  Object.entries(pathStructure).forEach(([key, value]) => {
+  Object.entries(pathTree).forEach(([key, value]) => {
     if (value.type === 'file') {
       Object.defineProperty(result, key, {
         value: fileOperations(value),
