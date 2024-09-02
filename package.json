@@ -1,6 +1,6 @@
 {
   "name": "@lexjs/core",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1-beta.2",
   "description": "",
   "type": "module",
   "main": "./dist/index.js",
@@ -47,5 +47,8 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-prettier": "^5.2.1",
     "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@lexjs/cli-utils": "^0.0.1-beta.3"
   }
 }
