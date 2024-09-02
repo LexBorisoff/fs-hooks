@@ -31,5 +31,9 @@ export type FileStructure<HasPath extends boolean = false> = Record<
 >;
 
 export type PathStructure<S extends FileStructure<false>> = {
-  [K in keyof S]: FileType<true>;
+  [K in keyof S]: S[K] extends AppDir
+    ? S[K]['children'] extends FileStructure<false>
+      ? AppDir<true> & { children: PathStructure<S[K]['children']> }
+      : AppDir<true>
+    : AppFile<true>;
 };

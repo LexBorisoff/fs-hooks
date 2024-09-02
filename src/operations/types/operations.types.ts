@@ -9,7 +9,7 @@ export interface FileOperations {
   clear: () => void;
 }
 
-export type OperationStructure<S extends FileStructure<boolean>> = {
+export type OperationStructure<S extends FileStructure<false>> = {
   [K in keyof S]: S[K] extends AppDir
     ? S[K]['children'] extends FileStructure
       ? OperationStructure<S[K]['children']>

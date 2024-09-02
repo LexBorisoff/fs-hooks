@@ -1,60 +1,49 @@
 import path from 'node:path';
-import { getAppHomedir } from '../../app-homedir.js';
 import type {
+  AppDir,
+  AppFile,
   FileStructure,
   PathStructure,
 } from '../../types/file-structure.types.js';
 
-export function pathsMapper<S extends FileStructure<false>>(
-  appName: string,
-  structure: S,
+export function pathsMapper<S extends FileStructure>(
+  parentPath: string,
+  fileStructure: S,
 ): PathStructure<S> {
-  const appDir = getAppHomedir(appName);
   const result = {} as PathStructure<S>;
 
-  function createPaths<K extends keyof FileStructure>(
-    parentDir: string,
-    key: K,
-    value: FileStructure[K],
-  ) {
-    const filePath = path.join(parentDir, key);
+  Object.entries(fileStructure).forEach(([key, value]) => {
+    const filePath = path.join(parentPath, key);
 
-    Object.defineProperties(value, {
-      path: {
-        value: filePath,
+    if (value.type === 'file') {
+      const fileValue: AppFile<true> = {
+        ...value,
+        path: filePath,
+        parentPath,
+      };
+
+      Object.defineProperty(result, key, {
         enumerable: true,
-      },
-      parentPath: {
-        value: parentDir,
-        enumerable: true,
-      },
-    });
-
-    if (
-      value.type === 'dir' &&
-      value.children != null &&
-      Object.keys(value.children).length > 0
-    ) {
-      Object.entries(value.children).forEach(([childKey, childValue]) => {
-        Object.defineProperty(value, childKey, {
-          value: childValue,
-          enumerable: true,
-          writable: childValue.type === 'file',
-        });
-
-        createPaths(filePath, childKey, childValue);
+        value: fileValue,
       });
+      return;
     }
-  }
 
-  Object.entries(structure).forEach(([key, value]) => {
+    const { children, ...rest } = value;
+    const dirValue: AppDir<true> = {
+      ...rest,
+      path: filePath,
+      parentPath,
+    };
+
+    if (children != null && Object.keys(children).length > 0) {
+      dirValue.children = pathsMapper(filePath, children);
+    }
+
     Object.defineProperty(result, key, {
-      value,
       enumerable: true,
-      writable: value.type === 'file',
+      value: dirValue,
     });
-
-    createPaths(appDir, key, value);
   });
 
   return result;
