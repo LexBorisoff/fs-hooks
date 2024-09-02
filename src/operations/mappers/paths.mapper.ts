@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { getAppHomedir } from '../../app-homedir.js';
-import type { FileStructure } from '../types/app-structure.types.js';
+import type { FileStructure } from '../../types/file-structure.types.js';
 
 export function pathsMapper<S extends FileStructure<false>>(
   appName: string,

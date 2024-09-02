@@ -1,2 +1,2 @@
-export * from './actions/index.js';
+export * from './operations/index.js';
 export * from './app-homedir.js';

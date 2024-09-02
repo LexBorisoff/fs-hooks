@@ -1,9 +1,11 @@
 import fs from 'node:fs';
 import { readFile } from '@lexjs/cli-utils';
-import type { FileActions } from './types/app-actions.types.js';
-import type { AppFile } from './types/app-structure.types.js';
+import type { AppFile } from '../types/file-structure.types.js';
+import type { FileOperations } from './types/operations.types.js';
 
-export function getFileActions<F extends AppFile<true>>(file: F): FileActions {
+export function fileOperations<F extends AppFile<true>>(
+  file: F,
+): FileOperations {
   return {
     read() {
       return readFile(file.path);
@@ -19,6 +21,11 @@ export function getFileActions<F extends AppFile<true>>(file: F): FileActions {
         file.path,
         contents instanceof Function ? contents() : contents,
       );
+    },
+    clear() {
+      if (fs.existsSync(file.path)) {
+        fs.writeFileSync(file.path, '');
+      }
     },
   };
 }
