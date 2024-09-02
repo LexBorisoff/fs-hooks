@@ -7,10 +7,10 @@ export interface FileOperations {
   exists: () => boolean;
 }
 
-export type OperationStructure<T extends FileTree<false>> = {
+export type OperationTree<T extends FileTree<false>> = {
   [K in keyof T]: T[K] extends AppDir
     ? T[K]['children'] extends FileTree
-      ? OperationStructure<T[K]['children']>
+      ? OperationTree<T[K]['children']>
       : {}
     : FileOperations;
 };
