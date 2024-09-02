@@ -23,9 +23,12 @@ export function fileOperations<F extends AppFile<true>>(
       );
     },
     clear() {
-      if (fs.existsSync(file.path)) {
+      if (this.exists()) {
         fs.writeFileSync(file.path, '');
       }
+    },
+    exists() {
+      return fs.existsSync(file.path);
     },
   };
 }

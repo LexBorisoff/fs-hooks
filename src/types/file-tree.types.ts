@@ -6,6 +6,7 @@ export interface WithPath {
 export interface AppFileInterface {
   type: 'file';
   data?: string | (() => string);
+  skip?: boolean;
 }
 
 export interface AppDirInterface<HasPath extends boolean> {

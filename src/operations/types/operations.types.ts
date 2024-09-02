@@ -4,6 +4,7 @@ export interface FileOperations {
   read: () => string | null;
   write: (contents: string | (() => string)) => void;
   clear: () => void;
+  exists: () => boolean;
 }
 
 export type OperationStructure<T extends FileTree<false>> = {

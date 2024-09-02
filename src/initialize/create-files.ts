@@ -4,6 +4,10 @@ import type { FileTree } from '../types/file-tree.types.js';
 export function createFiles<T extends FileTree<true>>(fileTree: T): void {
   Object.values(fileTree).forEach((file) => {
     if (file.type === 'file') {
+      if (file.skip) {
+        return;
+      }
+
       fs.writeFileSync(
         file.path,
         (file.data instanceof Function ? file.data() : file.data) ?? '',
