@@ -3,9 +3,17 @@
   "version": "0.0.1-beta.1",
   "description": "",
   "type": "module",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
-    "format": "prettier --write src/**/*.ts",
+    "format": "prettier --write *.{js,cjs,mjs,ts,cts,mts} src/**/*.ts",
     "lint": "eslint src/**/*.{js,ts}",
     "lint:fix": "npm run lint -- --fix",
     "prebuild": "npm run format && npm run lint:fix && rm -fr ./dist",
