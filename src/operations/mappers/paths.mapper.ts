@@ -1,13 +1,16 @@
 import path from 'node:path';
 import { getAppHomedir } from '../../app-homedir.js';
-import type { FileStructure } from '../../types/file-structure.types.js';
+import type {
+  FileStructure,
+  PathStructure,
+} from '../../types/file-structure.types.js';
 
 export function pathsMapper<S extends FileStructure<false>>(
   appName: string,
   structure: S,
-): FileStructure<true> {
+): PathStructure<S> {
   const appDir = getAppHomedir(appName);
-  const result = {} as FileStructure<true>;
+  const result = {} as PathStructure<S>;
 
   function createPaths<K extends keyof FileStructure>(
     parentDir: string,
@@ -16,18 +19,16 @@ export function pathsMapper<S extends FileStructure<false>>(
   ) {
     const filePath = path.join(parentDir, key);
 
-    if (value.type === 'file') {
-      Object.defineProperties(value, {
-        path: {
-          value: filePath,
-          enumerable: true,
-        },
-        parentPath: {
-          value: parentDir,
-          enumerable: true,
-        },
-      });
-    }
+    Object.defineProperties(value, {
+      path: {
+        value: filePath,
+        enumerable: true,
+      },
+      parentPath: {
+        value: parentDir,
+        enumerable: true,
+      },
+    });
 
     if (
       value.type === 'dir' &&

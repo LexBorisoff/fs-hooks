@@ -18,8 +18,8 @@ export type AppFile<HasPath extends boolean = false> = HasPath extends true
   : AppFileInterface;
 
 export type AppDir<HasPath extends boolean = false> = HasPath extends true
-  ? AppDirInterface<HasPath> & WithPath
-  : AppDirInterface<HasPath>;
+  ? AppDirInterface<true> & WithPath
+  : AppDirInterface<false>;
 
 export type FileType<HasPath extends boolean = false> = HasPath extends true
   ? AppFile<true> | AppDir<true>
@@ -29,3 +29,7 @@ export type FileStructure<HasPath extends boolean = false> = Record<
   string,
   FileType<HasPath>
 >;
+
+export type PathStructure<S extends FileStructure<false>> = {
+  [K in keyof S]: FileType<true>;
+};
