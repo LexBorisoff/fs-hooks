@@ -5,7 +5,7 @@ interface WithPath {
 
 interface AppFileInterface {
   type: 'file';
-  contents?: string | (() => string);
+  data?: string | (() => string);
 }
 
 interface AppDirInterface<HasPath extends boolean> {
