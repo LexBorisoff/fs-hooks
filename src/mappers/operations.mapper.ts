@@ -1,11 +1,15 @@
-import type { FileTree, PathTree } from '../../types/file-tree.types.js';
-import type { OperationTree } from '../types/operations.types.js';
-import { fileOperations } from '../file-operations.js';
+import type {
+  FileTreeInterface,
+  PathTreeInterface,
+} from '../types/file-tree.types.js';
+import type { OperationTreeInterface } from '../operations/types/operations.types.js';
+import { fileOperations } from '../operations/file-operations.js';
 
-export function operationsMapper<T extends FileTree, P extends PathTree<T>>(
-  pathTree: P,
-): OperationTree<T> {
-  const result = {} as OperationTree<T>;
+export function operationsMapper<
+  T extends FileTreeInterface,
+  P extends PathTreeInterface<T>,
+>(pathTree: P): OperationTreeInterface<T> {
+  const result = {} as OperationTreeInterface<T>;
 
   Object.entries(pathTree).forEach(([key, value]) => {
     if (value.type === 'file') {

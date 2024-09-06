@@ -2,15 +2,15 @@ import path from 'node:path';
 import type {
   AppDir,
   AppFile,
-  FileTree,
-  PathTree,
-} from '../../types/file-tree.types.js';
+  FileTreeInterface,
+  PathTreeInterface,
+} from '../types/file-tree.types.js';
 
-export function pathsMapper<T extends FileTree>(
+export function pathsMapper<T extends FileTreeInterface>(
   parentPath: string,
   fileTree: T,
-): PathTree<T> {
-  const result = {} as PathTree<T>;
+): PathTreeInterface<T> {
+  const result = {} as PathTreeInterface<T>;
 
   Object.entries(fileTree).forEach(([key, value]) => {
     const filePath = path.join(parentPath, key);
