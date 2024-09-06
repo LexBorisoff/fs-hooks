@@ -1,10 +1,13 @@
 import fs from 'node:fs';
-import type { FileTree } from '../types/file-tree.types.js';
+import type { FileTreeInterface } from '../types/file-tree.types.js';
 import { getAppHomedir } from '../homedir/app-homedir.js';
-import { pathsMapper } from '../operations/mappers/paths.mapper.js';
+import { pathsMapper } from '../mappers/paths.mapper.js';
 import { createFiles } from './create-files.js';
 
-export function initializeApp(appName: string, fileTree: FileTree): void {
+export function initializeApp(
+  appName: string,
+  fileTree: FileTreeInterface,
+): void {
   const appHome = getAppHomedir(appName);
   const pathTree = pathsMapper(appHome, fileTree);
 

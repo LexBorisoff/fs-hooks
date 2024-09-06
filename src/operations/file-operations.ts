@@ -7,27 +7,24 @@ export function fileOperations<F extends AppFile<true>>(
   file: F,
 ): FileOperations {
   return {
-    read() {
+    read(): string | null {
       return readFile(file.path);
     },
-    write(contents) {
+    write(data): void {
       if (!fs.existsSync(file.parentPath)) {
         fs.mkdirSync(file.parentPath, {
           recursive: true,
         });
       }
 
-      fs.writeFileSync(
-        file.path,
-        contents instanceof Function ? contents() : contents,
-      );
+      fs.writeFileSync(file.path, data instanceof Function ? data() : data);
     },
-    clear() {
+    clear(): void {
       if (this.exists()) {
         fs.writeFileSync(file.path, '');
       }
     },
-    exists() {
+    exists(): boolean {
       return fs.existsSync(file.path);
     },
   };

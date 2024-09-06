@@ -1,7 +1,9 @@
 import fs from 'node:fs';
-import type { FileTree } from '../types/file-tree.types.js';
+import type { FileTreeInterface } from '../types/file-tree.types.js';
 
-export function createFiles<T extends FileTree<true>>(fileTree: T): void {
+export function createFiles<T extends FileTreeInterface<true>>(
+  fileTree: T,
+): void {
   Object.values(fileTree).forEach((file) => {
     if (file.type === 'file') {
       if (file.skip) {
