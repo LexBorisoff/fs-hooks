@@ -1,4 +1,8 @@
-import type { FileTreeInterface, AppDir } from '../../types/file-tree.types.js';
+import type {
+  DirInterface,
+  FileInterface,
+  FileTree,
+} from './file-tree.types.js';
 
 export interface FileOperations {
   read: () => string | null;
@@ -18,11 +22,12 @@ export interface DirOperations {
   exists(filePath: string): boolean;
 }
 
-export type OperationTreeInterface<T extends FileTreeInterface<false>> =
-  DirOperations & {
-    [K in keyof T]: T[K] extends AppDir
-      ? T[K]['children'] extends FileTreeInterface
-        ? DirOperations & OperationTreeInterface<T[K]['children']>
-        : DirOperations
-      : FileOperations;
-  };
+export type OperationTree<T extends FileTree<true>> = {
+  [K in keyof T]: T[K] extends DirInterface<true>
+    ? T[K]['children'] extends FileTree
+      ? DirOperations & OperationTree<T[K]['children']>
+      : DirOperations
+    : T[K] extends FileInterface
+      ? FileOperations
+      : never;
+};
