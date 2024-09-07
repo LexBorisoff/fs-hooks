@@ -8,7 +8,7 @@ import type {
  * Identity function that helps created a function
  * that returns custom file operations
  */
-export function createFileOperations<
+export function buildFileOperations<
   K extends string,
   O extends OperationsType<K>,
   F extends GetFileOperationsFn<K, O>,
@@ -20,7 +20,7 @@ export function createFileOperations<
  * Identity function that helps created a function
  * that returns custom dir operations
  */
-export function createDirOperations<
+export function buildDirOperations<
   K extends string,
   O extends OperationsType<K>,
   F extends GetDirOperationsFn<K, O>,

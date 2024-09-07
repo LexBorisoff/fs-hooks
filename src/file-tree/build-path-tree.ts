@@ -5,7 +5,7 @@ import type {
 } from '../types/file-tree.types.js';
 import { addPath } from './add-path.js';
 
-export function createPathTree<T extends FileTreeInterface>(
+export function buildPathTree<T extends FileTreeInterface>(
   parentPath: string,
   tree: T,
 ): PathTreeType<T> {
@@ -27,7 +27,7 @@ export function createPathTree<T extends FileTreeInterface>(
       children != null && Object.keys(children).length > 0
         ? {
             ...withPath,
-            children: createPathTree(withPath.path, children),
+            children: buildPathTree(withPath.path, children),
           }
         : withPath;
 

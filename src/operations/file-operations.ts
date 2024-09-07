@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import type { FileOperationsInterface } from '../types/operation.types.js';
 import { readFile } from '../utils/read-file.js';
-import { createFileOperations } from './create-operations.js';
+import { buildFileOperations } from './build-operations.js';
 
-export const fileOperations = createFileOperations((file) => {
+export const fileOperations = buildFileOperations((file) => {
   const operations: FileOperationsInterface = {
     path: () => file.path,
     parentPath: () => file.parentPath,
@@ -19,14 +19,6 @@ export const fileOperations = createFileOperations((file) => {
     },
     clear() {
       this.write('');
-    },
-    create(data) {
-      return fileOperations({
-        type: 'file',
-        data,
-        path: this.path(),
-        parentPath: this.parentPath(),
-      });
     },
   };
 

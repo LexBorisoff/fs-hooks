@@ -82,3 +82,6 @@ export type OperationTreeType<T extends FileTreeInterface> = {
         : PathInterface & DirOperationsInterface<T[key]['children']>
       : never;
 };
+
+export type CreateOperationTreeType<T extends FileTreeInterface> =
+  DirOperationsInterface<T> & OperationTreeType<T>;

@@ -1,10 +1,11 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import type { DirOperationsInterface } from '../types/operation.types.js';
 import { readFile } from '../utils/read-file.js';
-import { createDirOperations } from './create-operations.js';
+import { buildDirOperations } from './build-operations.js';
 import { fileOperations } from './file-operations.js';
 
-export const dirOperations = createDirOperations((dir) => {
+export const dirOperations = buildDirOperations((dir) => {
   const operations: DirOperationsInterface<(typeof dir)['children']> = {
     path: () => dir.path,
     parentPath: () => dir.parentPath,
