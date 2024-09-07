@@ -21,21 +21,15 @@ export interface FileOperationsInterface {
 }
 
 export interface DirOperationsInterface<
-  FileExtra extends Operations | undefined = undefined,
-  DirExtra extends Operations | undefined = undefined,
+  FileExtra extends Operations,
+  DirExtra extends Operations,
 > {
-  createDir(
-    dirName: string,
-  ): DirExtra extends undefined
-    ? DirOperationsInterface
-    : DirOperationsInterface<DirExtra>;
+  createDir(dirName: string): DirOperationsInterface<FileExtra, DirExtra>;
   deleteDir(dirName: string): void;
   createFile(
     fileName: string,
     data?: string | (() => string),
-  ): FileExtra extends undefined
-    ? FileOperationsInterface
-    : FileOperationsInterface & FileExtra;
+  ): FileOperationsInterface & FileExtra;
   writeFile(fileName: string, data?: string | (() => string)): void;
   readFile(fileName: string): string | null;
   clearFile(fileName: string): void;
@@ -43,26 +37,21 @@ export interface DirOperationsInterface<
   exists(filePath: string): boolean;
 }
 
-export type FileOperations<
-  FileExtra extends Operations | undefined = undefined,
-> = FileExtra extends Operations
-  ? FileOperationsInterface & FileExtra
-  : FileOperationsInterface;
+export type FileOperations<FileExtra extends Operations> =
+  FileOperationsInterface & FileExtra;
 
 export type DirOperations<
-  FileExtra extends Operations | undefined = undefined,
-  DirExtra extends Operations | undefined = undefined,
-> = DirExtra extends Operations
-  ? DirOperationsInterface<FileExtra, DirExtra> & DirExtra
-  : DirOperationsInterface<FileExtra>;
+  FileExtra extends Operations,
+  DirExtra extends Operations,
+> = DirOperationsInterface<FileExtra, DirExtra> & DirExtra;
 
 export type OperationTree<
   T extends FileTree<true>,
-  FileExtra extends Operations | undefined = undefined,
-  DirExtra extends Operations | undefined = undefined,
+  FileExtra extends Operations,
+  DirExtra extends Operations,
 > = {
   [K in keyof T]: T[K] extends DirInterface<true>
-    ? T[K]['children'] extends FileTree
+    ? T[K]['children'] extends FileTree<true>
       ? DirOperations<FileExtra, DirExtra> &
           OperationTree<T[K]['children'], FileExtra, DirExtra>
       : DirOperations<FileExtra, DirExtra>
