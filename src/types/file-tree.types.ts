@@ -1,4 +1,4 @@
-export interface WithPath {
+export interface PathInterface {
   path: string;
   parentPath: string;
 }
@@ -9,33 +9,26 @@ export interface FileInterface {
   skip?: boolean;
 }
 
-export interface DirInterface<HasPath extends boolean> {
+export interface DirInterface {
   type: 'dir';
-  children?: FileTree<HasPath>;
+  children?: FileTreeInterface;
 }
 
-export type FileType<HasPath extends boolean = false> = HasPath extends true
-  ? (FileInterface & WithPath) | (DirInterface<HasPath> & WithPath)
-  : FileInterface | DirInterface<HasPath>;
+export type FileWithPathType<F extends FileInterface> = F & PathInterface;
+export type DirWithPathType<D extends DirInterface> = D & PathInterface;
 
-export type FileTree<HasPath extends boolean = false> = Record<
-  string,
-  FileType<HasPath>
->;
+export interface FileTreeInterface {
+  [key: string]: FileInterface | DirInterface;
+}
 
-export type FileWithPath<File extends FileInterface> = File & WithPath;
-
-export type DirWithPath<Children extends FileTree | undefined = undefined> =
-  Children extends FileTree
-    ? DirInterface<true> & { children: PathTree<Children> } & WithPath
-    : DirInterface<true> & WithPath;
-
-export type PathTree<T extends FileTree> = {
-  [K in keyof T]: T[K] extends FileInterface
-    ? FileWithPath<T[K]>
-    : T[K] extends DirInterface<false>
-      ? T[K]['children'] extends FileTree
-        ? DirWithPath<T[K]['children']>
-        : DirWithPath
+export type PathTreeType<T extends FileTreeInterface> = {
+  [key in keyof T]: T[key] extends FileInterface
+    ? FileWithPathType<T[key]>
+    : T[key] extends DirInterface
+      ? T[key]['children'] extends FileTreeInterface
+        ? DirWithPathType<
+            T[key] & { children: PathTreeType<T[key]['children']> }
+          >
+        : DirWithPathType<T[key]>
       : never;
 };

@@ -1,2 +1,2 @@
-export * from './homedir/index.js';
-export type * from './types/index.js';
+export * from './file-manager.js';
+export * from './file-tree/create-file-tree.js';
