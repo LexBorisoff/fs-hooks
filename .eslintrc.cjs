@@ -42,7 +42,7 @@ module.exports = {
     '@typescript-eslint/require-await': 'error',
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': [
-      'error',
+      'warn',
       {
         ignoreRestSiblings: true,
       },
