@@ -1,3 +1,6 @@
+*.ignore.ts
+*.ignore.js
+
 # IDE - VSCode
 .vscode/*
 !.vscode/tasks.json
