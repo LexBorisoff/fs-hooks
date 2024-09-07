@@ -1,4 +1,6 @@
+import path from 'node:path';
 import type { DirOperationsInterface } from '../types/operation.types.js';
+import { readFile } from '../utils/read-file.js';
 import { createDirOperations } from './create-operations.js';
 import { fileOperations } from './file-operations.js';
 
@@ -32,7 +34,7 @@ export const dirOperations = createDirOperations((dir) => {
       return false;
     },
     readFile(fileName) {
-      return ''; // readFile(path.join(dir.path, fileName));
+      return readFile(path.join(dir.path, fileName));
     },
     writeFile(fileName, data) {},
   };

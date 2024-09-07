@@ -1,6 +1,6 @@
 import fs from 'node:fs';
-import { readFile } from '@lexjs/cli-utils';
 import type { FileOperationsInterface } from '../types/operation.types.js';
+import { readFile } from '../utils/read-file.js';
 import { createFileOperations } from './create-operations.js';
 
 export const fileOperations = createFileOperations((file) => {
@@ -19,6 +19,14 @@ export const fileOperations = createFileOperations((file) => {
     },
     clear() {
       this.write('');
+    },
+    create(data) {
+      return fileOperations({
+        type: 'file',
+        data,
+        path: this.path(),
+        parentPath: this.parentPath(),
+      });
     },
   };
 
