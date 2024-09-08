@@ -1,10 +1,10 @@
 import fs from 'node:fs';
-import type { FileOperationsInterface } from '../types/operation.types.js';
 import { readFile } from '../utils/read-file.js';
 import type {
   FileInterface,
   FileWithPathType,
-} from '../types/file-tree.types.js';
+} from '../file-tree/file-tree.types.js';
+import type { FileOperationsInterface } from './operation.types.js';
 
 export function fileOperations<F extends FileInterface>(
   file: FileWithPathType<F>,

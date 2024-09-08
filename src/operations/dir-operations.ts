@@ -1,17 +1,17 @@
 import fs from 'node:fs';
+import { readFile } from '../utils/read-file.js';
+import { createDir } from '../utils/create-dir.js';
+import { getFullPath } from '../file-tree/get-full-path.js';
+import type {
+  DirInterface,
+  DirWithPathType,
+} from '../file-tree/file-tree.types.js';
 import type {
   CustomOperationsInterface,
   DirOperationsInterface,
   FileOperationsInterface,
   OperationsType,
-} from '../types/operation.types.js';
-import { readFile } from '../utils/read-file.js';
-import { createDir } from '../utils/create-dir.js';
-import { getFullPath } from '../utils/get-full-path.js';
-import type {
-  DirInterface,
-  DirWithPathType,
-} from '../types/file-tree.types.js';
+} from './operation.types.js';
 import { fileOperations } from './file-operations.js';
 
 export function dirOperations<

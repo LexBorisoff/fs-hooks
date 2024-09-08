@@ -1,4 +1,4 @@
-import type { FileTreeInterface } from '../types/file-tree.types.js';
+import type { FileTreeInterface } from './file-tree.types.js';
 
 /**
  * Identity function to create a file tree

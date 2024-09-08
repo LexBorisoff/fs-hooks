@@ -2,8 +2,8 @@ import type {
   DirWithPathType,
   FileTreeInterface,
   PathTreeType,
-} from '../types/file-tree.types.js';
-import { getFullPath } from '../utils/get-full-path.js';
+} from './file-tree.types.js';
+import { getFullPath } from './get-full-path.js';
 
 export function buildPathTree<T extends FileTreeInterface>(
   parentPath: string,

@@ -1,12 +1,12 @@
 import path from 'node:path';
-import { getFullPath } from '../utils/get-full-path.js';
-import type { FileTreeInterface } from '../types/file-tree.types.js';
+import { getFullPath } from '../file-tree/get-full-path.js';
+import type { FileTreeInterface } from '../file-tree/file-tree.types.js';
 import type {
   CreateOperationTreeType,
   CustomOperationsInterface,
   DirOperationsInterface,
   OperationsType,
-} from '../types/operation.types.js';
+} from './operation.types.js';
 import { dirOperations } from './dir-operations.js';
 import { fileOperations } from './file-operations.js';
 

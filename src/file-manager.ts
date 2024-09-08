@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { getFullPath } from './utils/get-full-path.js';
+import { getFullPath } from './file-tree/get-full-path.js';
 import { buildOperationTree } from './operations/build-operation-tree.js';
-import type { FileTreeInterface } from './types/file-tree.types.js';
+import type { FileTreeInterface } from './file-tree/file-tree.types.js';
 import type {
   CreateOperationTreeType,
   CustomOperationsInterface,
   OperationsType,
-} from './types/operation.types.js';
+} from './operations/operation.types.js';
 import { isDirectory } from './utils/is-directory.js';
 import { createDir } from './utils/create-dir.js';
 

@@ -2,7 +2,7 @@ import type {
   GetDirOperationsFn,
   GetFileOperationsFn,
   OperationsType,
-} from '../types/operation.types.js';
+} from './operation.types.js';
 
 /**
  * Identity function that helps created a function
