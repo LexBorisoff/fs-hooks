@@ -5,23 +5,23 @@ import type {
 } from './operation.types.js';
 
 /**
- * Identity function that helps created a function
+ * Identity function that helps create a function
  * that returns custom file operations
  */
 export function buildFileOperations<
   FileOperations extends OperationsType,
-  F extends GetFileOperationsFn<FileOperations>,
->(getOperations: F): F {
+  Fn extends GetFileOperationsFn<FileOperations>,
+>(getOperations: Fn): Fn {
   return getOperations;
 }
 
 /**
- * Identity function that helps created a function
+ * Identity function that helps create a function
  * that returns custom dir operations
  */
 export function buildDirOperations<
   DirOperations extends OperationsType,
-  F extends GetDirOperationsFn<DirOperations>,
->(getOperations: F): F {
+  Fn extends GetDirOperationsFn<DirOperations>,
+>(getOperations: Fn): Fn {
   return getOperations;
 }

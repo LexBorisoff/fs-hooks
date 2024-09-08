@@ -12,16 +12,22 @@ import { isDirectory } from './utils/is-directory.js';
 import { createDir } from './utils/create-dir.js';
 
 export class FileManager<
-  F extends OperationsType | undefined,
-  D extends OperationsType | undefined,
+  CustomFileOperations extends OperationsType | undefined,
+  CustomDirOperations extends OperationsType | undefined,
 > {
   #root: string;
 
-  #customOperations: CustomOperationsInterface<F, D> = {};
+  #customOperations: CustomOperationsInterface<
+    CustomFileOperations,
+    CustomDirOperations
+  > = {};
 
   constructor(
     root: string,
-    customOperations: CustomOperationsInterface<F, D> = {},
+    customOperations: CustomOperationsInterface<
+      CustomFileOperations,
+      CustomDirOperations
+    > = {},
   ) {
     this.#root = path.resolve(root);
     this.#customOperations = customOperations;
@@ -33,7 +39,7 @@ export class FileManager<
 
   files<T extends FileTreeInterface>(
     tree: T,
-  ): CreateOperationTreeType<T, F, D> {
+  ): CreateOperationTreeType<T, CustomFileOperations, CustomDirOperations> {
     return buildOperationTree(this.#root, tree, this.#customOperations);
   }
 

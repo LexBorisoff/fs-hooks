@@ -12,16 +12,16 @@ import { fileOperations } from './file-operations.js';
 
 export function buildOperationTree<
   T extends FileTreeInterface,
-  FileOperations extends OperationsType | undefined,
-  DirOperations extends OperationsType | undefined,
+  CustomFileOperations extends OperationsType | undefined,
+  CustomDirOperations extends OperationsType | undefined,
 >(
   parentPath: string,
   tree: T,
   customOperations: CustomOperationsInterface<
-    FileOperations,
-    DirOperations
+    CustomFileOperations,
+    CustomDirOperations
   > = {},
-): CreateOperationTreeType<T, FileOperations, DirOperations> {
+): CreateOperationTreeType<T, CustomFileOperations, CustomDirOperations> {
   const { file: getFileOperations, dir: getDirOperations } = customOperations;
 
   const rootDir = {
@@ -31,7 +31,7 @@ export function buildOperationTree<
     parentPath: path.resolve(parentPath, '..'),
   } as const;
 
-  const rootOperations: DirOperationsInterface<T, FileOperations> =
+  const rootOperations: DirOperationsInterface<T, CustomFileOperations> =
     dirOperations(rootDir, customOperations);
 
   const extraRootOperations = getDirOperations?.(rootDir);
@@ -39,7 +39,7 @@ export function buildOperationTree<
   let result = {
     ...rootOperations,
     ...extraRootOperations,
-  } as CreateOperationTreeType<T, FileOperations, DirOperations>;
+  } as CreateOperationTreeType<T, CustomFileOperations, CustomDirOperations>;
 
   Object.entries(tree).forEach(([key, value]) => {
     const withPath = {
@@ -66,11 +66,11 @@ export function buildOperationTree<
 
     const dir: DirOperationsInterface<
       typeof children,
-      FileOperations,
-      DirOperations
+      CustomFileOperations,
+      CustomDirOperations
     > = {
       ...dirOperations(withPath),
-      ...(getDirOperations?.(withPath) as DirOperations),
+      ...(getDirOperations?.(withPath) as CustomDirOperations),
       ...childTree,
     };
 
