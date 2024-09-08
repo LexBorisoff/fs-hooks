@@ -1,18 +1,40 @@
 import fs from 'node:fs';
-import type { DirOperationsInterface } from '../types/operation.types.js';
+import type {
+  CustomOperationsInterface,
+  DirOperationsInterface,
+  FileOperationsInterface,
+  OperationsType,
+} from '../types/operation.types.js';
 import { readFile } from '../utils/read-file.js';
 import { createDir } from '../utils/create-dir.js';
 import { getFullPath } from '../utils/get-full-path.js';
-import { buildDirOperations } from './build-operations.js';
+import type {
+  DirInterface,
+  DirWithPathType,
+} from '../types/file-tree.types.js';
 import { fileOperations } from './file-operations.js';
 
-export const dirOperations = buildDirOperations((dir) => {
+export function dirOperations<
+  D extends DirInterface,
+  P extends DirWithPathType<D>,
+  FileOperations extends OperationsType | undefined,
+  DirOperations extends OperationsType | undefined,
+>(
+  dir: P,
+  customOperations: CustomOperationsInterface<
+    FileOperations,
+    DirOperations
+  > = {},
+): DirOperationsInterface<P['children'], FileOperations> {
   function getPath(fileName: string): string {
     return getFullPath(dir.path, fileName);
   }
 
-  const operations: DirOperationsInterface<(typeof dir)['children']> = {
-    path: () => dir.path,
+  const operations: DirOperationsInterface<
+    (typeof dir)['children'],
+    FileOperations
+  > = {
+    getPath: () => dir.path,
     clearFile(fileName) {
       const filePath = getPath(fileName);
       if (fs.existsSync(filePath)) {
@@ -25,20 +47,32 @@ export const dirOperations = buildDirOperations((dir) => {
         createDir(dirPath);
       }
 
-      return dirOperations({
-        type: 'dir',
-        path: dirPath,
-        parentPath: dir.path,
-      });
+      return dirOperations(
+        {
+          type: 'dir',
+          path: dirPath,
+          parentPath: dir.path,
+        },
+        customOperations,
+      );
     },
     createFile(fileName, data) {
+      type CreateFileResult = FileOperations extends OperationsType
+        ? FileOperationsInterface & FileOperations
+        : FileOperationsInterface;
+
       this.writeFile(fileName, data);
-      return fileOperations({
+      const file = {
         type: 'file',
         data,
         path: getPath(fileName),
         parentPath: dir.path,
-      });
+      } as const;
+
+      return {
+        ...fileOperations(file),
+        ...customOperations.file?.(file),
+      } as CreateFileResult;
     },
     deleteDir(dirName) {
       const dirPath = getPath(dirName);
@@ -65,4 +99,4 @@ export const dirOperations = buildDirOperations((dir) => {
   };
 
   return operations;
-});
+}

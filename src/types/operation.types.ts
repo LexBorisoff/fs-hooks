@@ -4,27 +4,25 @@ import type {
   FileInterface,
   FileTreeInterface,
   FileWithPathType,
-  PathInterface,
 } from './file-tree.types.js';
 
 export type Fn = (...args: any[]) => any;
-export type OperationsType<K extends string> = Record<K, Fn>;
-export type GetFileOperationsFn<
-  K extends string,
-  O extends OperationsType<K>,
-> = <F extends FileInterface>(file: FileWithPathType<F>) => O;
+export type OperationsType = Record<string, Fn>;
 
-export type GetDirOperationsFn<
-  K extends string,
-  O extends OperationsType<K>,
-> = <D extends DirInterface>(dir: DirWithPathType<D>) => O;
+export type GetFileOperationsFn<O extends OperationsType> = <
+  F extends FileInterface,
+>(
+  file: FileWithPathType<F>,
+) => O;
 
-export type PathOperationsType = {
-  [K in keyof PathInterface]: () => string;
-};
+export type GetDirOperationsFn<O extends OperationsType> = <
+  D extends DirInterface,
+>(
+  dir: DirWithPathType<D>,
+) => O;
 
-export interface FileOperationsInterface extends PathOperationsType {
-  [operation: string]: Fn;
+export interface FileOperationsInterface {
+  getPath: () => string;
   read: () => string | null;
   write: (data: string | (() => string)) => void;
   clear: () => void;
@@ -51,16 +49,19 @@ export type DirNamesType<Children extends FileTreeInterface | undefined> =
 
 export interface DirOperationsInterface<
   Children extends FileTreeInterface | undefined,
+  FileOperations extends OperationsType | undefined,
   F = FileNamesType<Children>,
   D = DirNamesType<Children>,
-> extends PathOperationsType {
-  [operation: string]: Fn;
-  createDir(dirName: string): DirOperationsInterface<undefined>;
+> {
+  getPath: () => string;
+  createDir(dirName: string): DirOperationsInterface<undefined, FileOperations>;
   deleteDir(dirName: D[keyof D] | (string & {})): void;
   createFile(
     fileName: string,
     data?: string | (() => string),
-  ): FileOperationsInterface;
+  ): FileOperations extends OperationsType
+    ? FileOperationsInterface & FileOperations
+    : FileOperationsInterface;
   writeFile(
     fileName: F[keyof F] | (string & {}),
     data?: string | (() => string),
@@ -71,17 +72,46 @@ export interface DirOperationsInterface<
   exists(filePath: F[keyof F] | D[keyof D] | (string & {})): boolean;
 }
 
-export type OperationTreeType<T extends FileTreeInterface> = {
+export type DirOperationsType<
+  Children extends FileTreeInterface | undefined,
+  FileOperations extends OperationsType | undefined,
+  DirOperations extends OperationsType | undefined,
+> = DirOperations extends OperationsType
+  ? DirOperationsInterface<Children, FileOperations> & DirOperations
+  : DirOperationsInterface<Children, FileOperations>;
+
+export type OperationTreeType<
+  T extends FileTreeInterface,
+  FileOperations extends OperationsType | undefined,
+  DirOperations extends OperationsType | undefined,
+> = {
   [key in keyof T]: T[key] extends FileInterface
-    ? PathInterface & FileOperationsInterface
+    ? FileOperations extends OperationsType
+      ? FileOperationsInterface & FileOperations
+      : FileOperationsInterface
     : T[key] extends DirInterface
       ? T[key]['children'] extends FileTreeInterface
-        ? PathInterface &
-            DirOperationsInterface<T[key]['children']> &
-            OperationTreeType<T[key]['children']>
-        : PathInterface & DirOperationsInterface<T[key]['children']>
+        ? DirOperationsType<T[key]['children'], FileOperations, DirOperations> &
+            OperationTreeType<T[key]['children'], FileOperations, DirOperations>
+        : DirOperationsType<T[key]['children'], FileOperations, DirOperations>
       : never;
 };
 
-export type CreateOperationTreeType<T extends FileTreeInterface> =
-  DirOperationsInterface<T> & OperationTreeType<T>;
+export type CreateOperationTreeType<
+  T extends FileTreeInterface,
+  FileOperations extends OperationsType | undefined,
+  DirOperations extends OperationsType | undefined,
+> = DirOperationsType<T, FileOperations, DirOperations> &
+  OperationTreeType<T, FileOperations, DirOperations>;
+
+export interface CustomOperationsInterface<
+  FileOperations extends OperationsType | undefined,
+  DirOperations extends OperationsType | undefined,
+> {
+  file?: FileOperations extends OperationsType
+    ? GetFileOperationsFn<FileOperations>
+    : undefined;
+  dir?: DirOperations extends OperationsType
+    ? GetDirOperationsFn<DirOperations>
+    : undefined;
+}

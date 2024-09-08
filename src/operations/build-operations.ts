@@ -9,9 +9,8 @@ import type {
  * that returns custom file operations
  */
 export function buildFileOperations<
-  K extends string,
-  O extends OperationsType<K>,
-  F extends GetFileOperationsFn<K, O>,
+  FileOperations extends OperationsType,
+  F extends GetFileOperationsFn<FileOperations>,
 >(getOperations: F): F {
   return getOperations;
 }
@@ -21,9 +20,8 @@ export function buildFileOperations<
  * that returns custom dir operations
  */
 export function buildDirOperations<
-  K extends string,
-  O extends OperationsType<K>,
-  F extends GetDirOperationsFn<K, O>,
+  DirOperations extends OperationsType,
+  F extends GetDirOperationsFn<DirOperations>,
 >(getOperations: F): F {
   return getOperations;
 }

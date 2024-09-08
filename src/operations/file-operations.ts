@@ -1,11 +1,16 @@
 import fs from 'node:fs';
 import type { FileOperationsInterface } from '../types/operation.types.js';
 import { readFile } from '../utils/read-file.js';
-import { buildFileOperations } from './build-operations.js';
+import type {
+  FileInterface,
+  FileWithPathType,
+} from '../types/file-tree.types.js';
 
-export const fileOperations = buildFileOperations((file) => {
+export function fileOperations<F extends FileInterface>(
+  file: FileWithPathType<F>,
+): FileOperationsInterface {
   const operations: FileOperationsInterface = {
-    path: () => file.path,
+    getPath: () => file.path,
     exists() {
       return fs.existsSync(file.path);
     },
@@ -22,4 +27,4 @@ export const fileOperations = buildFileOperations((file) => {
   };
 
   return operations;
-});
+}
