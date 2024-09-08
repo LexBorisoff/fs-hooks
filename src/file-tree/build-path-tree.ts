@@ -3,7 +3,7 @@ import type {
   FileTreeInterface,
   PathTreeType,
 } from '../types/file-tree.types.js';
-import { addPath } from './add-path.js';
+import { getFullPath } from '../utils/get-full-path.js';
 
 export function buildPathTree<T extends FileTreeInterface>(
   parentPath: string,
@@ -12,7 +12,10 @@ export function buildPathTree<T extends FileTreeInterface>(
   let result = {} as PathTreeType<T>;
 
   Object.entries(tree).forEach(([key, value]) => {
-    const withPath = addPath(parentPath, key, value);
+    const withPath = {
+      ...value,
+      path: getFullPath(parentPath, key),
+    };
 
     if (withPath.type === 'file') {
       result = {

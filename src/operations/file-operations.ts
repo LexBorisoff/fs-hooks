@@ -6,7 +6,6 @@ import { buildFileOperations } from './build-operations.js';
 export const fileOperations = buildFileOperations((file) => {
   const operations: FileOperationsInterface = {
     path: () => file.path,
-    parentPath: () => file.parentPath,
     exists() {
       return fs.existsSync(file.path);
     },

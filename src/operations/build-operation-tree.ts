@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { addPath } from '../file-tree/add-path.js';
+import { getFullPath } from '../utils/get-full-path.js';
 import type { FileTreeInterface } from '../types/file-tree.types.js';
 import type {
   CreateOperationTreeType,
@@ -22,7 +22,10 @@ export function buildOperationTree<T extends FileTreeInterface>(
   let result = { ...rootOperations } as CreateOperationTreeType<T>;
 
   Object.entries(tree).forEach(([key, value]) => {
-    const withPath = addPath(parentPath, key, value);
+    const withPath = {
+      ...value,
+      path: getFullPath(parentPath, key),
+    };
 
     if (withPath.type === 'file') {
       result = {

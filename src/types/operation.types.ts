@@ -56,7 +56,7 @@ export interface DirOperationsInterface<
 > extends PathOperationsType {
   [operation: string]: Fn;
   createDir(dirName: string): DirOperationsInterface<undefined>;
-  deleteDir(dirName: D[keyof D] | (string & {})): boolean;
+  deleteDir(dirName: D[keyof D] | (string & {})): void;
   createFile(
     fileName: string,
     data?: string | (() => string),
@@ -67,7 +67,7 @@ export interface DirOperationsInterface<
   ): void;
   readFile(fileName: F[keyof F] | (string & {})): string | null;
   clearFile(fileName: F[keyof F] | (string & {})): void;
-  deleteFile(fileName: F[keyof F] | (string & {})): boolean;
+  deleteFile(fileName: F[keyof F] | (string & {})): void;
   exists(filePath: F[keyof F] | D[keyof D] | (string & {})): boolean;
 }
 

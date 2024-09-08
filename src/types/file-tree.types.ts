@@ -1,6 +1,5 @@
 export interface PathInterface {
   path: string;
-  parentPath: string;
 }
 
 export interface FileInterface {
