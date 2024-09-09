@@ -34,14 +34,11 @@ export function dirOperations<
     (typeof dir)['children'],
     FileOperations
   > = {
-    getPath: () => dir.path,
-    clearFile(fileName) {
-      const filePath = getPath(fileName);
-      if (fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, '');
-      }
+    $getPath: () => dir.path,
+    $exists(fileName) {
+      return fs.existsSync(getPath(fileName));
     },
-    createDir(dirName) {
+    $dirCreate(dirName) {
       const dirPath = getPath(dirName);
       if (!fs.existsSync(dirPath)) {
         createDir(dirPath);
@@ -56,12 +53,25 @@ export function dirOperations<
         customOperations,
       );
     },
-    createFile(fileName, data) {
+    $dirDelete(dirName) {
+      const dirPath = getPath(dirName);
+      fs.rmSync(dirPath, {
+        recursive: true,
+        force: true,
+      });
+    },
+    $fileClear(fileName) {
+      const filePath = getPath(fileName);
+      if (fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, '');
+      }
+    },
+    $fileCreate(fileName, data) {
       type CreateFileResult = FileOperations extends OperationsType
         ? FileOperationsInterface & FileOperations
         : FileOperationsInterface;
 
-      this.writeFile(fileName, data);
+      this.$fileWrite(fileName, data);
       const file = {
         type: 'file',
         data,
@@ -74,24 +84,15 @@ export function dirOperations<
         ...customOperations.file?.(file),
       } as CreateFileResult;
     },
-    deleteDir(dirName) {
-      const dirPath = getPath(dirName);
-      fs.rmSync(dirPath, {
-        recursive: true,
-        force: true,
-      });
-    },
-    deleteFile(fileName) {
+    $fileDelete(fileName) {
       const filePath = getPath(fileName);
       fs.rmSync(filePath);
     },
-    exists(filePath) {
-      return fs.existsSync(getPath(filePath));
-    },
-    readFile(fileName) {
+
+    $fileRead(fileName) {
       return readFile(getPath(fileName));
     },
-    writeFile(fileName, data) {
+    $fileWrite(fileName, data) {
       const filePath = getPath(fileName);
       const content = data instanceof Function ? data() : (data ?? '');
       fs.writeFileSync(filePath, content);

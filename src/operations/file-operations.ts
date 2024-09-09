@@ -10,19 +10,19 @@ export function fileOperations<F extends FileInterface>(
   file: FileWithPathType<F>,
 ): FileOperationsInterface {
   const operations: FileOperationsInterface = {
-    getPath: () => file.path,
-    exists() {
+    $getPath: () => file.path,
+    $exists() {
       return fs.existsSync(file.path);
     },
-    read() {
+    $clear() {
+      this.$write('');
+    },
+    $read() {
       return readFile(file.path);
     },
-    write(data) {
+    $write(data) {
       const content = data instanceof Function ? data() : data;
       fs.writeFileSync(file.path, content);
-    },
-    clear() {
-      this.write('');
     },
   };
 

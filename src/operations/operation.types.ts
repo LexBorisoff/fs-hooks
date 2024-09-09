@@ -21,12 +21,24 @@ export type GetDirOperationsFn<CustomDirOperations extends OperationsType> = <
   dir: DirWithPathType<D>,
 ) => CustomDirOperations;
 
+export interface CustomOperationsInterface<
+  CustomFileOperations extends OperationsType | undefined,
+  CustomDirOperations extends OperationsType | undefined,
+> {
+  file?: CustomFileOperations extends OperationsType
+    ? GetFileOperationsFn<CustomFileOperations>
+    : undefined;
+  dir?: CustomDirOperations extends OperationsType
+    ? GetDirOperationsFn<CustomDirOperations>
+    : undefined;
+}
+
 export interface FileOperationsInterface {
-  getPath: () => string;
-  read: () => string | null;
-  write: (data: string | (() => string)) => void;
-  clear: () => void;
-  exists: () => boolean;
+  $getPath: () => string;
+  $exists: () => boolean;
+  $clear: () => void;
+  $read: () => string | null;
+  $write: (data: string | (() => string)) => void;
 }
 
 export type FileNamesType<Children extends FileTreeInterface | undefined> =
@@ -53,25 +65,25 @@ export interface DirOperationsInterface<
   F = FileNamesType<Children>,
   D = DirNamesType<Children>,
 > {
-  getPath: () => string;
-  createDir(
+  $getPath: () => string;
+  $exists(fileName: F[keyof F] | D[keyof D] | (string & {})): boolean;
+  $dirCreate(
     dirName: string,
   ): DirOperationsInterface<undefined, CustomFileOperations>;
-  deleteDir(dirName: D[keyof D] | (string & {})): void;
-  createFile(
+  $dirDelete(dirName: D[keyof D] | (string & {})): void;
+  $fileClear(fileName: F[keyof F] | (string & {})): void;
+  $fileCreate(
     fileName: string,
     data?: string | (() => string),
   ): CustomFileOperations extends OperationsType
     ? FileOperationsInterface & CustomFileOperations
     : FileOperationsInterface;
-  writeFile(
+  $fileWrite(
     fileName: F[keyof F] | (string & {}),
     data?: string | (() => string),
   ): void;
-  readFile(fileName: F[keyof F] | (string & {})): string | null;
-  clearFile(fileName: F[keyof F] | (string & {})): void;
-  deleteFile(fileName: F[keyof F] | (string & {})): void;
-  exists(filePath: F[keyof F] | D[keyof D] | (string & {})): boolean;
+  $fileRead(fileName: F[keyof F] | (string & {})): string | null;
+  $fileDelete(fileName: F[keyof F] | (string & {})): void;
 }
 
 export type DirOperationsType<
@@ -117,15 +129,3 @@ export type CreateOperationTreeType<
   CustomDirOperations extends OperationsType | undefined,
 > = DirOperationsType<T, CustomFileOperations, CustomDirOperations> &
   OperationTreeType<T, CustomFileOperations, CustomDirOperations>;
-
-export interface CustomOperationsInterface<
-  CustomFileOperations extends OperationsType | undefined,
-  CustomDirOperations extends OperationsType | undefined,
-> {
-  file?: CustomFileOperations extends OperationsType
-    ? GetFileOperationsFn<CustomFileOperations>
-    : undefined;
-  dir?: CustomDirOperations extends OperationsType
-    ? GetDirOperationsFn<CustomDirOperations>
-    : undefined;
-}
