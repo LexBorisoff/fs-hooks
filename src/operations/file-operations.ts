@@ -1,34 +1,26 @@
 import fs from 'node:fs';
-import { readFile } from '@lexjs/cli-utils';
-import type { AppFile } from '../types/file-tree.types.js';
-import type { FileOperations } from './types/operations.types.js';
+import { readFile } from '../utils/read-file.js';
+import type {
+  FileInterface,
+  FileWithPathType,
+} from '../file-tree/file-tree.types.js';
+import type { FileOperationsInterface } from './operation.types.js';
 
-export function fileOperations<F extends AppFile<true>>(
-  file: F,
-): FileOperations {
-  return {
-    read() {
-      return readFile(file.path);
+export function fileOperations<F extends FileInterface>(
+  file: FileWithPathType<F>,
+): FileOperationsInterface {
+  const operations: FileOperationsInterface = {
+    $getPath: () => file.path,
+    $exists: () => fs.existsSync(file.path),
+    $clear() {
+      this.$write('');
     },
-    write(contents) {
-      if (!fs.existsSync(file.parentPath)) {
-        fs.mkdirSync(file.parentPath, {
-          recursive: true,
-        });
-      }
-
-      fs.writeFileSync(
-        file.path,
-        contents instanceof Function ? contents() : contents,
-      );
-    },
-    clear() {
-      if (this.exists()) {
-        fs.writeFileSync(file.path, '');
-      }
-    },
-    exists() {
-      return fs.existsSync(file.path);
+    $read: () => readFile(file.path),
+    $write(data) {
+      const content = data instanceof Function ? data() : data;
+      fs.writeFileSync(file.path, content);
     },
   };
+
+  return operations;
 }
