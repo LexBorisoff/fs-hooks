@@ -32,7 +32,7 @@ module.exports = {
     '@typescript-eslint/no-shadow': 'error',
     'no-use-before-define': 'off',
     '@typescript-eslint/no-use-before-define': 'error',
-    '@typescript-eslint/no-empty-object-type': 'off',
+    '@typescript-eslint/no-empty-object-type': 'error',
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',

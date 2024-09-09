@@ -13,6 +13,9 @@ export interface DirInterface {
   children?: FileTreeInterface;
 }
 
+export interface FileWithPathInterface extends FileInterface, PathInterface {}
+export interface DirWithPathInterface extends DirInterface, PathInterface {}
+
 export type FileWithPathType<F extends FileInterface> = F & PathInterface;
 export type DirWithPathType<D extends DirInterface> = D & PathInterface;
 

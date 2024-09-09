@@ -2,7 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { getFullPath } from './file-tree/get-full-path.js';
 import { buildOperationTree } from './operations/build-operation-tree.js';
-import type { FileTreeInterface } from './file-tree/file-tree.types.js';
+import type {
+  DirWithPathInterface,
+  FileTreeInterface,
+  FileWithPathInterface,
+} from './file-tree/file-tree.types.js';
 import type {
   BuildOperationTreeType,
   CustomOperationsInterface,
@@ -44,7 +48,9 @@ export class FileManager<
   }
 
   /**
-   * Creates root path, if doesn't exist, and files provided in the tree argument
+   * Creates files and directories in the file system
+   * at the path provided in the `root` argument.
+   * Skips over existing files and directories.
    */
   create<T extends FileTreeInterface>(tree: T): void {
     if (fs.existsSync(this.#root) && !isDirectory(this.#root)) {
@@ -67,7 +73,7 @@ export class FileManager<
         const withPath = {
           ...value,
           path: getFullPath(parentPath, key),
-        };
+        } satisfies FileWithPathInterface | DirWithPathInterface;
 
         if (withPath.type === 'file') {
           if (fs.existsSync(withPath.path) && isDirectory(withPath.path)) {

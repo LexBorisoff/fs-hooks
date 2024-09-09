@@ -1,6 +1,8 @@
 import type {
+  DirWithPathInterface,
   DirWithPathType,
   FileTreeInterface,
+  FileWithPathInterface,
   PathTreeType,
 } from './file-tree.types.js';
 import { getFullPath } from './get-full-path.js';
@@ -15,7 +17,7 @@ export function buildPathTree<T extends FileTreeInterface>(
     const withPath = {
       ...value,
       path: getFullPath(parentPath, key),
-    };
+    } satisfies FileWithPathInterface | DirWithPathInterface;
 
     if (withPath.type === 'file') {
       result = {

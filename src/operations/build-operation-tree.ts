@@ -1,6 +1,9 @@
-import path from 'node:path';
 import { getFullPath } from '../file-tree/get-full-path.js';
-import type { FileTreeInterface } from '../file-tree/file-tree.types.js';
+import type {
+  DirWithPathInterface,
+  FileTreeInterface,
+  FileWithPathInterface,
+} from '../file-tree/file-tree.types.js';
 import type {
   BuildOperationTreeType,
   CustomOperationsInterface,
@@ -22,38 +25,40 @@ export function buildOperationTree<
     CustomDirOperations
   > = {},
 ): BuildOperationTreeType<T, CustomFileOperations, CustomDirOperations> {
-  const { file: getFileOperations, dir: getDirOperations } = customOperations;
+  const { file: customFileOperations, dir: customDirOperations } =
+    customOperations;
 
   const rootDir = {
     type: 'dir',
     children: tree,
     path: parentPath,
-    parentPath: path.resolve(parentPath, '..'),
-  } as const;
+  } satisfies DirWithPathInterface;
 
   const rootOperations: DirOperationsInterface<T, CustomFileOperations> =
     dirOperations(rootDir, customOperations);
 
-  const extraRootOperations = getDirOperations?.(rootDir);
+  const rootCustomOperations = customDirOperations?.(rootDir);
 
   let result = {
     ...rootOperations,
-    ...extraRootOperations,
+    ...rootCustomOperations,
   } as BuildOperationTreeType<T, CustomFileOperations, CustomDirOperations>;
 
   Object.entries(tree).forEach(([key, value]) => {
     const withPath = {
       ...value,
       path: getFullPath(parentPath, key),
-    };
+    } satisfies FileWithPathInterface | DirWithPathInterface;
 
     if (withPath.type === 'file') {
+      const operations = {
+        ...fileOperations(withPath),
+        ...(customFileOperations?.(withPath) as CustomFileOperations),
+      };
+
       result = {
         ...result,
-        [key]: {
-          ...fileOperations(withPath),
-          ...getFileOperations?.(withPath),
-        },
+        [key]: operations,
       };
       return;
     }
@@ -62,21 +67,20 @@ export function buildOperationTree<
     const childTree =
       children != null
         ? buildOperationTree(withPath.path, children, customOperations)
-        : undefined;
+        : null;
 
-    const dir: DirOperationsInterface<
+    const operations: DirOperationsInterface<
       typeof children,
-      CustomFileOperations,
-      CustomDirOperations
+      CustomFileOperations
     > = {
       ...dirOperations(withPath),
-      ...(getDirOperations?.(withPath) as CustomDirOperations),
+      ...(customDirOperations?.(withPath) as CustomDirOperations),
       ...childTree,
     };
 
     result = {
       ...result,
-      [key]: dir,
+      [key]: operations,
     };
   });
 

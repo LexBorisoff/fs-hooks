@@ -11,15 +11,11 @@ export function fileOperations<F extends FileInterface>(
 ): FileOperationsInterface {
   const operations: FileOperationsInterface = {
     $getPath: () => file.path,
-    $exists() {
-      return fs.existsSync(file.path);
-    },
+    $exists: () => fs.existsSync(file.path),
     $clear() {
       this.$write('');
     },
-    $read() {
-      return readFile(file.path);
-    },
+    $read: () => readFile(file.path),
     $write(data) {
       const content = data instanceof Function ? data() : data;
       fs.writeFileSync(file.path, content);

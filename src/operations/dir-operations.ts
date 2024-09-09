@@ -4,7 +4,9 @@ import { createDir } from '../utils/create-dir.js';
 import { getFullPath } from '../file-tree/get-full-path.js';
 import type {
   DirInterface,
+  DirWithPathInterface,
   DirWithPathType,
+  FileWithPathInterface,
 } from '../file-tree/file-tree.types.js';
 import type {
   CustomOperationsInterface,
@@ -35,12 +37,10 @@ export function dirOperations<
     FileOperations
   > = {
     $getPath: () => dir.path,
-    $exists(fileName) {
-      return fs.existsSync(getPath(fileName));
-    },
+    $exists: (fileName) => fs.existsSync(getPath(fileName)),
     $dirCreate(dirName) {
       const dirPath = getPath(dirName);
-      if (!fs.existsSync(dirPath)) {
+      if (!this.$exists(dirName)) {
         createDir(dirPath);
       }
 
@@ -48,54 +48,46 @@ export function dirOperations<
         {
           type: 'dir',
           path: dirPath,
-          parentPath: dir.path,
-        },
+        } satisfies DirWithPathInterface,
         customOperations,
       );
     },
     $dirDelete(dirName) {
-      const dirPath = getPath(dirName);
-      fs.rmSync(dirPath, {
+      fs.rmSync(getPath(dirName), {
         recursive: true,
         force: true,
       });
     },
     $fileClear(fileName) {
-      const filePath = getPath(fileName);
-      if (fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, '');
+      if (this.$exists(fileName)) {
+        this.$fileWrite(fileName, '');
       }
     },
     $fileCreate(fileName, data) {
-      type CreateFileResult = FileOperations extends OperationsType
+      type FileCreateResult = FileOperations extends OperationsType
         ? FileOperationsInterface & FileOperations
         : FileOperationsInterface;
 
-      this.$fileWrite(fileName, data);
-      const file = {
+      this.$fileWrite(fileName, data ?? '');
+
+      const file: FileWithPathInterface = {
         type: 'file',
         data,
         path: getPath(fileName),
-        parentPath: dir.path,
-      } as const;
+      };
 
       return {
         ...fileOperations(file),
         ...customOperations.file?.(file),
-      } as CreateFileResult;
+      } as FileCreateResult;
     },
     $fileDelete(fileName) {
-      const filePath = getPath(fileName);
-      fs.rmSync(filePath);
+      fs.rmSync(getPath(fileName));
     },
-
-    $fileRead(fileName) {
-      return readFile(getPath(fileName));
-    },
+    $fileRead: (fileName) => readFile(getPath(fileName)),
     $fileWrite(fileName, data) {
-      const filePath = getPath(fileName);
-      const content = data instanceof Function ? data() : (data ?? '');
-      fs.writeFileSync(filePath, content);
+      const content = data instanceof Function ? data() : data;
+      fs.writeFileSync(getPath(fileName), content);
     },
   };
 

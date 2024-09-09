@@ -34,11 +34,11 @@ export interface CustomOperationsInterface<
 }
 
 export interface FileOperationsInterface {
-  $getPath: () => string;
-  $exists: () => boolean;
-  $clear: () => void;
-  $read: () => string | null;
-  $write: (data: string | (() => string)) => void;
+  $getPath(): string;
+  $exists(): boolean;
+  $clear(): void;
+  $read(): string | null;
+  $write(data: string | (() => string)): void;
 }
 
 export type FileNamesType<Children extends FileTreeInterface | undefined> =
@@ -65,11 +65,14 @@ export interface DirOperationsInterface<
   F = FileNamesType<Children>,
   D = DirNamesType<Children>,
 > {
-  $getPath: () => string;
+  $getPath(): string;
   $exists(fileName: F[keyof F] | D[keyof D] | (string & {})): boolean;
   $dirCreate(
     dirName: string,
   ): DirOperationsInterface<undefined, CustomFileOperations>;
+  /**
+   * Delete a directory using `recursive` and `force` options
+   */
   $dirDelete(dirName: D[keyof D] | (string & {})): void;
   $fileClear(fileName: F[keyof F] | (string & {})): void;
   $fileCreate(
@@ -80,7 +83,7 @@ export interface DirOperationsInterface<
     : FileOperationsInterface;
   $fileWrite(
     fileName: F[keyof F] | (string & {}),
-    data?: string | (() => string),
+    data: string | (() => string),
   ): void;
   $fileRead(fileName: F[keyof F] | (string & {})): string | null;
   $fileDelete(fileName: F[keyof F] | (string & {})): void;
