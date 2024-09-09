@@ -2,7 +2,7 @@ import path from 'node:path';
 import { getFullPath } from '../file-tree/get-full-path.js';
 import type { FileTreeInterface } from '../file-tree/file-tree.types.js';
 import type {
-  CreateOperationTreeType,
+  BuildOperationTreeType,
   CustomOperationsInterface,
   DirOperationsInterface,
   OperationsType,
@@ -21,7 +21,7 @@ export function buildOperationTree<
     CustomFileOperations,
     CustomDirOperations
   > = {},
-): CreateOperationTreeType<T, CustomFileOperations, CustomDirOperations> {
+): BuildOperationTreeType<T, CustomFileOperations, CustomDirOperations> {
   const { file: getFileOperations, dir: getDirOperations } = customOperations;
 
   const rootDir = {
@@ -39,7 +39,7 @@ export function buildOperationTree<
   let result = {
     ...rootOperations,
     ...extraRootOperations,
-  } as CreateOperationTreeType<T, CustomFileOperations, CustomDirOperations>;
+  } as BuildOperationTreeType<T, CustomFileOperations, CustomDirOperations>;
 
   Object.entries(tree).forEach(([key, value]) => {
     const withPath = {

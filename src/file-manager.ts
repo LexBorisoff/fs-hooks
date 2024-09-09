@@ -4,7 +4,7 @@ import { getFullPath } from './file-tree/get-full-path.js';
 import { buildOperationTree } from './operations/build-operation-tree.js';
 import type { FileTreeInterface } from './file-tree/file-tree.types.js';
 import type {
-  CreateOperationTreeType,
+  BuildOperationTreeType,
   CustomOperationsInterface,
   OperationsType,
 } from './operations/operation.types.js';
@@ -39,7 +39,7 @@ export class FileManager<
 
   files<T extends FileTreeInterface>(
     tree: T,
-  ): CreateOperationTreeType<T, CustomFileOperations, CustomDirOperations> {
+  ): BuildOperationTreeType<T, CustomFileOperations, CustomDirOperations> {
     return buildOperationTree(this.#root, tree, this.#customOperations);
   }
 
