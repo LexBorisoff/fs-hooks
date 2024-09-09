@@ -1,6 +1,10 @@
 {
-  "name": "@lexjs/core",
-  "version": "0.0.1-beta.6",
+  "name": "@lexjs/file-manager",
+  "version": "0.0.1-beta.1",
+  "publishConfig": {
+    "access": "public",
+    "tag": "beta"
+  },
   "description": "",
   "type": "module",
   "main": "./dist/index.js",
@@ -24,9 +28,6 @@
     "prebuild": "npm run format && npm run lint:fix && rm -fr ./dist",
     "build": "tsc",
     "prepack": "npm run build"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "files": [
     "dist"
