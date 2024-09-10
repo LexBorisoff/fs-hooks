@@ -26,7 +26,7 @@
     "lint": "eslint src/**/*.{js,ts}",
     "lint:fix": "npm run lint -- --fix",
     "prebuild": "npm run format && npm run lint:fix && rm -fr ./dist",
-    "build": "tsc",
+    "build": "tsc --project ./tsconfig.json",
     "prepack": "npm run build"
   },
   "files": [

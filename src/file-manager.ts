@@ -8,52 +8,61 @@ import type {
   FileWithPathInterface,
 } from './file-tree/file-tree.types.js';
 import type {
-  BuildOperationTreeType,
   CustomOperationsInterface,
   OperationsType,
 } from './operations/operation.types.js';
 import { isDirectory } from './utils/is-directory.js';
 import { createDir } from './utils/create-dir.js';
+import type {
+  RootResultInterface,
+  TreeResultInterface,
+} from './file-manager.types.js';
+import { buildFileTree } from './file-tree/build-file-tree.js';
+import {
+  buildDirOperations,
+  buildFileOperations,
+} from './operations/build-operations.js';
 
 export class FileManager<
-  CustomFileOperations extends OperationsType | undefined,
-  CustomDirOperations extends OperationsType | undefined,
+  CustomFileOperations extends OperationsType | undefined = undefined,
+  CustomDirOperations extends OperationsType | undefined = undefined,
 > {
-  #root: string;
-
   #customOperations: CustomOperationsInterface<
     CustomFileOperations,
     CustomDirOperations
   > = {};
 
   constructor(
-    root: string,
     customOperations: CustomOperationsInterface<
       CustomFileOperations,
       CustomDirOperations
     > = {},
   ) {
-    this.#root = path.resolve(root);
     this.#customOperations = customOperations;
   }
 
-  get root(): string {
-    return this.#root;
+  root(
+    root: string,
+  ): RootResultInterface<CustomFileOperations, CustomDirOperations> {
+    return {
+      tree: (tree) => this.#tree(root, tree),
+    };
   }
 
-  files<T extends FileTreeInterface>(
-    tree: T,
-  ): BuildOperationTreeType<T, CustomFileOperations, CustomDirOperations> {
-    return buildOperationTree(this.#root, tree, this.#customOperations);
+  #tree<T extends FileTreeInterface>(
+    root: string,
+    tree?: T,
+  ): TreeResultInterface<T, CustomFileOperations, CustomDirOperations> {
+    const rootPath = path.resolve(root);
+    return {
+      files: buildOperationTree(rootPath, tree, this.#customOperations),
+      create: () => this.#create(rootPath, tree),
+    };
   }
 
-  /**
-   * Creates files and directories in the file system
-   * at the path provided in the `root` argument.
-   * Skips over existing files and directories.
-   */
-  create<T extends FileTreeInterface>(tree: T): void {
-    if (fs.existsSync(this.#root) && !isDirectory(this.#root)) {
+  #create<T extends FileTreeInterface>(root: string, tree?: T): void {
+    const rootPath = path.resolve(root);
+    if (fs.existsSync(rootPath) && !isDirectory(rootPath)) {
       throw new Error('Root path already exists and is not a directory');
     }
 
@@ -67,9 +76,9 @@ export class FileManager<
 
     function createFiles<Tree extends FileTreeInterface>(
       parentPath: string,
-      fileTree: Tree,
+      fileTree?: Tree,
     ): void {
-      Object.entries(fileTree).forEach(([key, value]) => {
+      Object.entries(fileTree ?? {}).forEach(([key, value]) => {
         const withPath = {
           ...value,
           path: getFullPath(parentPath, key),
@@ -105,16 +114,16 @@ export class FileManager<
     }
 
     try {
-      if (!fs.existsSync(this.#root)) {
-        createDir(this.#root);
+      if (!fs.existsSync(rootPath)) {
+        createDir(rootPath);
       }
 
-      createFiles(this.#root, tree);
+      createFiles(rootPath, tree);
     } catch (error) {
       if (error instanceof Error) {
         errors.push(error.message);
       } else {
-        addError('dir', this.#root);
+        addError('dir', rootPath);
       }
     }
 
@@ -128,4 +137,11 @@ export class FileManager<
       console.error(error);
     });
   }
+
+  // convenience static methods
+  static buildFileTree = buildFileTree;
+
+  static buildFileOperations = buildFileOperations;
+
+  static buildDirOperations = buildDirOperations;
 }

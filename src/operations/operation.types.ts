@@ -128,7 +128,7 @@ export type OperationTreeType<
 
 export type BuildOperationTreeType<
   T extends FileTreeInterface,
-  CustomFileOperations extends OperationsType | undefined,
-  CustomDirOperations extends OperationsType | undefined,
+  CustomFileOperations extends OperationsType | undefined = undefined,
+  CustomDirOperations extends OperationsType | undefined = undefined,
 > = DirOperationsType<T, CustomFileOperations, CustomDirOperations> &
   OperationTreeType<T, CustomFileOperations, CustomDirOperations>;
