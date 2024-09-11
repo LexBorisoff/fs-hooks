@@ -16,7 +16,7 @@ export interface TreeResultInterface<
   files: BuildOperationTreeType<T, CustomFileOperations, CustomDirOperations>;
   /**
    * Creates files and directories in the file system
-   * at the path provided in the `root` argument.
+   * at the path provided in the `root`.
    * Skips over existing files and directories.
    */
   create: () => void;

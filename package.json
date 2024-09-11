@@ -27,6 +27,7 @@
     "lint:fix": "npm run lint -- --fix",
     "prebuild": "npm run format && npm run lint:fix && rm -fr ./dist",
     "build": "tsc --project ./tsconfig.json",
+    "build:watch": "tsc --project ./tsconfig.json --watch",
     "prepack": "npm run build"
   },
   "files": [

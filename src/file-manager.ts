@@ -41,10 +41,16 @@ export class FileManager<
     this.#customOperations = customOperations;
   }
 
+  /**
+   * @param root - Root path where to create and manipulate files
+   */
   root(
     root: string,
   ): RootResultInterface<CustomFileOperations, CustomDirOperations> {
     return {
+      /**
+       * @param tree - Describes the structure of files at the `root` path
+       */
       tree: (tree) => this.#tree(root, tree),
     };
   }
