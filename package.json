@@ -1,6 +1,10 @@
 {
-  "name": "@lexjs/core",
-  "version": "0.0.1-beta.6",
+  "name": "@lexjs/file-manager",
+  "version": "0.0.1-beta.1",
+  "publishConfig": {
+    "access": "public",
+    "tag": "beta"
+  },
   "description": "",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,11 +26,9 @@
     "lint": "eslint src/**/*.{js,ts}",
     "lint:fix": "npm run lint -- --fix",
     "prebuild": "npm run format && npm run lint:fix && rm -fr ./dist",
-    "build": "tsc",
+    "build": "tsc --project ./tsconfig.json",
+    "build:watch": "tsc --project ./tsconfig.json --watch",
     "prepack": "npm run build"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "files": [
     "dist"
@@ -51,6 +53,7 @@
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.3.3",
     "typescript": "^5.5.4"
   }
 }

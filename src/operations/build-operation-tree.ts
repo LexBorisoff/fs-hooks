@@ -19,7 +19,7 @@ export function buildOperationTree<
   CustomDirOperations extends OperationsType | undefined,
 >(
   parentPath: string,
-  tree: T,
+  tree?: T,
   customOperations: CustomOperationsInterface<
     CustomFileOperations,
     CustomDirOperations
@@ -44,7 +44,7 @@ export function buildOperationTree<
     ...rootCustomOperations,
   } as BuildOperationTreeType<T, CustomFileOperations, CustomDirOperations>;
 
-  Object.entries(tree).forEach(([key, value]) => {
+  Object.entries(tree ?? {}).forEach(([key, value]) => {
     const withPath = {
       ...value,
       path: getFullPath(parentPath, key),
