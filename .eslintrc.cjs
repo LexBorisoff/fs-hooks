@@ -16,7 +16,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
-    project: './tsconfig.json',
+    project: './tsconfig.app.json',
   },
   ignorePatterns: ['.eslintrc.cjs'],
   rules: {
@@ -94,4 +94,14 @@ module.exports = {
       },
     },
   },
+  overrides: [
+    {
+      files: ['test/**/*.ts', 'vitest.config.ts'],
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        project: './tsconfig.test.json',
+      },
+    },
+  ],
 };
