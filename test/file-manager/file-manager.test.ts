@@ -9,16 +9,23 @@ import { testFileOperations } from './test-file-operations.js';
 
 const { getTestRoot, setup } = useTestSuite(TestSuite.FileManager);
 
+const testRoots: Record<string, string> = {
+  rootMethod: getTestRoot('root-method'),
+  treeMethod: getTestRoot('tree-method'),
+  createMethod: getTestRoot('create-method'),
+  fileOperations: getTestRoot('file-operations'),
+};
+
 describe('File Manager without custom operations', () => {
   setup();
 
   testCreateFileManager();
 
-  testRootMethod(getTestRoot('root-method'));
+  testRootMethod(testRoots.rootMethod);
 
-  testTreeMethod(getTestRoot('tree-method'));
+  testTreeMethod(testRoots.treeMethod);
 
-  testCreateMethod(getTestRoot('create-method'));
+  testCreateMethod(testRoots.createMethod);
 
-  testFileOperations(getTestRoot('file-operations-properties'));
+  testFileOperations(testRoots.fileOperations);
 });

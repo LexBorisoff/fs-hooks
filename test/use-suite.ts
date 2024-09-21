@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { afterAll, beforeAll } from 'vitest';
 import { KEEP_TEST_FOLDER, TESTS_ROOT } from './constants.js';
-import { deleteFolder } from './test-utils.js';
+import { deleteFolder } from './utils.js';
 
 interface SuiteRootInterface {
   getTestRoot: (testName: string) => string;

@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { deleteFolder } from './test-utils.js';
+import { deleteFolder } from './utils.js';
 import { TESTS_ROOT, KEEP_TEST_FOLDER } from './constants.js';
 
 export default function setup(): () => void {

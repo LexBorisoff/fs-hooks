@@ -8,14 +8,21 @@ import { testFileCreate } from './test-file-create.js';
 
 const { getTestRoot, setup } = useTestSuite(TestSuite.Operations);
 
+const testRoots: Record<string, string> = {
+  getPath: getTestRoot('get-path'),
+  exists: getTestRoot('exists'),
+  dirCreate: getTestRoot('dir-create'),
+  fileCreate: getTestRoot('file-create'),
+};
+
 describe('File manager operations', () => {
   setup();
 
-  testGetPath(getTestRoot('get-path'));
+  testGetPath(testRoots.getPath);
 
-  testExists(getTestRoot('exists'));
+  testExists(testRoots.exists);
 
-  testDirCreate(getTestRoot('dir-create'));
+  testDirCreate(testRoots.dirCreate);
 
-  testFileCreate(getTestRoot('file-create'));
+  testFileCreate(testRoots.fileCreate);
 });
