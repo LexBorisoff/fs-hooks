@@ -5,7 +5,7 @@ import type {
   FileWithPathInterface,
 } from '../file-tree/file-tree.types.js';
 import type {
-  BuildOperationTreeType,
+  FileOperationTreeType,
   CustomOperationsInterface,
   DirOperationsInterface,
   OperationsType,
@@ -24,7 +24,7 @@ export function buildOperationTree<
     CustomFileOperations,
     CustomDirOperations
   > = {},
-): BuildOperationTreeType<T, CustomFileOperations, CustomDirOperations> {
+): FileOperationTreeType<T, CustomFileOperations, CustomDirOperations> {
   const { file: customFileOperations, dir: customDirOperations } =
     customOperations;
 
@@ -42,7 +42,7 @@ export function buildOperationTree<
   let result = {
     ...rootOperations,
     ...rootCustomOperations,
-  } as BuildOperationTreeType<T, CustomFileOperations, CustomDirOperations>;
+  } as FileOperationTreeType<T, CustomFileOperations, CustomDirOperations>;
 
   Object.entries(tree ?? {}).forEach(([key, value]) => {
     const withPath = {
