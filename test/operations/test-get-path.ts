@@ -3,7 +3,7 @@ import { expect, test } from 'vitest';
 import { FileManager } from '../../src/file-manager.js';
 
 export function testGetPath(testRoot: string): void {
-  test('$getPath', () => {
+  test('getPath', () => {
     const fileManager = new FileManager();
     const { files } = fileManager.root(testRoot).tree({
       file1: {

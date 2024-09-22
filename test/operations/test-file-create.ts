@@ -4,7 +4,7 @@ import { expect, test } from 'vitest';
 import { FileManager } from '../../src/file-manager.js';
 
 export function testFileCreate(testRoot: string): void {
-  test('$fileCreate', () => {
+  test('fileCreate', () => {
     const fileManager = new FileManager();
     const { create, files } = fileManager.root(testRoot).tree();
     create();
