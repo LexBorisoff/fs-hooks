@@ -3,7 +3,7 @@ import { FileManager } from '../../src/file-manager.js';
 import type { FileTreeInterface } from '../../src/file-tree/file-tree.types.js';
 import type { FileOperationTreeType } from '../../src/operations/operation.types.js';
 
-export function testFileOperations(testRoot: string): void {
+export function testProperties(testRoot: string): void {
   test('properties of the "files" object', () => {
     const fileManager = new FileManager();
     const fileTree = {} satisfies FileTreeInterface;
