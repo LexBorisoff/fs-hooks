@@ -1,6 +1,6 @@
 import { suite } from 'vitest';
-import { useTestSuite } from '../use-suite.js';
-import { TestSuite } from '../test-suite.enum.js';
+import { useSuite } from '../../use-suite.js';
+import { TestSuite } from '../../test-suite.enum.js';
 import { testGetPath } from './test-get-path.js';
 import { testExists } from './test-exists.js';
 import { testDirCreate } from './test-dir-create.js';
@@ -8,7 +8,7 @@ import { testFileCreate } from './test-file-create.js';
 import { testDirDelete } from './test-dir-delete.js';
 import { testProperties } from './test-properties.js';
 
-const { getTestRoot, setup } = useTestSuite(TestSuite.Operations);
+const { getTestRoot, setup } = useSuite(TestSuite.Operations);
 
 const testRoots: Record<string, string> = {
   properties: getTestRoot('properties'),

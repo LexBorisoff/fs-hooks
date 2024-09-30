@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { expect, test } from 'vitest';
-import { FileManager } from '../../src/file-manager.js';
+import { FileManager } from '../../../src/file-manager.js';
 
 export function testDirDelete(testRoot: string): void {
   test('dirDelete - folders created from tree', () => {
@@ -125,5 +125,9 @@ export function testDirDelete(testRoot: string): void {
     expect(fs.existsSync(dir3D)).toBe(false);
     expect(fs.existsSync(dir2D)).toBe(false);
     expect(fs.existsSync(dir1D)).toBe(false);
+  });
+
+  test('dirDelete - custom options', () => {
+    //
   });
 }

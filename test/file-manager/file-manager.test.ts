@@ -1,12 +1,12 @@
 import { suite } from 'vitest';
-import { useTestSuite } from '../use-suite.js';
+import { useSuite } from '../use-suite.js';
 import { TestSuite } from '../test-suite.enum.js';
 import { testCreateFileManager } from './test-create-file-manager.js';
 import { testRootMethod } from './test-root-method.js';
 import { testTreeMethod } from './test-tree-method.js';
 import { testCreateMethod } from './test-create-method.js';
 
-const { getTestRoot, setup } = useTestSuite(TestSuite.FileManager);
+const { getTestRoot, setup } = useSuite(TestSuite.FileManager);
 
 const testRoots: Record<string, string> = {
   rootMethod: getTestRoot('root-method'),

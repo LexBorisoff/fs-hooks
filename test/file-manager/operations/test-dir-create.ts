@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { expect, test } from 'vitest';
-import { FileManager } from '../../src/file-manager.js';
+import { FileManager } from '../../../src/file-manager.js';
 
 export function testDirCreate(testRoot: string): void {
   test('dirCreate', () => {

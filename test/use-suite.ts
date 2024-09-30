@@ -1,3 +1,5 @@
+// TODO: delete this file
+
 import fs from 'node:fs';
 import path from 'node:path';
 import { afterAll, beforeAll } from 'vitest';
@@ -5,12 +7,12 @@ import { KEEP_TEST_FOLDER, TESTS_ROOT } from './constants.js';
 import { deleteFolder } from './utils.js';
 import globalSetup from './global-setup.js';
 
-interface SuiteRootInterface {
+interface UseSuiteResultInterface {
   getTestRoot: (testName: string) => string;
   setup: () => void;
 }
 
-export function useTestSuite(suiteName: string): SuiteRootInterface {
+export function useSuite(suiteName: string): UseSuiteResultInterface {
   const suiteRoot = path.join(TESTS_ROOT, suiteName);
   return {
     getTestRoot(testName): string {
@@ -25,7 +27,7 @@ export function useTestSuite(suiteName: string): SuiteRootInterface {
         }
 
         deleteFolder(suiteRoot);
-        fs.mkdirSync(suiteRoot);
+        fs.mkdirSync(suiteRoot, { recursive: true });
         console.log(`${suiteName} suite root directory is created`);
       });
 
