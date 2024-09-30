@@ -74,6 +74,7 @@ export function dirOperations<
         type: 'file',
         data,
         path: getPath(fileName),
+        skip: false,
       };
 
       return {

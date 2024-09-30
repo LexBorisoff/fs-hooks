@@ -91,6 +91,10 @@ export class FileManager<
         } satisfies FileWithPathInterface | DirWithPathInterface;
 
         if (withPath.type === 'file') {
+          if (withPath.skip) {
+            return;
+          }
+
           if (fs.existsSync(withPath.path) && isDirectory(withPath.path)) {
             addError('file', withPath.path);
             return;
