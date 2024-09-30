@@ -9,7 +9,10 @@ import {
   afterAll,
   afterEach,
 } from 'vitest';
-import type { DirOperationsInterface } from '../../src/operations/operation.types.js';
+import type {
+  DirOperationsInterface,
+  FileOperationsInterface,
+} from '../../src/operations/operation.types.js';
 import type {
   DirInterface,
   DirWithPathType,
@@ -146,61 +149,6 @@ describe('dirOperations function', () => {
     });
   });
 
-  it('should return file operations object with custom operations', () => {
-    const getFileOperations = buildFileOperations((file) => ({
-      getFilePath(): string {
-        return file.path;
-      },
-      getFileData(): string | undefined {
-        return file.data instanceof Function ? file.data() : file.data;
-      },
-      getFileType(): 'file' {
-        return file.type;
-      },
-      getFileSkip(): boolean | undefined {
-        return file.skip;
-      },
-      plusOne(value: number): number {
-        return value + 1;
-      },
-    }));
-
-    const resultCustom = dirOperations(dirWithPath, {
-      file: getFileOperations,
-    });
-
-    const fileData = 'Hello, World!';
-    const createdFile = resultCustom.$fileCreate('file1', fileData);
-
-    expect(createdFile).toBeDefined();
-    expect(createdFile).toBeTypeOf('object');
-
-    fileOperationMethods.forEach((method) => {
-      expect(createdFile).toHaveProperty(method);
-      expect(createdFile[method]).toBeTypeOf('function');
-    });
-
-    expect(createdFile).toHaveProperty('getFilePath');
-    expect(createdFile.getFilePath).toBeTypeOf('function');
-    expect(createdFile.getFilePath()).toBe(path.join(dirPath, 'file1'));
-
-    expect(createdFile).toHaveProperty('getFileData');
-    expect(createdFile.getFileData).toBeTypeOf('function');
-    expect(createdFile.getFileData()).toBe(fileData);
-
-    expect(createdFile).toHaveProperty('getFileType');
-    expect(createdFile.getFileType).toBeTypeOf('function');
-    expect(createdFile.getFileType()).toBe('file');
-
-    expect(createdFile).toHaveProperty('getFileSkip');
-    expect(createdFile.getFileSkip).toBeTypeOf('function');
-    expect(createdFile.getFileSkip()).toBe(false);
-
-    expect(createdFile).toHaveProperty('plusOne');
-    expect(createdFile.plusOne).toBeTypeOf('function');
-    expect(createdFile.plusOne(1)).toBe(2);
-  });
-
   it('should delete a file', () => {
     const file1 = path.join(dirPath, 'file1');
     fs.writeFileSync(file1, '');
@@ -225,5 +173,92 @@ describe('dirOperations function', () => {
     expect(fs.readFileSync(file1, { encoding: 'utf-8' })).toBe(fileData);
     result.$fileClear('file1');
     expect(fs.readFileSync(file1, { encoding: 'utf-8' })).toBe('');
+  });
+});
+
+describe('fileCreate method with custom file operations', () => {
+  const fileData = 'Hello, World!';
+  const getFileOperations = buildFileOperations((file) => ({
+    getFilePath(): string {
+      return file.path;
+    },
+    getFileData(): string | undefined {
+      return file.data instanceof Function ? file.data() : file.data;
+    },
+    getFileType(): 'file' {
+      return file.type;
+    },
+    getFileSkip(): boolean | undefined {
+      return file.skip;
+    },
+    plusOne(value: number): number {
+      return value + 1;
+    },
+  }));
+
+  type CustomFileOperations = ReturnType<typeof getFileOperations>;
+  const customMethods: (keyof CustomFileOperations)[] = [
+    'getFileData',
+    'getFilePath',
+    'getFileSkip',
+    'getFileType',
+    'plusOne',
+  ];
+
+  let result: DirOperationsInterface<typeof dir.children, CustomFileOperations>;
+  let createdFile: FileOperationsInterface & CustomFileOperations;
+
+  beforeEach(() => {
+    fs.mkdirSync(dirPath);
+    result = dirOperations(dirWithPath, {
+      file: getFileOperations,
+    });
+    createdFile = result.$fileCreate('file1', fileData);
+  });
+
+  afterEach(() => {
+    fs.rmSync(dirPath, {
+      force: true,
+      recursive: true,
+    });
+  });
+
+  it('should be defined', () => {
+    expect(createdFile).toBeDefined();
+    expect(createdFile).toBeTypeOf('object');
+  });
+
+  it('should have correct properties', () => {
+    fileOperationMethods.forEach((method) => {
+      expect(createdFile).toHaveProperty(method);
+      expect(createdFile[method]).toBeTypeOf('function');
+    });
+  });
+
+  it('should have correct custom properties', () => {
+    customMethods.forEach((method) => {
+      expect(createdFile).toHaveProperty(method);
+      expect(createdFile[method]).toBeTypeOf('function');
+    });
+  });
+
+  it('should return file path', () => {
+    expect(createdFile.getFilePath()).toBe(path.join(dirPath, 'file1'));
+  });
+
+  it('should return file data', () => {
+    expect(createdFile.getFileData()).toBe(fileData);
+  });
+
+  it('should return file type', () => {
+    expect(createdFile.getFileType()).toBe('file');
+  });
+
+  it('should return skip value', () => {
+    expect(createdFile.getFileSkip()).toBe(false);
+  });
+
+  it('should add 1', () => {
+    expect(createdFile.plusOne(1)).toBe(2);
   });
 });
