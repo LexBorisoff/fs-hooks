@@ -16,6 +16,7 @@ import type {
 import { fileOperations } from '../../src/operations/file-operations.js';
 import type { FileOperationsInterface } from '../../src/operations/operation.types.js';
 import { setupTest } from './setup-test.js';
+import { fileOperationMethods } from './constants.js';
 
 const { testRoot, handleCreateDir, handleDeleteDir } =
   setupTest('file-operations');
@@ -39,14 +40,6 @@ afterAll(() => {
 });
 
 describe('fileOperations function', () => {
-  const operations: (keyof FileOperationsInterface)[] = [
-    '$getPath',
-    '$exists',
-    '$read',
-    '$write',
-    '$clear',
-  ];
-
   let result: FileOperationsInterface;
 
   beforeEach(() => {
@@ -59,7 +52,7 @@ describe('fileOperations function', () => {
   });
 
   it('should have correct properties', () => {
-    operations.forEach((operation) => {
+    fileOperationMethods.forEach((operation) => {
       expect(result).toHaveProperty(operation);
       expect(result[operation]).toBeTypeOf('function');
     });
