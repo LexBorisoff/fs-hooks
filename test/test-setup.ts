@@ -7,25 +7,31 @@ import { deleteFolder } from './utils.js';
 type CleanupFn = () => void;
 
 interface TestSetup {
-  testRoot: string;
+  testPath: string;
   setup: () => CleanupFn;
+  joinPath: (...args: string[]) => string;
 }
 
 export function testSetup(testName: string, meta: ImportMeta): TestSetup {
   const __dirname = url.fileURLToPath(new URL('.', meta.url));
-  const testRoot = path.join(__dirname, `__test__${testName}`);
+  const testPath = path.join(__dirname, `__test__${testName}`);
 
-  return {
-    testRoot,
+  const result: TestSetup = {
+    testPath,
     setup() {
-      deleteFolder(testRoot);
-      fs.mkdirSync(testRoot);
+      deleteFolder(testPath);
+      fs.mkdirSync(testPath);
 
       return function () {
         if (!KEEP_TEST_FOLDER) {
-          deleteFolder(testRoot);
+          deleteFolder(testPath);
         }
       };
     },
+    joinPath(...args) {
+      return path.join(testPath, ...args);
+    },
   };
+
+  return result;
 }
