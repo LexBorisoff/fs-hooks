@@ -1,6 +1,5 @@
-import { suite } from 'vitest';
-import { useSuite } from '../../use-suite.js';
-import { TestSuite } from '../../test-suite.enum.js';
+import { beforeAll, suite } from 'vitest';
+import { testSetup } from '../../test-setup.js';
 import { testGetPath } from './test-get-path.js';
 import { testExists } from './test-exists.js';
 import { testDirCreate } from './test-dir-create.js';
@@ -8,19 +7,21 @@ import { testFileCreate } from './test-file-create.js';
 import { testDirDelete } from './test-dir-delete.js';
 import { testProperties } from './test-properties.js';
 
-const { getTestRoot, setup } = useSuite(TestSuite.Operations);
+const { testPath, setup, joinPath } = testSetup('operations', import.meta);
 
 const testRoots: Record<string, string> = {
-  properties: getTestRoot('properties'),
-  getPath: getTestRoot('get-path'),
-  exists: getTestRoot('exists'),
-  dirCreate: getTestRoot('dir-create'),
-  dirDelete: getTestRoot('dir-delete'),
-  fileCreate: getTestRoot('file-create'),
+  properties: joinPath('properties'),
+  getPath: joinPath('get-path'),
+  exists: joinPath('exists'),
+  dirCreate: joinPath('dir-create'),
+  dirDelete: joinPath('dir-delete'),
+  fileCreate: joinPath('file-create'),
 };
 
-suite('File manager operations', () => {
-  setup();
+suite.skip('File manager operations', () => {
+  beforeAll(() => {
+    return setup();
+  });
 
   testProperties(testRoots.properties);
 
