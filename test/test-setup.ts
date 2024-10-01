@@ -19,7 +19,9 @@ export function testSetup(testName: string, meta: ImportMeta): TestSetup {
   const result: TestSetup = {
     testPath,
     setup() {
-      deleteFolder(testPath);
+      if (fs.existsSync(testPath)) {
+        deleteFolder(testPath);
+      }
       fs.mkdirSync(testPath);
 
       return function () {
