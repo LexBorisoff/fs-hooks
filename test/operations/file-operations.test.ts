@@ -1,6 +1,13 @@
 import fs from 'node:fs';
-import path from 'node:path';
-import { describe, it, expect, beforeAll, beforeEach, afterEach } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  beforeEach,
+  afterEach,
+  suite,
+} from 'vitest';
 import type {
   FileInterface,
   FileWithPathType,
@@ -10,24 +17,24 @@ import type { FileOperationsInterface } from '../../src/operations/operation.typ
 import { testSetup } from '../test-setup.js';
 import { fileOperationMethods } from './constants.js';
 
-const { testRoot, setup } = testSetup('file-operations', import.meta);
+const { setup, joinPath } = testSetup('file-operations', import.meta);
 
 const file = {
   type: 'file',
   data: 'Hello, World!',
 } satisfies FileInterface;
-const filePath = path.join(testRoot, 'file1');
+const filePath = joinPath('test-file');
 const fileWithPath: FileWithPathType<typeof file> = {
   ...file,
   path: filePath,
 };
 
-describe('fileOperations Suite', { sequential: true }, () => {
+suite('fileOperations Suite', { sequential: true }, () => {
   beforeAll(() => {
     return setup();
   });
 
-  describe('fileOperations ', () => {
+  describe('fileOperations function', () => {
     let result: FileOperationsInterface;
 
     beforeEach(() => {
@@ -62,7 +69,7 @@ describe('fileOperations Suite', { sequential: true }, () => {
         type: 'file',
         data: (): string => 'Hello, World!\nNext line!',
       } satisfies FileInterface;
-      const filePath2 = path.join(testRoot, 'file2');
+      const filePath2 = joinPath('test-file2');
       const fileWithPath2: FileWithPathType<typeof file> = {
         ...file,
         path: filePath2,

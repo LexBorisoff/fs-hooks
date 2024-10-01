@@ -1,14 +1,14 @@
-import path from 'node:path';
 import { test, expect } from 'vitest';
 import { buildPathTree } from '../../src/file-tree/build-path-tree.js';
 import type {
   FileTreeInterface,
   PathTreeType,
 } from '../../src/file-tree/file-tree.types.js';
-import { TESTS_ROOT } from '../constants.js';
+import { testSetup } from '../test-setup.js';
+
+const { testPath, joinPath } = testSetup('build-path-tree', import.meta);
 
 test('buildPathTree', () => {
-  const parentPath = path.join(TESTS_ROOT, 'file-tree', 'build-path-tree');
   const tree = {
     file1: {
       type: 'file',
@@ -37,27 +37,27 @@ test('buildPathTree', () => {
   const pathTree: PathTreeType<typeof tree> = {
     file1: {
       type: 'file',
-      path: path.join(parentPath, 'file1'),
+      path: joinPath('file1'),
     },
     dir1: {
       type: 'dir',
-      path: path.join(parentPath, 'dir1'),
+      path: joinPath('dir1'),
       children: {
         file2: {
           type: 'file',
-          path: path.join(parentPath, 'dir1', 'file2'),
+          path: joinPath('dir1', 'file2'),
         },
         dir2: {
           type: 'dir',
-          path: path.join(parentPath, 'dir1', 'dir2'),
+          path: joinPath('dir1', 'dir2'),
           children: {
             file3: {
               type: 'file',
-              path: path.join(parentPath, 'dir1', 'dir2', 'file3'),
+              path: joinPath('dir1', 'dir2', 'file3'),
             },
             dir3: {
               type: 'dir',
-              path: path.join(parentPath, 'dir1', 'dir2', 'dir3'),
+              path: joinPath('dir1', 'dir2', 'dir3'),
             },
           },
         },
@@ -65,6 +65,6 @@ test('buildPathTree', () => {
     },
   };
 
-  const result = buildPathTree(parentPath, tree);
+  const result = buildPathTree(testPath, tree);
   expect(result).toEqual(pathTree);
 });

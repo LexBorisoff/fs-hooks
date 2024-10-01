@@ -1,6 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { describe, it, expect, beforeAll, beforeEach, afterEach } from 'vitest';
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  beforeEach,
+  afterEach,
+  suite,
+} from 'vitest';
 import type {
   DirOperationsInterface,
   FileOperationsInterface,
@@ -14,7 +22,7 @@ import { buildFileOperations } from '../../src/operations/build-operations.js';
 import { testSetup } from '../test-setup.js';
 import { dirOperationMethods, fileOperationMethods } from './constants.js';
 
-const { testRoot, setup } = testSetup('dir-operations', import.meta);
+const { setup, joinPath } = testSetup('dir-operations', import.meta);
 
 const dir = {
   type: 'dir',
@@ -28,13 +36,13 @@ const dir = {
     },
   },
 } satisfies DirInterface;
-const dirPath = path.join(testRoot, 'dir1');
+const dirPath = joinPath('test-dir');
 const dirWithPath: DirWithPathType<typeof dir> = {
   ...dir,
   path: dirPath,
 };
 
-describe('dirOperations Suite', { sequential: true }, () => {
+suite('dirOperations Suite', { sequential: true }, () => {
   beforeAll(() => {
     return setup();
   });
