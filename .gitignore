@@ -1,6 +1,6 @@
 *.ignore.*
 .npmrc
-__tests__
+__test__*
 
 # IDE - VSCode
 .vscode/*
