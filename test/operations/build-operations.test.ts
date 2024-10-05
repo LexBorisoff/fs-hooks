@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, suite } from 'vitest';
 import {
   buildDirOperations,
   buildFileOperations,
@@ -9,20 +9,24 @@ import type {
   OperationsType,
 } from '../../src/operations/operation.types.js';
 
-describe('buildOperations function', () => {
-  it('should return getOperations function for file operations', () => {
-    const getOperations: GetFileOperationsFn<OperationsType> = () => ({
-      custom(): void {},
+suite('buildOperations Suite', () => {
+  describe('buildFileOperations function', () => {
+    it('should return a function for getting file operations', () => {
+      const getOperations: GetFileOperationsFn<OperationsType> = () => ({
+        custom(): void {},
+      });
+      const result = buildFileOperations(getOperations);
+      expect(result).toBe(getOperations);
     });
-    const result = buildFileOperations(getOperations);
-    expect(result).toBe(getOperations);
   });
 
-  it('should return getOperations function for directory operations', () => {
-    const getOperations: GetDirOperationsFn<OperationsType> = () => ({
-      custom(): void {},
+  describe('buildDirOperations function', () => {
+    it('should return a function for getting directory operations', () => {
+      const getOperations: GetDirOperationsFn<OperationsType> = () => ({
+        custom(): void {},
+      });
+      const result = buildDirOperations(getOperations);
+      expect(result).toBe(getOperations);
     });
-    const result = buildDirOperations(getOperations);
-    expect(result).toBe(getOperations);
   });
 });
