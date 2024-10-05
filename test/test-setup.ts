@@ -7,8 +7,21 @@ import { deleteFolder } from './utils.js';
 type CleanupFn = () => void;
 
 interface TestSetup {
+  /**
+   * Directory path of the temporary test folder
+   */
   testPath: string;
+  /**
+   * Creates a temporary test folder for the provided testName
+   * in the test file's directory
+   *
+   * @returns a cleanup function that deletes the test folder,
+   * unless KEEP_TEST_FOLDER environment variable is set to true
+   */
   setup: () => CleanupFn;
+  /**
+   * Joins the provided arg names with the testPath
+   */
   joinPath: (...args: string[]) => string;
 }
 
@@ -24,7 +37,7 @@ export function testSetup(testName: string, meta: ImportMeta): TestSetup {
       }
       fs.mkdirSync(testPath);
 
-      return function () {
+      return function cleanup() {
         if (!KEEP_TEST_FOLDER) {
           deleteFolder(testPath);
         }
