@@ -62,6 +62,7 @@ export type DirNamesType<Children extends FileTreeInterface | undefined> =
 export interface DirOperationsInterface<
   Children extends FileTreeInterface | undefined,
   CustomFileOperations extends OperationsType | undefined,
+  CustomDirOperations extends OperationsType | undefined,
   F = FileNamesType<Children>,
   D = DirNamesType<Children>,
 > {
@@ -69,7 +70,18 @@ export interface DirOperationsInterface<
   $exists(fileName: F[keyof F] | D[keyof D] | (string & {})): boolean;
   $dirCreate(
     dirName: string,
-  ): DirOperationsInterface<undefined, CustomFileOperations>;
+  ): CustomDirOperations extends OperationsType
+    ? CustomDirOperations &
+        DirOperationsInterface<
+          undefined,
+          CustomFileOperations,
+          CustomDirOperations
+        >
+    : DirOperationsInterface<
+        undefined,
+        CustomFileOperations,
+        CustomDirOperations
+      >;
   /**
    * Delete a directory using `recursive` and `force` options
    */
@@ -94,8 +106,13 @@ export type DirOperationsType<
   CustomFileOperations extends OperationsType | undefined,
   CustomDirOperations extends OperationsType | undefined,
 > = CustomDirOperations extends OperationsType
-  ? DirOperationsInterface<Children, CustomFileOperations> & CustomDirOperations
-  : DirOperationsInterface<Children, CustomFileOperations>;
+  ? DirOperationsInterface<
+      Children,
+      CustomFileOperations,
+      CustomDirOperations
+    > &
+      CustomDirOperations
+  : DirOperationsInterface<Children, CustomFileOperations, CustomDirOperations>;
 
 export type OperationTreeType<
   T extends FileTreeInterface,
