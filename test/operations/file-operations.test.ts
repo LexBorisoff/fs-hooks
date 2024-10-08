@@ -49,7 +49,7 @@ suite('fileOperations Suite', { sequential: true }, () => {
     it('should have correct properties', () => {
       fileOperationMethods.forEach((operation) => {
         expect(result).toHaveProperty(operation);
-        expect(result[operation]).toBeTypeOf('function');
+        expect(result[operation]).toBeInstanceOf(Function);
       });
     });
 

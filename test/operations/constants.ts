@@ -5,6 +5,7 @@ import type {
 
 export const dirOperationMethods: (keyof DirOperationsInterface<
   undefined,
+  undefined,
   undefined
 >)[] = [
   '$getPath',
