@@ -11,7 +11,10 @@ import {
 } from 'vitest';
 import { testSetup } from '../test-setup.js';
 import type { FileOperationTreeType } from '../../src/operations/operation.types.js';
-import type { FileTreeInterface } from '../../src/file-tree/file-tree.types.js';
+import type {
+  FileInterface,
+  FileTreeInterface,
+} from '../../src/file-tree/file-tree.types.js';
 import { buildOperationTree } from '../../src/operations/build-operation-tree.js';
 import {
   buildDirOperations,
@@ -21,22 +24,31 @@ import { dirOperationMethods, fileOperationMethods } from './constants.js';
 
 const { setup, joinPath } = testSetup('build-operation-tree', import.meta);
 
+function getJoinTestPath(testName: string) {
+  return function getJoinPath(...args: string[]): string {
+    return joinPath(testName, ...args);
+  };
+}
+
 suite('buildOperationTree Suite', { concurrent: false }, () => {
   const tree = {
     file1: { type: 'file' },
-    file2: { type: 'file' },
+    file2: { type: 'file', data: 'File 2 test' },
     dir1: { type: 'dir' },
     dir2: {
       type: 'dir',
       children: {
         file1: { type: 'file' },
-        file2: { type: 'file' },
+        file2: { type: 'file', data: (): string => 'Dir 2\nFile 2 test' },
         dir1: { type: 'dir' },
         dir2: {
           type: 'dir',
           children: {
-            file1: { type: 'file' },
-            file2: { type: 'file' },
+            file1: { type: 'file', data: 'Dir 2\nDir 2\nFile 1 test' },
+            file2: {
+              type: 'file',
+              data: (): string => 'Dir 2\nDir 2\nFile 2 test',
+            },
           },
         },
       },
@@ -49,7 +61,9 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
   });
 
   describe('buildOperationTree function - core properties', () => {
-    const testDirPath = joinPath('core-methods');
+    const testName = 'core-methods';
+    const testDirPath = joinPath(testName);
+    const joinTestPath = getJoinTestPath(testName);
     let result: FileOperationTreeType<Tree>;
 
     beforeEach(() => {
@@ -157,11 +171,143 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       expect(fs.existsSync(dir1)).toBe(false);
     });
 
-    it('should read a file', () => {
-      const file1 = path.join(testDirPath, 'file1');
-      const fileData = 'Hello, World!';
-      fs.writeFileSync(file1, fileData);
-      expect(result.$fileRead('file1')).toBe(fileData);
+    it('should read files from the file tree', () => {
+      function getFileData({ data }: FileInterface): string {
+        return data instanceof Function ? data() : (data ?? '');
+      }
+
+      type File = { path: string; data: string };
+      const file1: File = {
+        path: joinTestPath('file1'),
+        data: getFileData(tree.file1),
+      };
+      const file2: File = {
+        path: joinTestPath('file2'),
+        data: getFileData(tree.file2),
+      };
+      const file3: File = {
+        path: joinTestPath('dir2', 'file1'),
+        data: getFileData(tree.dir2.children.file1),
+      };
+      const file4: File = {
+        path: joinTestPath('dir2', 'file2'),
+        data: getFileData(tree.dir2.children.file2),
+      };
+      const file5: File = {
+        path: joinTestPath('dir2', 'dir2', 'file1'),
+        data: getFileData(tree.dir2.children.dir2.children.file1),
+      };
+      const file6: File = {
+        path: joinTestPath('dir2', 'dir2', 'file2'),
+        data: getFileData(tree.dir2.children.dir2.children.file2),
+      };
+
+      fs.mkdirSync(joinTestPath('dir2', 'dir2'), { recursive: true });
+      [file1, file2, file3, file4, file5, file6].forEach((file) => {
+        fs.writeFileSync(file.path, file.data);
+      });
+
+      expect(result.$fileRead('file1')).toBe(file1.data);
+      expect(result.$fileRead('file2')).toBe(file2.data);
+      expect(result.dir2.$fileRead('file1')).toBe(file3.data);
+      expect(result.dir2.$fileRead('file2')).toBe(file4.data);
+      expect(result.dir2.dir2.$fileRead('file1')).toBe(file5.data);
+      expect(result.dir2.dir2.$fileRead('file2')).toBe(file6.data);
+    });
+
+    it('should read files not in the file tree', () => {
+      type File = { path: string; data: string };
+      const fileName = 'new-file';
+
+      const file1: File = {
+        path: joinTestPath(fileName),
+        data: 'New File test',
+      };
+      const file2: File = {
+        path: joinTestPath('dir1', fileName),
+        data: 'Dir 1\nNew File test',
+      };
+      const file3: File = {
+        path: joinTestPath('dir2', 'dir1', fileName),
+        data: 'Dir 2\nDir\n1 New File test',
+      };
+
+      // create files explicitly to mock FileManager's create method
+      fs.mkdirSync(joinTestPath('dir1'));
+      fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
+      [file1, file2, file3].forEach((file) => {
+        fs.writeFileSync(file.path, file.data);
+      });
+
+      // read files
+      expect(result.$fileRead(fileName)).toBe(file1.data);
+      expect(result.dir1.$fileRead(fileName)).toBe(file2.data);
+      expect(result.dir2.dir1.$fileRead(fileName)).toBe(file3.data);
+    });
+
+    it('should read files created with the fileCreate method', () => {
+      type File = { path: string; data: string };
+      const fileName = 'new-file';
+
+      const file1: File = {
+        path: joinTestPath(fileName),
+        data: 'New File test',
+      };
+      const file2: File = {
+        path: joinTestPath('dir1', fileName),
+        data: 'Dir 1\nNew File test',
+      };
+      const file3: File = {
+        path: joinTestPath('dir2', 'dir1', fileName),
+        data: 'Dir 2\nDir 1\nNew File test',
+      };
+
+      fs.mkdirSync(joinTestPath('dir1'));
+      fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
+
+      // create files using fileCreate
+      result.$fileCreate(fileName, file1.data);
+      result.dir1.$fileCreate(fileName, file2.data);
+      result.dir2.dir1.$fileCreate(fileName, file3.data);
+
+      // read files
+      expect(result.$fileRead(fileName)).toBe(file1.data);
+      expect(result.dir1.$fileRead(fileName)).toBe(file2.data);
+      expect(result.dir2.dir1.$fileRead(fileName)).toBe(file3.data);
+    });
+
+    it('should read files created with the dirCreate and fileCreate methods', () => {
+      type File = { path: string; data: string };
+      const dirName = 'new-dir';
+      const fileName = 'new-file';
+
+      const file1: File = {
+        path: joinTestPath(dirName, fileName),
+        data: 'New Dir\nNew File test',
+      };
+      const file2: File = {
+        path: joinTestPath('dir1', dirName, fileName),
+        data: 'Dir 1\nNew Dir\nNew File test',
+      };
+      const file3: File = {
+        path: joinTestPath('dir2', 'dir1', dirName, fileName),
+        data: 'Dir 2\nDir 1\nNew Dir\nNew File test',
+      };
+
+      // create directories using dirCreate
+      const newDir1 = result.$dirCreate(dirName);
+      const newDir2 = result.dir1.$dirCreate(dirName);
+      const newDir3 = result.dir2.dir1.$dirCreate(dirName);
+
+      // create files using fileCreate on created directories
+      newDir1.$fileCreate(fileName, file1.data);
+      newDir2.$fileCreate(fileName, file2.data);
+      newDir3.$fileCreate(fileName, file3.data);
+
+      // read files
+      expect(newDir1.$fileRead(fileName)).toBe(file1.data);
+      expect(newDir2.$fileRead(fileName)).toBe(file2.data);
+      expect(newDir3.$fileRead(fileName)).toBe(file3.data);
     });
 
     it('should create a file', () => {
