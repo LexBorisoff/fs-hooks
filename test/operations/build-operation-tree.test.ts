@@ -403,40 +403,28 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     });
 
     it('should read files created with the fileCreate method', () => {
-      type File = { path: string; data: string };
       const fileName = 'new-file';
-
-      const file1: File = {
-        path: joinTestPath(fileName),
-        data: 'New File test',
-      };
-      const file2: File = {
-        path: joinTestPath('dir1', fileName),
-        data: 'Dir 1\nNew File test',
-      };
-      const file3: File = {
-        path: joinTestPath('dir2', 'dir1', fileName),
-        data: 'Dir 2\nDir 1\nNew File test',
-      };
+      const fileData1 = 'New File test';
+      const fileData2 = 'Dir 1\nNew File test';
+      const fileData3 = 'Dir 2\nDir 1\nNew File test';
 
       fs.mkdirSync(joinTestPath('dir1'));
       fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
 
       // create files using fileCreate
-      result.$fileCreate(fileName, file1.data);
-      result.dir1.$fileCreate(fileName, file2.data);
-      result.dir2.dir1.$fileCreate(fileName, file3.data);
+      result.$fileCreate(fileName, fileData1);
+      result.dir1.$fileCreate(fileName, fileData2);
+      result.dir2.dir1.$fileCreate(fileName, fileData3);
 
       // read files
-      expect(result.$fileRead(fileName)).toBe(file1.data);
-      expect(result.dir1.$fileRead(fileName)).toBe(file2.data);
-      expect(result.dir2.dir1.$fileRead(fileName)).toBe(file3.data);
+      expect(result.$fileRead(fileName)).toBe(fileData1);
+      expect(result.dir1.$fileRead(fileName)).toBe(fileData2);
+      expect(result.dir2.dir1.$fileRead(fileName)).toBe(fileData3);
     });
 
     it('should read files created with the dirCreate and fileCreate methods', () => {
       const dirName = 'new-dir';
       const fileName = 'new-file';
-
       const fileData1 = 'New Dir\nNew File test';
       const fileData2 = 'Dir 1\nNew Dir\nNew File test';
       const fileData3 = 'Dir 2\nDir 1\nNew Dir\nNew File test';
