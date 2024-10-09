@@ -131,18 +131,79 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       expect(result.$getPath()).toBe(testDirPath);
     });
 
-    it('should check if file/directory exists', () => {
-      const newFile = path.join(testDirPath, 'newFile');
-      const newDir = path.join(testDirPath, 'newDir');
+    it('should check if files and directories from file tree exist', () => {
+      const file1 = joinTestPath('file1');
+      const file2 = joinTestPath('file2');
+      const file3 = joinTestPath('dir2', 'file1');
+      const file4 = joinTestPath('dir2', 'file2');
+      const file5 = joinTestPath('dir2', 'dir2', 'file1');
+      const file6 = joinTestPath('dir2', 'dir2', 'file2');
 
-      expect(result.$exists('newFile')).toBe(false);
-      expect(result.$exists('newDir')).toBe(false);
+      const dir1 = joinTestPath('dir1');
+      const dir2 = joinTestPath('dir2');
+      const dir3 = joinTestPath('dir2', 'dir1');
+      const dir4 = joinTestPath('dir2', 'dir2');
 
-      fs.writeFileSync(newFile, '');
-      fs.mkdirSync(newDir);
+      function checkExists(value: boolean): void {
+        expect(result.$exists('file1')).toBe(value);
+        expect(result.$exists('file2')).toBe(value);
+        expect(result.$exists('dir1')).toBe(value);
+        expect(result.$exists('dir2')).toBe(value);
+        expect(result.dir2.$exists('file1')).toBe(value);
+        expect(result.dir2.$exists('file2')).toBe(value);
+        expect(result.dir2.$exists('dir1')).toBe(value);
+        expect(result.dir2.$exists('dir2')).toBe(value);
+        expect(result.dir2.dir2.$exists('file1')).toBe(value);
+        expect(result.dir2.dir2.$exists('file2')).toBe(value);
+      }
 
-      expect(result.$exists('newFile')).toBe(true);
-      expect(result.$exists('newDir')).toBe(true);
+      // expect false before files and directories are created
+      checkExists(false);
+
+      // create files and directories from the file tree
+      [dir1, dir2, dir3, dir4].forEach((dir) => {
+        fs.mkdirSync(dir, { recursive: true });
+      });
+      [file1, file2, file3, file4, file5, file6].forEach((file) => {
+        fs.writeFileSync(file, '');
+      });
+
+      // expect true after files and directories are created
+      checkExists(true);
+    });
+
+    it('should check if files and directories not from file tree exist', () => {
+      const fileName = 'new-file';
+      const dirName = 'new-dir';
+
+      const file1 = joinTestPath(fileName);
+      const file2 = joinTestPath('dir1', fileName);
+      const file3 = joinTestPath('dir2', 'dir1', fileName);
+      const dir1 = joinTestPath(dirName);
+      const dir2 = joinTestPath('dir1', dirName);
+      const dir3 = joinTestPath('dir2', 'dir1', dirName);
+
+      function checkExists(value: boolean): void {
+        expect(result.$exists(fileName)).toBe(value);
+        expect(result.$exists(dirName)).toBe(value);
+        expect(result.dir1.$exists(fileName)).toBe(value);
+        expect(result.dir1.$exists(dirName)).toBe(value);
+        expect(result.dir2.dir1.$exists(fileName)).toBe(value);
+        expect(result.dir2.dir1.$exists(dirName)).toBe(value);
+      }
+
+      // expect false before new files and directories are created
+      checkExists(false);
+
+      [dir1, dir2, dir3].forEach((dir) => {
+        fs.mkdirSync(dir, { recursive: true });
+      });
+      [file1, file2, file3].forEach((file) => {
+        fs.writeFileSync(file, '');
+      });
+
+      // expect true after new files and directories are created
+      checkExists(true);
     });
 
     it('should create a directory', () => {
