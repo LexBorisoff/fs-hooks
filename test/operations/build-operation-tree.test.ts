@@ -263,12 +263,67 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should delete a directory', () => {
-      const dir1 = path.join(testDirPath, 'dir1');
-      fs.mkdirSync(dir1);
-      expect(fs.existsSync(dir1)).toBe(true);
+    it('should delete directories from the file tree', () => {
+      const dirs = [
+        joinTestPath('dir1'),
+        joinTestPath('dir2'),
+        joinTestPath('dir2', 'dir1'),
+        joinTestPath('dir2', 'dir2'),
+      ];
+
+      function checkExists(value: boolean): void {
+        dirs.forEach((dir) => {
+          expect(fs.existsSync(dir)).toBe(value);
+        });
+      }
+
+      // create directories manually to mock FileManager's create method
+      dirs.forEach((dir) => {
+        fs.mkdirSync(dir, { recursive: true });
+      });
+
+      // expect true before deleting directories
+      checkExists(true);
+
+      // delete directories
       result.$dirDelete('dir1');
-      expect(fs.existsSync(dir1)).toBe(false);
+      result.$dirDelete('dir2');
+      result.dir2.$dirDelete('dir1');
+      result.dir2.$dirDelete('dir2');
+
+      // expect false after deleting directories
+      checkExists(false);
+    });
+
+    it('should delete directories not from the file tree', () => {
+      const dirName = 'new-dir';
+      const dirs = [
+        joinTestPath(dirName),
+        joinTestPath('dir2', dirName),
+        joinTestPath('dir2', 'dir2', dirName),
+      ];
+
+      function checkExists(value: boolean): void {
+        dirs.forEach((dir) => {
+          expect(fs.existsSync(dir)).toBe(value);
+        });
+      }
+
+      // create directories manually to mock FileManager's create method
+      dirs.forEach((dir) => {
+        fs.mkdirSync(dir, { recursive: true });
+      });
+
+      // expect true before deleting directories
+      checkExists(true);
+
+      // delete directories
+      result.$dirDelete(dirName);
+      result.dir2.$dirDelete(dirName);
+      result.dir2.dir2.$dirDelete(dirName);
+
+      // expect false after deleting directories
+      checkExists(false);
     });
 
     it('should read files from the file tree', () => {
