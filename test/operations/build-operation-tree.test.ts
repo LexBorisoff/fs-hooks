@@ -129,6 +129,20 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
 
     it('should return the correct path', () => {
       expect(result.$getPath()).toBe(testDirPath);
+      expect(result.file1.$getPath()).toBe(joinTestPath('file1'));
+      expect(result.file2.$getPath()).toBe(joinTestPath('file2'));
+      expect(result.dir1.$getPath()).toBe(joinTestPath('dir1'));
+      expect(result.dir2.$getPath()).toBe(joinTestPath('dir2'));
+      expect(result.dir2.file1.$getPath()).toBe(joinTestPath('dir2', 'file1'));
+      expect(result.dir2.file2.$getPath()).toBe(joinTestPath('dir2', 'file2'));
+      expect(result.dir2.dir1.$getPath()).toBe(joinTestPath('dir2', 'dir1'));
+      expect(result.dir2.dir2.$getPath()).toBe(joinTestPath('dir2', 'dir2'));
+      expect(result.dir2.dir2.file1.$getPath()).toBe(
+        joinTestPath('dir2', 'dir2', 'file1'),
+      );
+      expect(result.dir2.dir2.file2.$getPath()).toBe(
+        joinTestPath('dir2', 'dir2', 'file2'),
+      );
     });
 
     it('should check if files and directories from file tree exist', () => {
