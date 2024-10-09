@@ -510,12 +510,76 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should delete a file', () => {
-      const file1 = path.join(testDirPath, 'file1');
-      fs.writeFileSync(file1, '');
-      expect(fs.existsSync(file1)).toBe(true);
+    it('should delete files from the file tree', () => {
+      const files = {
+        file1: joinTestPath('file1'),
+        file2: joinTestPath('file2'),
+        file3: joinTestPath('dir2', 'file1'),
+        file4: joinTestPath('dir2', 'file2'),
+        file5: joinTestPath('dir2', 'dir2', 'file1'),
+        file6: joinTestPath('dir2', 'dir2', 'file2'),
+      };
+      const { length } = Object.keys(files);
+
+      function getFileProp(i: number): keyof typeof files {
+        return `file${i + 1}` as keyof typeof files;
+      }
+
+      function checkExists(value: boolean): void {
+        Array.from({ length }).map((_, i) => {
+          expect(fs.existsSync(files[getFileProp(i)])).toBe(value);
+        });
+      }
+
+      fs.mkdirSync(joinTestPath('dir2', 'dir2'), { recursive: true });
+      Array.from({ length }).map((_, i) => {
+        fs.writeFileSync(files[getFileProp(i)], '');
+      });
+
+      checkExists(true);
+
       result.$fileDelete('file1');
-      expect(fs.existsSync(file1)).toBe(false);
+      result.$fileDelete('file2');
+      result.dir2.$fileDelete('file1');
+      result.dir2.$fileDelete('file2');
+      result.dir2.dir2.$fileDelete('file1');
+      result.dir2.dir2.$fileDelete('file2');
+
+      checkExists(false);
+    });
+
+    it('should delete files not from the file tree', () => {
+      const fileName = 'new-file';
+      const files = {
+        file1: joinTestPath(fileName),
+        file2: joinTestPath('dir1', fileName),
+        file3: joinTestPath('dir2', 'dir1', fileName),
+      };
+      const { length } = Object.keys(files);
+
+      function getFileProp(i: number): keyof typeof files {
+        return `file${i + 1}` as keyof typeof files;
+      }
+
+      function checkExists(value: boolean): void {
+        Array.from({ length }).map((_, i) => {
+          expect(fs.existsSync(files[getFileProp(i)])).toBe(value);
+        });
+      }
+
+      fs.mkdirSync(joinTestPath('dir1'));
+      fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
+      Array.from({ length }).map((_, i) => {
+        fs.writeFileSync(files[getFileProp(i)], '');
+      });
+
+      checkExists(true);
+
+      result.$fileDelete(fileName);
+      result.dir1.$fileDelete(fileName);
+      result.dir2.dir1.$fileDelete(fileName);
+
+      checkExists(false);
     });
 
     it('should write to a file', () => {
