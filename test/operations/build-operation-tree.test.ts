@@ -220,21 +220,46 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       checkExists(true);
     });
 
-    it('should create a directory', () => {
-      const dir1 = path.join(testDirPath, 'dir1');
-      expect(fs.existsSync(dir1)).toBe(false);
-      result.$dirCreate('dir1');
-      expect(fs.existsSync(dir1)).toBe(true);
+    it('should create directories', () => {
+      const dirName = 'new-dir';
+
+      function checkExists(value: boolean): void {
+        [
+          joinTestPath(dirName),
+          joinTestPath('dir1', dirName),
+          joinTestPath('dir2', 'dir1', dirName),
+        ].forEach((dir) => {
+          expect(fs.existsSync(dir)).toBe(value);
+        });
+      }
+
+      // expect false before directories are created
+      checkExists(false);
+
+      // create directories
+      result.$dirCreate(dirName);
+      result.dir1.$dirCreate(dirName);
+      result.dir2.dir1.$dirCreate(dirName);
+
+      // expect true after directories are created
+      checkExists(true);
     });
 
-    it('should return directory operations object', () => {
-      const createdDir = result.$dirCreate('dir1');
-      expect(createdDir).toBeDefined();
-      expect(createdDir).toBeTypeOf('object');
+    it('should return directory operations object from dirCreate', () => {
+      const dirName = 'new-dir';
 
-      dirOperationMethods.forEach((method) => {
-        expect(createdDir).toHaveProperty(method);
-        expect(createdDir[method]).toBeInstanceOf(Function);
+      const dir1 = result.$dirCreate(dirName);
+      const dir2 = result.dir1.$dirCreate(dirName);
+      const dir3 = result.dir2.dir1.$dirCreate(dirName);
+
+      [dir1, dir2, dir3].forEach((dir) => {
+        expect(dir).toBeDefined();
+        expect(dir).toBeTypeOf('object');
+
+        dirOperationMethods.forEach((method) => {
+          expect(dir).toHaveProperty(method);
+          expect(dir[method]).toBeInstanceOf(Function);
+        });
       });
     });
 
