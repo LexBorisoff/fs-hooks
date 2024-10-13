@@ -480,9 +480,14 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
         expect(fs.existsSync(nestedFilePath)).toBe(value);
       }
 
+      // expect false before a nested file is created
       checkExists(false);
+
+      // create a nested file
       fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
       result.$fileCreate(nestedFileName);
+
+      // expect true after a nested file is created
       checkExists(true);
     });
 
@@ -495,10 +500,12 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       fs.mkdirSync(joinTestPath('dir1'));
       fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
 
+      // create files
       const file1 = result.$fileCreate(fileName);
       const file2 = result.dir1.$fileCreate(fileName);
       const file3 = result.dir2.dir1.$fileCreate(fileName);
 
+      // test created file objects
       [file1, file2, file3].forEach((file) => {
         expect(file).toBeDefined();
         expect(file).toBeTypeOf('object');
@@ -510,19 +517,21 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should delete files from the file tree', () => {
-      const files = {
-        file1: joinTestPath('file1'),
-        file2: joinTestPath('file2'),
-        file3: joinTestPath('dir2', 'file1'),
-        file4: joinTestPath('dir2', 'file2'),
-        file5: joinTestPath('dir2', 'dir2', 'file1'),
-        file6: joinTestPath('dir2', 'dir2', 'file2'),
-      };
+    function useFileDelete(filePaths: string[]): {
+      checkExists: (value: boolean) => void;
+      createFiles: () => void;
+    } {
+      const files = filePaths.reduce<Record<string, string>>(
+        (acc, filePath, i) => {
+          acc[`file${i + 1}`] = filePath;
+          return acc;
+        },
+        {},
+      );
       const { length } = Object.keys(files);
 
-      function getFileProp(i: number): keyof typeof files {
-        return `file${i + 1}` as keyof typeof files;
+      function getFileProp(i: number): string {
+        return `file${i + 1}`;
       }
 
       function checkExists(value: boolean): void {
@@ -531,13 +540,37 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
         });
       }
 
-      fs.mkdirSync(joinTestPath('dir2', 'dir2'), { recursive: true });
-      Array.from({ length }).map((_, i) => {
-        fs.writeFileSync(files[getFileProp(i)], '');
-      });
+      function createFiles(): void {
+        Array.from({ length }).map((_, i) => {
+          fs.writeFileSync(files[getFileProp(i)], '');
+        });
+      }
+      return {
+        checkExists,
+        createFiles,
+      };
+    }
 
+    it('should delete files from the file tree', () => {
+      const filePaths = [
+        joinTestPath('file1'),
+        joinTestPath('file2'),
+        joinTestPath('dir2', 'file1'),
+        joinTestPath('dir2', 'file2'),
+        joinTestPath('dir2', 'dir2', 'file1'),
+        joinTestPath('dir2', 'dir2', 'file2'),
+      ];
+
+      const { checkExists, createFiles } = useFileDelete(filePaths);
+
+      // create files
+      fs.mkdirSync(joinTestPath('dir2', 'dir2'), { recursive: true });
+      createFiles();
+
+      // expect true before deleting files
       checkExists(true);
 
+      // delete files
       result.$fileDelete('file1');
       result.$fileDelete('file2');
       result.dir2.$fileDelete('file1');
@@ -545,59 +578,196 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       result.dir2.dir2.$fileDelete('file1');
       result.dir2.dir2.$fileDelete('file2');
 
+      // expect false after deleting files
       checkExists(false);
     });
 
     it('should delete files not from the file tree', () => {
       const fileName = 'new-file';
-      const files = {
-        file1: joinTestPath(fileName),
-        file2: joinTestPath('dir1', fileName),
-        file3: joinTestPath('dir2', 'dir1', fileName),
-      };
-      const { length } = Object.keys(files);
+      const filePaths = [
+        joinTestPath(fileName),
+        joinTestPath('dir1', fileName),
+        joinTestPath('dir2', 'dir1', fileName),
+      ];
 
-      function getFileProp(i: number): keyof typeof files {
-        return `file${i + 1}` as keyof typeof files;
-      }
+      const { checkExists, createFiles } = useFileDelete(filePaths);
 
-      function checkExists(value: boolean): void {
-        Array.from({ length }).map((_, i) => {
-          expect(fs.existsSync(files[getFileProp(i)])).toBe(value);
-        });
-      }
-
+      // create files
       fs.mkdirSync(joinTestPath('dir1'));
       fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
-      Array.from({ length }).map((_, i) => {
-        fs.writeFileSync(files[getFileProp(i)], '');
-      });
+      createFiles();
 
+      // expect true before deleting files
       checkExists(true);
 
+      // delete files
       result.$fileDelete(fileName);
       result.dir1.$fileDelete(fileName);
       result.dir2.dir1.$fileDelete(fileName);
 
+      // expect false after deleting files
       checkExists(false);
     });
 
-    it('should write to a file', () => {
-      const file1 = path.join(testDirPath, 'file1');
-      fs.writeFileSync(file1, '');
-      expect(fs.readFileSync(file1, { encoding: 'utf-8' })).toBe('');
+    function useFileWrite(
+      filePaths: string[],
+      fileData: string,
+    ): {
+      createFiles: () => void;
+      checkFileData: () => void;
+    } {
+      function createFiles(): void {
+        filePaths.forEach((filePath) => {
+          fs.writeFileSync(filePath, '');
+        });
+      }
+
+      function checkFileData(): void {
+        filePaths.forEach((filePath) => {
+          const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
+          expect(data).toBe(fileData);
+        });
+      }
+
+      return {
+        createFiles,
+        checkFileData,
+      };
+    }
+
+    it('should write to files in the file tree', () => {
       const fileData = 'Hello, World!';
+
+      const filePaths = [
+        joinTestPath('file1'),
+        joinTestPath('file2'),
+        joinTestPath('dir2', 'file1'),
+        joinTestPath('dir2', 'file2'),
+        joinTestPath('dir2', 'dir2', 'file1'),
+        joinTestPath('dir2', 'dir2', 'file2'),
+      ];
+
+      // create files
+      const { createFiles, checkFileData } = useFileWrite(filePaths, fileData);
+      fs.mkdirSync(joinTestPath('dir2', 'dir2'), { recursive: true });
+      createFiles();
+
+      // write data to files
       result.$fileWrite('file1', fileData);
-      expect(fs.readFileSync(file1, { encoding: 'utf-8' })).toBe(fileData);
+      result.$fileWrite('file2', fileData);
+      result.dir2.$fileWrite('file1', fileData);
+      result.dir2.$fileWrite('file2', fileData);
+      result.dir2.dir2.$fileWrite('file1', fileData);
+      result.dir2.dir2.$fileWrite('file2', fileData);
+
+      // test file data
+      checkFileData();
     });
 
-    it('should clear the file data', () => {
-      const file1 = path.join(testDirPath, 'file1');
+    it('should write to files not in the file tree', () => {
       const fileData = 'Hello, World!';
-      fs.writeFileSync(file1, fileData);
-      expect(fs.readFileSync(file1, { encoding: 'utf-8' })).toBe(fileData);
+      const fileName = 'new-file';
+
+      const filePaths = [
+        joinTestPath(fileName),
+        joinTestPath('dir1', fileName),
+        joinTestPath('dir2', 'dir1', fileName),
+      ];
+
+      // create files
+      const { createFiles, checkFileData } = useFileWrite(filePaths, fileData);
+      fs.mkdirSync(joinTestPath('dir1'), { recursive: true });
+      fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
+      createFiles();
+
+      // write data to files
+      result.$fileWrite(fileName, fileData);
+      result.dir1.$fileWrite(fileName, fileData);
+      result.dir2.dir1.$fileWrite(fileName, fileData);
+
+      // test file data
+      checkFileData();
+    });
+
+    function useFileClear(filePaths: string[]): {
+      createFiles: () => void;
+      checkFileData: () => void;
+    } {
+      function createFiles(): void {
+        const initialData = 'Hello, World!';
+
+        filePaths.forEach((filePath) => {
+          fs.writeFileSync(filePath, initialData);
+        });
+
+        // test initial file data
+        filePaths.forEach((filePath) => {
+          const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
+          expect(data).toBe(initialData);
+        });
+      }
+
+      function checkFileData(): void {
+        filePaths.forEach((filePath) => {
+          const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
+          expect(data).toBe('');
+        });
+      }
+
+      return {
+        createFiles,
+        checkFileData,
+      };
+    }
+
+    it('should clear files in the file tree', () => {
+      const filePaths = [
+        joinTestPath('file1'),
+        joinTestPath('file2'),
+        joinTestPath('dir2', 'file1'),
+        joinTestPath('dir2', 'file2'),
+        joinTestPath('dir2', 'dir2', 'file1'),
+        joinTestPath('dir2', 'dir2', 'file2'),
+      ];
+
+      // create files
+      const { createFiles, checkFileData } = useFileClear(filePaths);
+      fs.mkdirSync(joinTestPath('dir2', 'dir2'), { recursive: true });
+      createFiles();
+
+      // clear file data
       result.$fileClear('file1');
-      expect(fs.readFileSync(file1, { encoding: 'utf-8' })).toBe('');
+      result.$fileClear('file2');
+      result.dir2.$fileClear('file1');
+      result.dir2.$fileClear('file2');
+      result.dir2.dir2.$fileClear('file1');
+      result.dir2.dir2.$fileClear('file2');
+
+      // test cleared file data
+      checkFileData();
+    });
+
+    it('should clear files not in the file tree', () => {
+      const fileName = 'new-file';
+      const filePaths = [
+        joinTestPath(fileName),
+        joinTestPath('dir1', fileName),
+        joinTestPath('dir2', 'dir1', fileName),
+      ];
+
+      // create files
+      const { createFiles, checkFileData } = useFileClear(filePaths);
+      fs.mkdirSync(joinTestPath('dir1'));
+      fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
+      createFiles();
+
+      // clear file data
+      result.$fileClear(fileName);
+      result.dir1.$fileClear(fileName);
+      result.dir2.dir1.$fileClear(fileName);
+
+      // test cleared file data
+      checkFileData();
     });
   });
 
