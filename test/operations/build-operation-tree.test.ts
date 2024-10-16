@@ -829,59 +829,67 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     });
 
     type FileOperations = FileOperationsInterface & CustomFileOperations;
-    interface FileCreateResult {
-      file: FileOperations;
-      data: string | undefined;
+    interface TestResultsInterface {
       path: string;
+      data: string | undefined;
     }
+    type Callback = (
+      file: FileOperations,
+      testResults: TestResultsInterface,
+    ) => void;
 
-    function useFileCreate(useDirCreate = false): {
-      file1: FileCreateResult;
-      file2: FileCreateResult;
-      file3: FileCreateResult;
-    } {
+    function useFileCreate(cb: Callback): void {
       const dirName = 'new-dir';
       const fileName = 'new-file';
 
       fs.mkdirSync(joinTestPath('dir1'));
       fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
-      const source1 = useDirCreate ? result.$dirCreate(dirName) : result;
-      const source2 = useDirCreate
-        ? result.dir1.$dirCreate(dirName)
-        : result.dir1;
-      const source3 = useDirCreate
-        ? result.dir2.dir1.$dirCreate(dirName)
-        : result.dir2.dir1;
+
+      const dirs = {
+        dir1: result.$dirCreate(dirName),
+        dir2: result.dir1.$dirCreate(dirName),
+        dir3: result.dir2.dir1.$dirCreate(dirName),
+      };
 
       const fileData1 = 'Hello, World!';
       const fileData2 = 'Hello, World!\nFile 2';
-      const file1 = source1.$fileCreate(fileName, fileData1);
-      const file2 = source2.$fileCreate(fileName, fileData2);
-      const file3 = source3.$fileCreate(fileName);
-
-      function getFilePath(...dirs: string[]): string {
-        return useDirCreate
-          ? joinTestPath(...dirs, dirName, fileName)
-          : joinTestPath(...dirs, fileName);
-      }
-
-      return {
-        file1: {
-          file: file1,
-          data: fileData1,
-          path: getFilePath(),
+      const files = {
+        tree: {
+          file1: result.$fileCreate(fileName, fileData1),
+          file2: result.dir1.$fileCreate(fileName, fileData2),
+          file3: result.dir2.dir1.$fileCreate(fileName),
         },
-        file2: {
-          file: file2,
-          data: fileData2,
-          path: getFilePath('dir1'),
-        },
-        file3: {
-          file: file3,
-          data: undefined,
-          path: getFilePath('dir2', 'dir1'),
+        dirCreate: {
+          file1: dirs.dir1.$fileCreate(fileName, fileData1),
+          file2: dirs.dir2.$fileCreate(fileName, fileData2),
+          file3: dirs.dir3.$fileCreate(fileName),
         },
       };
+
+      function getFilePath(
+        ...fileDirs: string[]
+      ): (useDirCreate?: boolean) => string {
+        return function (useDirCreate = false) {
+          return useDirCreate
+            ? joinTestPath(...fileDirs, dirName, fileName)
+            : joinTestPath(...fileDirs, fileName);
+        };
+      }
+
+      const paths = {
+        file1: getFilePath(),
+        file2: getFilePath('dir1'),
+        file3: getFilePath('dir2', 'dir1'),
+      };
+
+      cb(files.tree.file1, { path: paths.file1(), data: fileData1 });
+      cb(files.tree.file2, { path: paths.file2(), data: fileData2 });
+      cb(files.tree.file3, { path: paths.file3(), data: undefined });
+
+      // test files created in directories created with dirCreate
+      cb(files.dirCreate.file1, { path: paths.file1(true), data: fileData1 });
+      cb(files.dirCreate.file2, { path: paths.file2(true), data: fileData2 });
+      cb(files.dirCreate.file3, { path: paths.file3(true), data: undefined });
     }
 
     it('should be defined', () => {
@@ -907,18 +915,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     });
 
     it('should have custom file operation methods on file objects created with fileCreate', () => {
-      const files = useFileCreate();
-      Object.values(files).forEach(({ file }) => {
-        customFileMethods.forEach((method) => {
-          expect(file).toHaveProperty(method);
-          expect(file[method]).toBeInstanceOf(Function);
-        });
-      });
-    });
-
-    it('should have custom file operation methods on file objects created with dirCreate and fileCreate', () => {
-      const files = useFileCreate(true);
-      Object.values(files).forEach(({ file }) => {
+      useFileCreate((file) => {
         customFileMethods.forEach((method) => {
           expect(file).toHaveProperty(method);
           expect(file[method]).toBeInstanceOf(Function);
@@ -944,16 +941,8 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       expect(result.dir2.dir2.file2.getFilePath()).toBe(pathValue.file6);
     });
 
-    it('should return the path for files created with fileCreate', () => {
-      const files = useFileCreate();
-      Object.values(files).forEach(({ file, path }) => {
-        expect(file.getFilePath()).toBe(path);
-      });
-    });
-
     it('should return the path for files created with dirCreate and fileCreate', () => {
-      const files = useFileCreate(true);
-      Object.values(files).forEach(({ file, path }) => {
+      useFileCreate((file, { path }) => {
         expect(file.getFilePath()).toBe(path);
       });
     });
@@ -976,16 +965,8 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       expect(result.dir2.dir2.file2.getFileData()).toBe(dataValue.file6);
     });
 
-    it('should return file data for files created with fileCreate', () => {
-      const files = useFileCreate();
-      Object.values(files).forEach(({ file, data }) => {
-        expect(file.getFileData()).toBe(data);
-      });
-    });
-
     it('should return file data for files created with dirCreate and fileCreate', () => {
-      const files = useFileCreate(true);
-      Object.values(files).forEach(({ file, data }) => {
+      useFileCreate((file, { data }) => {
         expect(file.getFileData()).toBe(data);
       });
     });
@@ -999,16 +980,8 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       expect(result.dir2.dir2.file2.getFileType()).toBe('file');
     });
 
-    it('should return file type for files created with fileCreate', () => {
-      const files = useFileCreate();
-      Object.values(files).forEach(({ file }) => {
-        expect(file.getFileType()).toBe('file');
-      });
-    });
-
     it('should return file type for files created with dirCreate and fileCreate', () => {
-      const files = useFileCreate(true);
-      Object.values(files).forEach(({ file }) => {
+      useFileCreate((file) => {
         expect(file.getFileType()).toBe('file');
       });
     });
@@ -1031,16 +1004,8 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       expect(result.dir2.dir2.file2.getFileSkip()).toBe(skipValue.file6);
     });
 
-    it('should return skip value for files created with fileCreate', () => {
-      const files = useFileCreate();
-      Object.values(files).forEach(({ file }) => {
-        expect(file.getFileSkip()).toBe(false);
-      });
-    });
-
     it('should return skip value for files created with dirCreate and fileCreate', () => {
-      const files = useFileCreate(true);
-      Object.values(files).forEach(({ file }) => {
+      useFileCreate((file) => {
         expect(file.getFileSkip()).toBe(false);
       });
     });
@@ -1054,16 +1019,8 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       expect(result.dir2.dir2.file2.plusOne(1)).toBe(2);
     });
 
-    it('should add 1 for files created with fileCreate', () => {
-      const files = useFileCreate();
-      Object.values(files).forEach(({ file }) => {
-        expect(file.plusOne(1)).toBe(2);
-      });
-    });
-
     it('should add 1 for files created with dirCreate and fileCreate', () => {
-      const files = useFileCreate(true);
-      Object.values(files).forEach(({ file }) => {
+      useFileCreate((file) => {
         expect(file.plusOne(1)).toBe(2);
       });
     });
@@ -1117,12 +1074,17 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     type DirOperations = CustomDirOperations &
       DirOperationsInterface<undefined, undefined, CustomDirOperations>;
 
-    function useDirCreate(): DirOperations[] {
+    type Callback = (dir: DirOperations, path: string) => void;
+
+    function useDirCreate(cb: Callback): void {
       const dirName = 'new-dir';
       const dir1 = result.$dirCreate(dirName);
       const dir2 = result.dir1.$dirCreate(dirName);
       const dir3 = result.dir2.dir1.$dirCreate(dirName);
-      return [dir1, dir2, dir3];
+
+      cb(dir1, joinTestPath(dirName));
+      cb(dir2, joinTestPath('dir1', dirName));
+      cb(dir3, joinTestPath('dir2', 'dir1', dirName));
     }
 
     it('should be defined', () => {
@@ -1145,7 +1107,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     });
 
     it('should have custom directory operation methods on directory object created with dirCreate', () => {
-      useDirCreate().forEach((dir) => {
+      useDirCreate((dir) => {
         customDirMethods.forEach((method) => {
           expect(dir).toHaveProperty(method);
           expect(dir[method]).toBeInstanceOf(Function);
@@ -1169,14 +1131,9 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     });
 
     it('should return the path for directories created with dirCreate', () => {
-      const dirName = 'new-dir';
-      const dir1 = result.$dirCreate(dirName);
-      const dir2 = result.dir1.$dirCreate(dirName);
-      const dir3 = result.dir2.dir1.$dirCreate(dirName);
-
-      expect(dir1.getDirPath()).toBe(joinTestPath(dirName));
-      expect(dir2.getDirPath()).toBe(joinTestPath('dir1', dirName));
-      expect(dir3.getDirPath()).toBe(joinTestPath('dir2', 'dir1', dirName));
+      useDirCreate((dir, dirPath) => {
+        expect(dir.getDirPath()).toBe(dirPath);
+      });
     });
 
     it('should return directory type for directories from the file tree', () => {
@@ -1194,7 +1151,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     });
 
     it('should return directory type for directories created with dirCreate', () => {
-      useDirCreate().forEach((dir) => {
+      useDirCreate((dir) => {
         expect(dir.getDirType()).toBe('dir');
       });
     });
@@ -1218,7 +1175,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     });
 
     it('should return directory children keys for directories created with dirCreate', () => {
-      useDirCreate().forEach((dir) => {
+      useDirCreate((dir) => {
         expect(dir.getDirChildren()).toEqual([]);
       });
     });
@@ -1232,7 +1189,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     });
 
     it('should add 1 for directories created with dirCreate', () => {
-      useDirCreate().forEach((dir) => {
+      useDirCreate((dir) => {
         expect(dir.plusOne(1)).toBe(2);
       });
     });
