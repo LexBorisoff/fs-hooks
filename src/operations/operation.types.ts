@@ -71,12 +71,12 @@ export interface DirOperationsInterface<
   $dirCreate(
     dirName: string,
   ): CustomDirOperations extends OperationsType
-    ? CustomDirOperations &
-        DirOperationsInterface<
-          undefined,
-          CustomFileOperations,
-          CustomDirOperations
-        >
+    ? DirOperationsInterface<
+        undefined,
+        CustomFileOperations,
+        CustomDirOperations
+      > &
+        CustomDirOperations
     : DirOperationsInterface<
         undefined,
         CustomFileOperations,

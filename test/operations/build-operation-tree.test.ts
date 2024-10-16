@@ -10,6 +10,7 @@ import {
 } from 'vitest';
 import { testSetup } from '../test-setup.js';
 import type {
+  DirOperationsInterface,
   FileOperationsInterface,
   FileOperationTreeType,
 } from '../../src/operations/operation.types.js';
@@ -925,7 +926,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should return the file path for files from the file tree', () => {
+    it('should return the path for files from the file tree', () => {
       const pathValue = {
         file1: joinTestPath('file1'),
         file2: joinTestPath('file2'),
@@ -943,14 +944,14 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       expect(result.dir2.dir2.file2.getFilePath()).toBe(pathValue.file6);
     });
 
-    it('should return the file path for files created with fileCreate', () => {
+    it('should return the path for files created with fileCreate', () => {
       const files = useFileCreate();
       Object.values(files).forEach(({ file, path }) => {
         expect(file.getFilePath()).toBe(path);
       });
     });
 
-    it('should return the file path for files created with dirCreate and fileCreate', () => {
+    it('should return the path for files created with dirCreate and fileCreate', () => {
       const files = useFileCreate(true);
       Object.values(files).forEach(({ file, path }) => {
         expect(file.getFilePath()).toBe(path);
@@ -1113,28 +1114,126 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should have correct custom directory operation methods', () => {
+    type DirOperations = CustomDirOperations &
+      DirOperationsInterface<undefined, undefined, CustomDirOperations>;
+
+    function useDirCreate(): DirOperations[] {
+      const dirName = 'new-dir';
+      const dir1 = result.$dirCreate(dirName);
+      const dir2 = result.dir1.$dirCreate(dirName);
+      const dir3 = result.dir2.dir1.$dirCreate(dirName);
+      return [dir1, dir2, dir3];
+    }
+
+    it('should be defined', () => {
+      expect(result).toBeDefined();
+    });
+
+    it('should have custom directory operation methods on directory object in the file tree', () => {
       [
         result,
         result.dir1,
         result.dir2,
         result.dir2.dir1,
         result.dir2.dir2,
-      ].forEach((directory) => {
+      ].forEach((dir) => {
         customDirMethods.forEach((method) => {
-          expect(directory).toHaveProperty(method);
-          expect(directory[method]).toBeInstanceOf(Function);
+          expect(dir).toHaveProperty(method);
+          expect(dir[method]).toBeInstanceOf(Function);
         });
       });
     });
 
-    it('should create a directory with custom directory operations', () => {
-      // TODO: create multiple nested directories to test
-      const dir = result.$dirCreate('new-dir');
+    it('should have custom directory operation methods on directory object created with dirCreate', () => {
+      useDirCreate().forEach((dir) => {
+        customDirMethods.forEach((method) => {
+          expect(dir).toHaveProperty(method);
+          expect(dir[method]).toBeInstanceOf(Function);
+        });
+      });
+    });
 
-      customDirMethods.forEach((method) => {
-        expect(dir).toHaveProperty(method);
-        expect(dir[method]).toBeInstanceOf(Function);
+    it('should return the path for directories from the file tree', () => {
+      const pathValue = {
+        dir1: joinTestPath('dir1'),
+        dir2: joinTestPath('dir2'),
+        dir3: joinTestPath('dir2', 'dir1'),
+        dir4: joinTestPath('dir2', 'dir2'),
+      };
+
+      expect(result.getDirPath()).toBe(testDirPath);
+      expect(result.dir1.getDirPath()).toBe(pathValue.dir1);
+      expect(result.dir2.getDirPath()).toBe(pathValue.dir2);
+      expect(result.dir2.dir1.getDirPath()).toBe(pathValue.dir3);
+      expect(result.dir2.dir2.getDirPath()).toBe(pathValue.dir4);
+    });
+
+    it('should return the path for directories created with dirCreate', () => {
+      const dirName = 'new-dir';
+      const dir1 = result.$dirCreate(dirName);
+      const dir2 = result.dir1.$dirCreate(dirName);
+      const dir3 = result.dir2.dir1.$dirCreate(dirName);
+
+      expect(dir1.getDirPath()).toBe(joinTestPath(dirName));
+      expect(dir2.getDirPath()).toBe(joinTestPath('dir1', dirName));
+      expect(dir3.getDirPath()).toBe(joinTestPath('dir2', 'dir1', dirName));
+    });
+
+    it('should return directory type for directories from the file tree', () => {
+      const dirs = [
+        result,
+        result.dir1,
+        result.dir2,
+        result.dir2.dir1,
+        result.dir2.dir2,
+      ];
+
+      dirs.forEach((dir) => {
+        expect(dir.getDirType()).toBe('dir');
+      });
+    });
+
+    it('should return directory type for directories created with dirCreate', () => {
+      useDirCreate().forEach((dir) => {
+        expect(dir.getDirType()).toBe('dir');
+      });
+    });
+
+    it('should return directory children keys for directories from the file tree', () => {
+      const result1 = result.getDirChildren();
+      const result2 = result.dir1.getDirChildren();
+      const result3 = result.dir2.getDirChildren();
+      const result4 = result.dir2.dir1.getDirChildren();
+      const result5 = result.dir2.dir2.getDirChildren();
+
+      expect([...result1].sort()).toEqual(
+        ['dir1', 'dir2', 'file1', 'file2'].sort(),
+      );
+      expect([...result2]).toEqual([]);
+      expect([...result3].sort()).toEqual(
+        ['dir1', 'dir2', 'file1', 'file2'].sort(),
+      );
+      expect([...result4]).toEqual([]);
+      expect([...result5].sort()).toEqual(['file1', 'file2'].sort());
+    });
+
+    it('should return directory children keys for directories created with dirCreate', () => {
+      useDirCreate().forEach((dir) => {
+        expect(dir.getDirChildren()).toEqual([]);
+      });
+    });
+
+    it('should add 1 for directories from the file tree', () => {
+      expect(result.plusOne(1)).toBe(2);
+      expect(result.dir1.plusOne(1)).toBe(2);
+      expect(result.dir2.plusOne(1)).toBe(2);
+      expect(result.dir2.dir1.plusOne(1)).toBe(2);
+      expect(result.dir2.dir2.plusOne(1)).toBe(2);
+    });
+
+    it('should add 1 for directories created with dirCreate', () => {
+      useDirCreate().forEach((dir) => {
+        expect(dir.plusOne(1)).toBe(2);
       });
     });
   });
