@@ -168,17 +168,42 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       result = buildOperationTree(testPath, tree);
     });
 
-    it('should return correct file paths', () => {
-      expect(result.file1.$getPath()).toBe(joinTestPath('file1'));
-      expect(result.file2.$getPath()).toBe(joinTestPath('file2'));
-      expect(result.dir2.file1.$getPath()).toBe(joinTestPath('dir2', 'file1'));
-      expect(result.dir2.file2.$getPath()).toBe(joinTestPath('dir2', 'file2'));
-      expect(result.dir2.dir2.file1.$getPath()).toBe(
-        joinTestPath('dir2', 'dir2', 'file1'),
-      );
-      expect(result.dir2.dir2.file2.$getPath()).toBe(
-        joinTestPath('dir2', 'dir2', 'file2'),
-      );
+    it('should return file paths', () => {
+      interface TestItem {
+        filePath: string;
+        getPath: () => string;
+      }
+
+      const files: TestItem[] = [
+        {
+          filePath: joinTestPath('file1'),
+          getPath: () => result.file1.$getPath(),
+        },
+        {
+          filePath: joinTestPath('file2'),
+          getPath: () => result.file2.$getPath(),
+        },
+        {
+          filePath: joinTestPath('dir2', 'file1'),
+          getPath: () => result.dir2.file1.$getPath(),
+        },
+        {
+          filePath: joinTestPath('dir2', 'file2'),
+          getPath: () => result.dir2.file2.$getPath(),
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir2', 'file1'),
+          getPath: () => result.dir2.dir2.file1.$getPath(),
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir2', 'file2'),
+          getPath: () => result.dir2.dir2.file2.$getPath(),
+        },
+      ];
+
+      files.forEach(({ filePath, getPath }) => {
+        expect(getPath()).toBe(filePath);
+      });
     });
   });
 
@@ -193,55 +218,112 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       result = buildOperationTree(testPath, tree);
     });
 
-    it('should return correct directory paths', () => {
-      expect(result.$getPath()).toBe(testPath);
-      expect(result.dir1.$getPath()).toBe(joinTestPath('dir1'));
-      expect(result.dir2.$getPath()).toBe(joinTestPath('dir2'));
-      expect(result.dir2.dir1.$getPath()).toBe(joinTestPath('dir2', 'dir1'));
-      expect(result.dir2.dir2.$getPath()).toBe(joinTestPath('dir2', 'dir2'));
+    it('should return directory paths', () => {
+      interface TestItem {
+        dirPath: string;
+        getPath: () => string;
+      }
+
+      const dirs: TestItem[] = [
+        {
+          dirPath: testPath,
+          getPath: () => result.$getPath(),
+        },
+        {
+          dirPath: joinTestPath('dir1'),
+          getPath: () => result.dir1.$getPath(),
+        },
+        {
+          dirPath: joinTestPath('dir2'),
+          getPath: () => result.dir2.$getPath(),
+        },
+        {
+          dirPath: joinTestPath('dir2', 'dir1'),
+          getPath: () => result.dir2.dir1.$getPath(),
+        },
+        {
+          dirPath: joinTestPath('dir2', 'dir2'),
+          getPath: () => result.dir2.dir2.$getPath(),
+        },
+      ];
+
+      dirs.forEach(({ dirPath, getPath }) => {
+        expect(getPath()).toBe(dirPath);
+      });
     });
 
-    it('should check if files and directories from file tree exist', () => {
+    it('should check if files and directories exist (file tree)', () => {
+      interface TestItem {
+        path: string;
+        exists: () => boolean;
+      }
+
+      const dirs: TestItem[] = [
+        {
+          path: joinTestPath('dir1'),
+          exists: () => result.$exists('dir1'),
+        },
+        {
+          path: joinTestPath('dir2'),
+          exists: () => result.$exists('dir2'),
+        },
+        {
+          path: joinTestPath('dir2', 'dir1'),
+          exists: () => result.dir2.$exists('dir1'),
+        },
+        {
+          path: joinTestPath('dir2', 'dir2'),
+          exists: () => result.dir2.$exists('dir2'),
+        },
+      ];
+
+      const files: TestItem[] = [
+        {
+          path: joinTestPath('file1'),
+          exists: () => result.$exists('file1'),
+        },
+        {
+          path: joinTestPath('file2'),
+          exists: () => result.$exists('file2'),
+        },
+        {
+          path: joinTestPath('dir2', 'file1'),
+          exists: () => result.dir2.$exists('file1'),
+        },
+        {
+          path: joinTestPath('dir2', 'file2'),
+          exists: () => result.dir2.$exists('file2'),
+        },
+        {
+          path: joinTestPath('dir2', 'dir2', 'file1'),
+          exists: () => result.dir2.dir2.$exists('file1'),
+        },
+        {
+          path: joinTestPath('dir2', 'dir2', 'file2'),
+          exists: () => result.dir2.dir2.$exists('file2'),
+        },
+      ];
+
       function checkExists(value: boolean): void {
-        expect(result.$exists('file1')).toBe(value);
-        expect(result.$exists('file2')).toBe(value);
-        expect(result.$exists('dir1')).toBe(value);
-        expect(result.$exists('dir2')).toBe(value);
-        expect(result.dir2.$exists('file1')).toBe(value);
-        expect(result.dir2.$exists('file2')).toBe(value);
-        expect(result.dir2.$exists('dir1')).toBe(value);
-        expect(result.dir2.$exists('dir2')).toBe(value);
-        expect(result.dir2.dir2.$exists('file1')).toBe(value);
-        expect(result.dir2.dir2.$exists('file2')).toBe(value);
+        dirs.concat(files).forEach(({ exists }) => {
+          expect(exists()).toBe(value);
+        });
       }
 
       // expect false before files and directories are created
       checkExists(false);
 
-      // create files and directories from the file tree
-      const dirs = [
-        joinTestPath('dir1'),
-        joinTestPath('dir2'),
-        joinTestPath('dir2', 'dir1'),
-        joinTestPath('dir2', 'dir2'),
-      ];
-      const files = [
-        joinTestPath('file1'),
-        joinTestPath('file2'),
-        joinTestPath('dir2', 'file1'),
-        joinTestPath('dir2', 'file2'),
-        joinTestPath('dir2', 'dir2', 'file1'),
-        joinTestPath('dir2', 'dir2', 'file2'),
-      ];
-
-      dirs.forEach((dir) => fs.mkdirSync(dir, { recursive: true }));
-      files.forEach((file) => fs.writeFileSync(file, ''));
+      // create files and directories in the file tree
+      dirs.forEach(({ path: dirPath }) =>
+        fs.mkdirSync(dirPath, { recursive: true }),
+      );
+      files.forEach(({ path: filePath }) => fs.writeFileSync(filePath, ''));
 
       // expect true after files and directories are created
       checkExists(true);
     });
 
-    it('should check if files and directories not from file tree exist', () => {
+    it('should check if files and directories exist (non file tree)', () => {
       const fileName = 'new-file';
       const dirName = 'new-dir';
 
@@ -302,35 +384,36 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     });
 
     it('should create directories', () => {
+      const dirName = 'new-dir';
+
       interface TestItem {
-        path: string;
-        create: () => void;
+        dirPath: string;
+        dirCreate: () => void;
       }
 
-      const dirName = 'new-dir';
       const dirs: TestItem[] = [
         {
-          path: joinTestPath(dirName),
-          create(): void {
+          dirPath: joinTestPath(dirName),
+          dirCreate(): void {
             result.$dirCreate(dirName);
           },
         },
         {
-          path: joinTestPath('dir1', dirName),
-          create(): void {
+          dirPath: joinTestPath('dir1', dirName),
+          dirCreate(): void {
             result.dir1.$dirCreate(dirName);
           },
         },
         {
-          path: joinTestPath('dir2', 'dir1', dirName),
-          create(): void {
+          dirPath: joinTestPath('dir2', 'dir1', dirName),
+          dirCreate(): void {
             result.dir2.dir1.$dirCreate(dirName);
           },
         },
       ];
 
       function checkExists(value: boolean): void {
-        dirs.forEach(({ path: dirPath }) => {
+        dirs.forEach(({ dirPath }) => {
           expect(fs.existsSync(dirPath)).toBe(value);
         });
       }
@@ -339,8 +422,8 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       checkExists(false);
 
       // create directories
-      dirs.forEach(({ create }) => {
-        create();
+      dirs.forEach(({ dirCreate }) => {
+        dirCreate();
       });
 
       // expect true after directories are created
@@ -366,7 +449,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should delete directories from the file tree', () => {
+    it('should delete directories (file tree)', () => {
       const dirs = [
         joinTestPath('dir1'),
         joinTestPath('dir2'),
@@ -398,44 +481,45 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       checkExists(false);
     });
 
-    it('should delete directories that are not from the file tree', () => {
+    it('should delete directories (non file tree)', () => {
+      const dirName = 'new-dir';
+
       interface TestItem {
-        path: string;
-        delete: () => void;
+        dirPath: string;
+        dirDelete: () => void;
       }
 
-      const dirName = 'new-dir';
       const dirs: TestItem[] = [
         {
-          path: joinTestPath(dirName),
-          delete: () => result.$dirDelete(dirName),
+          dirPath: joinTestPath(dirName),
+          dirDelete: () => result.$dirDelete(dirName),
         },
         {
-          path: joinTestPath('dir1', dirName),
-          delete: () => result.dir1.$dirDelete(dirName),
+          dirPath: joinTestPath('dir1', dirName),
+          dirDelete: () => result.dir1.$dirDelete(dirName),
         },
         {
-          path: joinTestPath('dir2', dirName),
-          delete: () => result.dir2.$dirDelete(dirName),
+          dirPath: joinTestPath('dir2', dirName),
+          dirDelete: () => result.dir2.$dirDelete(dirName),
         },
         {
-          path: joinTestPath('dir2', 'dir1', dirName),
-          delete: () => result.dir2.dir1.$dirDelete(dirName),
+          dirPath: joinTestPath('dir2', 'dir1', dirName),
+          dirDelete: () => result.dir2.dir1.$dirDelete(dirName),
         },
         {
-          path: joinTestPath('dir2', 'dir2', dirName),
-          delete: () => result.dir2.dir2.$dirDelete(dirName),
+          dirPath: joinTestPath('dir2', 'dir2', dirName),
+          dirDelete: () => result.dir2.dir2.$dirDelete(dirName),
         },
       ];
 
       function checkExists(value: boolean): void {
-        dirs.forEach(({ path: dirPath }) => {
+        dirs.forEach(({ dirPath }) => {
           expect(fs.existsSync(dirPath)).toBe(value);
         });
       }
 
       // create directories manually to mock FileManager's create method
-      dirs.forEach(({ path: dirPath }) => {
+      dirs.forEach(({ dirPath }) => {
         fs.mkdirSync(dirPath, { recursive: true });
       });
 
@@ -443,7 +527,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       checkExists(true);
 
       // delete directories
-      dirs.forEach(({ delete: dirDelete }) => {
+      dirs.forEach(({ dirDelete }) => {
         dirDelete();
       });
 
@@ -451,91 +535,92 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       checkExists(false);
     });
 
-    it('should read files from the file tree', () => {
+    it('should read files (file tree)', () => {
       function getFileData({ data }: FileInterface): string {
         return data instanceof Function ? data() : (data ?? '');
       }
 
       interface TestItem {
-        path: string;
         data: string;
-        read: () => string | null;
+        filePath: string;
+        fileRead: () => string | null;
       }
 
       const files: TestItem[] = [
         {
-          path: joinTestPath('file1'),
           data: getFileData(tree.file1),
-          read: () => result.$fileRead('file1'),
+          filePath: joinTestPath('file1'),
+          fileRead: () => result.$fileRead('file1'),
         },
         {
-          path: joinTestPath('file2'),
           data: getFileData(tree.file2),
-          read: () => result.$fileRead('file2'),
+          filePath: joinTestPath('file2'),
+          fileRead: () => result.$fileRead('file2'),
         },
         {
-          path: joinTestPath('dir2', 'file1'),
           data: getFileData(tree.dir2.children.file1),
-          read: () => result.dir2.$fileRead('file1'),
+          filePath: joinTestPath('dir2', 'file1'),
+          fileRead: () => result.dir2.$fileRead('file1'),
         },
         {
-          path: joinTestPath('dir2', 'file2'),
           data: getFileData(tree.dir2.children.file2),
-          read: () => result.dir2.$fileRead('file2'),
+          filePath: joinTestPath('dir2', 'file2'),
+          fileRead: () => result.dir2.$fileRead('file2'),
         },
         {
-          path: joinTestPath('dir2', 'dir2', 'file1'),
           data: getFileData(tree.dir2.children.dir2.children.file1),
-          read: () => result.dir2.dir2.$fileRead('file1'),
+          filePath: joinTestPath('dir2', 'dir2', 'file1'),
+          fileRead: () => result.dir2.dir2.$fileRead('file1'),
         },
         {
-          path: joinTestPath('dir2', 'dir2', 'file2'),
           data: getFileData(tree.dir2.children.dir2.children.file2),
-          read: () => result.dir2.dir2.$fileRead('file2'),
+          filePath: joinTestPath('dir2', 'dir2', 'file2'),
+          fileRead: () => result.dir2.dir2.$fileRead('file2'),
         },
       ];
 
       // create files manually to mock FileManager's create method
       fs.mkdirSync(joinTestPath('dir2', 'dir2'), { recursive: true });
-      files.forEach(({ path: filePath, data, read }) => {
+      files.forEach(({ data, filePath, fileRead }) => {
         fs.writeFileSync(filePath, data);
-        expect(read()).toBe(data);
+        expect(fileRead()).toBe(data);
       });
     });
 
-    it('should read files that are not from the file tree', () => {
+    it('should read files (non file tree)', () => {
+      const fileName = 'new-file';
+
       interface TestItem {
-        path: string;
         data: string;
-        read: () => string | null;
+        filePath: string;
+        fileRead: () => string | null;
       }
 
-      const fileName = 'new-file';
       const files: TestItem[] = [
         {
-          path: joinTestPath(fileName),
           data: 'New File test',
-          read: () => result.$fileRead(fileName),
+          filePath: joinTestPath(fileName),
+          fileRead: () => result.$fileRead(fileName),
         },
         {
-          path: joinTestPath('dir1', fileName),
           data: 'Dir 1\nNew File test',
-          read: () => result.dir1.$fileRead(fileName),
+          filePath: joinTestPath('dir1', fileName),
+          fileRead: () => result.dir1.$fileRead(fileName),
         },
         {
-          path: joinTestPath('dir2', fileName),
           data: 'Dir 2\nNew File test',
-          read: () => result.dir2.$fileRead(fileName),
+          filePath: joinTestPath('dir2', fileName),
+          fileRead: () => result.dir2.$fileRead(fileName),
         },
         {
-          path: joinTestPath('dir2', 'dir1', fileName),
           data: 'Dir 2\nDir 1\nNew File test',
-          read: () => result.dir2.dir1.$fileRead(fileName),
+          filePath: joinTestPath('dir2', 'dir1', fileName),
+          fileRead: () => result.dir2.dir1.$fileRead(fileName),
         },
         {
-          path: joinTestPath('dir2', 'dir2', fileName),
           data: 'Dir 2\nDir 2\nNew File test',
-          read: () => result.dir2.dir2.$fileRead(fileName),
+          filePath: joinTestPath('dir2', 'dir2', fileName),
+          fileRead: () => result.dir2.dir2.$fileRead(fileName),
         },
       ];
 
@@ -544,13 +629,13 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
       fs.mkdirSync(joinTestPath('dir2', 'dir2'));
 
-      files.forEach(({ path: filePath, read, data }) => {
+      files.forEach(({ data, filePath, fileRead }) => {
         fs.writeFileSync(filePath, data);
-        expect(read()).toBe(data);
+        expect(fileRead()).toBe(data);
       });
     });
 
-    it('should read files created via fileCreate', () => {
+    it('should read files (fileCreate, with data)', () => {
       fs.mkdirSync(joinTestPath('dir1'));
       fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
       fs.mkdirSync(joinTestPath('dir2', 'dir2'));
@@ -585,7 +670,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should read empty string for files created via fileCreate without data', () => {
+    it('should read files (fileCreate, no data)', () => {
       fs.mkdirSync(joinTestPath('dir1'));
       fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
       fs.mkdirSync(joinTestPath('dir2', 'dir2'));
@@ -605,7 +690,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should read files created via dirCreate and fileCreate', () => {
+    it('should read files (dirCreate + fileCreate, with data)', () => {
       const dirs = [
         {
           dir: result,
@@ -639,7 +724,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should read empty string for files created via dirCreate and fileCreate without data', () => {
+    it('should read files (dirCreate + fileCreate, no data)', () => {
       const dirs = [
         result,
         result.dir1,
@@ -665,26 +750,61 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     it('should create files', () => {
       const fileName = 'new-file';
 
+      interface TestItem {
+        filePath: string;
+        fileCreate: () => void;
+      }
+
+      const files: TestItem[] = [
+        {
+          filePath: joinTestPath(fileName),
+          fileCreate(): void {
+            result.$fileCreate(fileName);
+          },
+        },
+        {
+          filePath: joinTestPath('dir1', fileName),
+          fileCreate(): void {
+            result.dir1.$fileCreate(fileName);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', fileName),
+          fileCreate(): void {
+            result.dir2.$fileCreate(fileName);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir1', fileName),
+          fileCreate(): void {
+            result.dir2.dir1.$fileCreate(fileName);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir2', fileName),
+          fileCreate(): void {
+            result.dir2.dir2.$fileCreate(fileName);
+          },
+        },
+      ];
+
       function checkExists(value: boolean): void {
-        [
-          joinTestPath(fileName),
-          joinTestPath('dir1', fileName),
-          joinTestPath('dir2', 'dir1', fileName),
-        ].forEach((file) => {
-          expect(fs.existsSync(file)).toBe(value);
+        files.forEach(({ filePath }) => {
+          expect(fs.existsSync(filePath)).toBe(value);
         });
       }
 
       fs.mkdirSync(joinTestPath('dir1'));
       fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
+      fs.mkdirSync(joinTestPath('dir2', 'dir2'));
 
       // expect false before files are created
       checkExists(false);
 
       // create files
-      result.$fileCreate(fileName);
-      result.dir1.$fileCreate(fileName);
-      result.dir2.dir1.$fileCreate(fileName);
+      files.forEach(({ fileCreate }) => {
+        fileCreate();
+      });
 
       // expect true after files are created
       checkExists(true);
@@ -693,6 +813,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     it('should create a nested file in an existing folder', () => {
       const nestedFileName = 'dir2/dir1/new-file-2';
       const nestedFilePath = joinTestPath(nestedFileName);
+
       function checkExists(value: boolean): void {
         expect(fs.existsSync(nestedFilePath)).toBe(value);
       }
@@ -716,12 +837,15 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       const fileName = 'new-file';
       fs.mkdirSync(joinTestPath('dir1'));
       fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
+      fs.mkdirSync(joinTestPath('dir2', 'dir2'));
 
       // create files
       const files = [
         result.$fileCreate(fileName),
         result.dir1.$fileCreate(fileName),
+        result.dir2.$fileCreate(fileName),
         result.dir2.dir1.$fileCreate(fileName),
+        result.dir2.dir2.$fileCreate(fileName),
       ];
 
       // test created file objects
@@ -765,17 +889,54 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       };
     }
 
-    it('should delete files from the file tree', () => {
-      const filePaths = [
-        joinTestPath('file1'),
-        joinTestPath('file2'),
-        joinTestPath('dir2', 'file1'),
-        joinTestPath('dir2', 'file2'),
-        joinTestPath('dir2', 'dir2', 'file1'),
-        joinTestPath('dir2', 'dir2', 'file2'),
+    it('should delete files (file tree)', () => {
+      interface TestItem {
+        filePath: string;
+        fileDelete: () => void;
+      }
+
+      const files: TestItem[] = [
+        {
+          filePath: joinTestPath('file1'),
+          fileDelete(): void {
+            result.$fileDelete('file1');
+          },
+        },
+        {
+          filePath: joinTestPath('file2'),
+          fileDelete(): void {
+            result.$fileDelete('file2');
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'file1'),
+          fileDelete(): void {
+            result.dir2.$fileDelete('file1');
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'file2'),
+          fileDelete(): void {
+            result.dir2.$fileDelete('file2');
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir2', 'file1'),
+          fileDelete(): void {
+            result.dir2.dir2.$fileDelete('file1');
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir2', 'file2'),
+          fileDelete(): void {
+            result.dir2.dir2.$fileDelete('file2');
+          },
+        },
       ];
 
-      const { checkExists, createFiles } = useFileDelete(filePaths);
+      const { checkExists, createFiles } = useFileDelete(
+        files.map(({ filePath }) => filePath),
+      );
 
       // create files
       fs.mkdirSync(joinTestPath('dir2', 'dir2'), { recursive: true });
@@ -785,39 +946,72 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       checkExists(true);
 
       // delete files
-      result.$fileDelete('file1');
-      result.$fileDelete('file2');
-      result.dir2.$fileDelete('file1');
-      result.dir2.$fileDelete('file2');
-      result.dir2.dir2.$fileDelete('file1');
-      result.dir2.dir2.$fileDelete('file2');
+      files.forEach(({ fileDelete }) => {
+        fileDelete();
+      });
 
       // expect false after deleting files
       checkExists(false);
     });
 
-    it('should delete files that are not from the file tree', () => {
+    it('should delete files (non file tree)', () => {
       const fileName = 'new-file';
-      const filePaths = [
-        joinTestPath(fileName),
-        joinTestPath('dir1', fileName),
-        joinTestPath('dir2', 'dir1', fileName),
+
+      interface TestItem {
+        filePath: string;
+        fileDelete: () => void;
+      }
+
+      const files: TestItem[] = [
+        {
+          filePath: joinTestPath(fileName),
+          fileDelete(): void {
+            result.$fileDelete(fileName);
+          },
+        },
+        {
+          filePath: joinTestPath('dir1', fileName),
+          fileDelete(): void {
+            result.dir1.$fileDelete(fileName);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', fileName),
+          fileDelete(): void {
+            result.dir2.$fileDelete(fileName);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir1', fileName),
+          fileDelete(): void {
+            result.dir2.dir1.$fileDelete(fileName);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir2', fileName),
+          fileDelete(): void {
+            result.dir2.dir2.$fileDelete(fileName);
+          },
+        },
       ];
 
-      const { checkExists, createFiles } = useFileDelete(filePaths);
+      const { checkExists, createFiles } = useFileDelete(
+        files.map(({ filePath }) => filePath),
+      );
 
       // create files
       fs.mkdirSync(joinTestPath('dir1'));
       fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
+      fs.mkdirSync(joinTestPath('dir2', 'dir2'));
       createFiles();
 
       // expect true before deleting files
       checkExists(true);
 
       // delete files
-      result.$fileDelete(fileName);
-      result.dir1.$fileDelete(fileName);
-      result.dir2.dir1.$fileDelete(fileName);
+      files.forEach(({ fileDelete }) => {
+        fileDelete();
+      });
 
       // expect false after deleting files
       checkExists(false);
@@ -849,55 +1043,127 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       };
     }
 
-    it('should write to files from the file tree', () => {
+    it('should write to files (file tree)', () => {
       const fileData = 'Hello, World!';
 
-      const filePaths = [
-        joinTestPath('file1'),
-        joinTestPath('file2'),
-        joinTestPath('dir2', 'file1'),
-        joinTestPath('dir2', 'file2'),
-        joinTestPath('dir2', 'dir2', 'file1'),
-        joinTestPath('dir2', 'dir2', 'file2'),
+      interface TestItem {
+        filePath: string;
+        fileWrite: () => void;
+      }
+
+      const files: TestItem[] = [
+        {
+          filePath: joinTestPath('file1'),
+          fileWrite(): void {
+            result.$fileWrite('file1', fileData);
+          },
+        },
+        {
+          filePath: joinTestPath('file2'),
+          fileWrite(): void {
+            result.$fileWrite('file2', fileData);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'file1'),
+          fileWrite(): void {
+            result.dir2.$fileWrite('file1', fileData);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'file2'),
+          fileWrite(): void {
+            result.dir2.$fileWrite('file2', fileData);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir2', 'file1'),
+          fileWrite(): void {
+            result.dir2.dir2.$fileWrite('file1', fileData);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir2', 'file2'),
+          fileWrite(): void {
+            result.dir2.dir2.$fileWrite('file2', fileData);
+          },
+        },
       ];
 
       // create files
-      const { createFiles, checkFileData } = useFileWrite(filePaths, fileData);
+      const { createFiles, checkFileData } = useFileWrite(
+        files.map(({ filePath }) => filePath),
+        fileData,
+      );
       fs.mkdirSync(joinTestPath('dir2', 'dir2'), { recursive: true });
       createFiles();
 
       // write data to files
-      result.$fileWrite('file1', fileData);
-      result.$fileWrite('file2', fileData);
-      result.dir2.$fileWrite('file1', fileData);
-      result.dir2.$fileWrite('file2', fileData);
-      result.dir2.dir2.$fileWrite('file1', fileData);
-      result.dir2.dir2.$fileWrite('file2', fileData);
+      files.forEach(({ fileWrite }) => {
+        fileWrite();
+      });
 
       // test file data
       checkFileData();
     });
 
-    it('should write to files that are not from the file tree', () => {
+    it('should write to files (non file tree)', () => {
       const fileData = 'Hello, World!';
       const fileName = 'new-file';
 
-      const filePaths = [
-        joinTestPath(fileName),
-        joinTestPath('dir1', fileName),
-        joinTestPath('dir2', 'dir1', fileName),
+      interface TestItem {
+        filePath: string;
+        fileWrite: () => void;
+      }
+
+      const files: TestItem[] = [
+        {
+          filePath: joinTestPath(fileName),
+          fileWrite(): void {
+            result.$fileWrite(fileName, fileData);
+          },
+        },
+        {
+          filePath: joinTestPath('dir1', fileName),
+          fileWrite(): void {
+            result.dir1.$fileWrite(fileName, fileData);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', fileName),
+          fileWrite(): void {
+            result.dir2.$fileWrite(fileName, fileData);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir1', fileName),
+          fileWrite(): void {
+            result.dir2.dir1.$fileWrite(fileName, fileData);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir2', fileName),
+          fileWrite(): void {
+            result.dir2.dir2.$fileWrite(fileName, fileData);
+          },
+        },
       ];
 
       // create files
-      const { createFiles, checkFileData } = useFileWrite(filePaths, fileData);
-      fs.mkdirSync(joinTestPath('dir1'), { recursive: true });
+      const { createFiles, checkFileData } = useFileWrite(
+        files.map(({ filePath }) => filePath),
+        fileData,
+      );
+      fs.mkdirSync(joinTestPath('dir1'));
       fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
+      fs.mkdirSync(joinTestPath('dir2', 'dir2'));
+
       createFiles();
 
       // write data to files
-      result.$fileWrite(fileName, fileData);
-      result.dir1.$fileWrite(fileName, fileData);
-      result.dir2.dir1.$fileWrite(fileName, fileData);
+      files.forEach(({ fileWrite }) => {
+        fileWrite();
+      });
 
       // test file data
       checkFileData();
@@ -934,51 +1200,126 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       };
     }
 
-    it('should clear files from the file tree', () => {
-      const filePaths = [
-        joinTestPath('file1'),
-        joinTestPath('file2'),
-        joinTestPath('dir2', 'file1'),
-        joinTestPath('dir2', 'file2'),
-        joinTestPath('dir2', 'dir2', 'file1'),
-        joinTestPath('dir2', 'dir2', 'file2'),
+    it('should clear files (file tree)', () => {
+      interface TestItem {
+        filePath: string;
+        fileClear: () => void;
+      }
+
+      const files: TestItem[] = [
+        {
+          filePath: joinTestPath('file1'),
+          fileClear(): void {
+            result.$fileClear('file1');
+          },
+        },
+
+        {
+          filePath: joinTestPath('file2'),
+          fileClear(): void {
+            result.$fileClear('file2');
+          },
+        },
+
+        {
+          filePath: joinTestPath('dir2', 'file1'),
+          fileClear(): void {
+            result.dir2.$fileClear('file1');
+          },
+        },
+
+        {
+          filePath: joinTestPath('dir2', 'file2'),
+          fileClear(): void {
+            result.dir2.$fileClear('file2');
+          },
+        },
+
+        {
+          filePath: joinTestPath('dir2', 'dir2', 'file1'),
+          fileClear(): void {
+            result.dir2.dir2.$fileClear('file1');
+          },
+        },
+
+        {
+          filePath: joinTestPath('dir2', 'dir2', 'file2'),
+          fileClear(): void {
+            result.dir2.dir2.$fileClear('file2');
+          },
+        },
       ];
 
       // create files
-      const { createFiles, checkFileData } = useFileClear(filePaths);
+      const { createFiles, checkFileData } = useFileClear(
+        files.map(({ filePath }) => filePath),
+      );
       fs.mkdirSync(joinTestPath('dir2', 'dir2'), { recursive: true });
       createFiles();
 
       // clear file data
-      result.$fileClear('file1');
-      result.$fileClear('file2');
-      result.dir2.$fileClear('file1');
-      result.dir2.$fileClear('file2');
-      result.dir2.dir2.$fileClear('file1');
-      result.dir2.dir2.$fileClear('file2');
+      files.forEach(({ fileClear }) => {
+        fileClear();
+      });
 
       // test cleared file data
       checkFileData();
     });
 
-    it('should clear files that are not from the file tree', () => {
+    it('should clear files (non file tree)', () => {
       const fileName = 'new-file';
-      const filePaths = [
-        joinTestPath(fileName),
-        joinTestPath('dir1', fileName),
-        joinTestPath('dir2', 'dir1', fileName),
+
+      interface TestItem {
+        filePath: string;
+        fileClear: () => void;
+      }
+
+      const files: TestItem[] = [
+        {
+          filePath: joinTestPath(fileName),
+          fileClear(): void {
+            result.$fileClear(fileName);
+          },
+        },
+        {
+          filePath: joinTestPath('dir1', fileName),
+          fileClear(): void {
+            result.dir1.$fileClear(fileName);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', fileName),
+          fileClear(): void {
+            result.dir2.$fileClear(fileName);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir1', fileName),
+          fileClear(): void {
+            result.dir2.dir1.$fileClear(fileName);
+          },
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir2', fileName),
+          fileClear(): void {
+            result.dir2.dir2.$fileClear(fileName);
+          },
+        },
       ];
 
       // create files
-      const { createFiles, checkFileData } = useFileClear(filePaths);
+      const { createFiles, checkFileData } = useFileClear(
+        files.map(({ filePath }) => filePath),
+      );
       fs.mkdirSync(joinTestPath('dir1'));
       fs.mkdirSync(joinTestPath('dir2', 'dir1'), { recursive: true });
+      fs.mkdirSync(joinTestPath('dir2', 'dir2'));
       createFiles();
 
       // clear file data
-      result.$fileClear(fileName);
-      result.dir1.$fileClear(fileName);
-      result.dir2.dir1.$fileClear(fileName);
+      files.forEach(({ fileClear }) => {
+        fileClear();
+      });
 
       // test cleared file data
       checkFileData();
@@ -1095,7 +1436,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       expect(result).toBeDefined();
     });
 
-    it('should have custom file operation methods on files from the file tree', () => {
+    it('should have custom file operation methods on files in the file tree', () => {
       [
         result.file1,
         result.file2,
@@ -1120,7 +1461,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should return the path for files from the file tree', () => {
+    it('should return the path for files in the file tree', () => {
       expect(result.file1.getFilePath()).toBe(joinTestPath('file1'));
       expect(result.file2.getFilePath()).toBe(joinTestPath('file2'));
       expect(result.dir2.file1.getFilePath()).toBe(
@@ -1143,7 +1484,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should return file data for files from the file tree', () => {
+    it('should return file data for files in the file tree', () => {
       expect(result.file1.getFileData()).toBe(undefined);
       expect(result.file2.getFileData()).toBe(tree.file2.data);
       expect(result.dir2.file1.getFileData()).toBe(undefined);
@@ -1164,7 +1505,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should return file type for files from the file tree', () => {
+    it('should return file type for files in the file tree', () => {
       expect(result.file1.getFileType()).toBe('file');
       expect(result.file2.getFileType()).toBe('file');
       expect(result.dir2.file1.getFileType()).toBe('file');
@@ -1179,7 +1520,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should return skip value for files from the file tree', () => {
+    it('should return skip value for files in the file tree', () => {
       expect(result.file1.getFileSkip()).toBe(undefined);
       expect(result.file2.getFileSkip()).toBe(tree.file2.skip);
       expect(result.dir2.file1.getFileSkip()).toBe(undefined);
@@ -1198,7 +1539,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should add 1 for files from the file tree', () => {
+    it('should add 1 for files in the file tree', () => {
       expect(result.file1.plusOne(1)).toBe(2);
       expect(result.file2.plusOne(1)).toBe(2);
       expect(result.dir2.file1.plusOne(1)).toBe(2);
@@ -1271,7 +1612,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       expect(result).toBeDefined();
     });
 
-    it('should have custom directory operation methods on directories from the file tree', () => {
+    it('should have custom directory operation methods on directories in the file tree', () => {
       [
         result,
         result.dir1,
@@ -1295,7 +1636,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should return the path for directories from the file tree', () => {
+    it('should return the path for directories in the file tree', () => {
       expect(result.getDirPath()).toBe(testPath);
       expect(result.dir1.getDirPath()).toBe(joinTestPath('dir1'));
       expect(result.dir2.getDirPath()).toBe(joinTestPath('dir2'));
@@ -1309,7 +1650,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should return directory type for directories from the file tree', () => {
+    it('should return directory type for directories in the file tree', () => {
       [
         result,
         result.dir1,
@@ -1327,7 +1668,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should return directory children keys for directories from the file tree', () => {
+    it('should return directory children keys for directories in the file tree', () => {
       function sort(array: string[]): string[] {
         return array.concat().sort();
       }
@@ -1351,7 +1692,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    it('should add 1 for directories from the file tree', () => {
+    it('should add 1 for directories in the file tree', () => {
       expect(result.plusOne(1)).toBe(2);
       expect(result.dir1.plusOne(1)).toBe(2);
       expect(result.dir2.plusOne(1)).toBe(2);
