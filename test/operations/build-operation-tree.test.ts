@@ -1351,14 +1351,15 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     }));
 
     type CustomFileOperations = ReturnType<typeof getFileOperations>;
+    type FileOperations = FileOperationsInterface & CustomFileOperations;
 
-    const customFileMethods: (keyof CustomFileOperations)[] = [
-      'getFileData',
-      'getFilePath',
-      'getFileSkip',
-      'getFileType',
-      'plusOne',
-    ];
+    const customFileOperationsObject = {
+      getFilePath: expect.any(Function),
+      getFileData: expect.any(Function),
+      getFileType: expect.any(Function),
+      getFileSkip: expect.any(Function),
+      plusOne: expect.any(Function),
+    };
 
     let result: FileOperationTreeType<Tree, CustomFileOperations>;
     beforeEach(() => {
@@ -1367,17 +1368,52 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       });
     });
 
-    type FileOperations = FileOperationsInterface & CustomFileOperations;
-    interface TestResultsInterface {
+    it('should be defined', () => {
+      expect(result).toBeDefined();
+    });
+
+    it('should have custom file operation methods (file tree)', () => {
+      [
+        result.file1,
+        result.file2,
+        result.dir2.file1,
+        result.dir2.file2,
+        result.dir2.dir2.file1,
+        result.dir2.dir2.file2,
+      ].forEach((file) => {
+        expect(file).toEqual({
+          ...fileOperationsObject,
+          ...customFileOperationsObject,
+        });
+      });
+    });
+
+    function useFileTreeFiles(cb: (file: FileOperations) => void): void {
+      const files = [
+        result.file1,
+        result.file2,
+        result.dir2.file1,
+        result.dir2.file2,
+        result.dir2.dir2.file1,
+        result.dir2.dir2.file2,
+      ];
+
+      files.forEach((file) => {
+        cb(file);
+      });
+    }
+
+    interface FileCreateResultsInterface {
       path: string;
       data: string | undefined;
     }
-    type Callback = (
-      file: FileOperations,
-      testResults: TestResultsInterface,
-    ) => void;
 
-    function useFileCreate(cb: Callback): void {
+    function useFileCreate(
+      cb: (
+        file: FileOperations,
+        testResults: FileCreateResultsInterface,
+      ) => void,
+    ): void {
       const dirName = 'new-dir';
       const fileName = 'new-file';
 
@@ -1432,59 +1468,60 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       cb(files.dirCreate.file3, { path: paths.file3(true), data: undefined });
     }
 
-    it('should be defined', () => {
-      expect(result).toBeDefined();
-    });
-
-    it('should have custom file operation methods on files in the file tree', () => {
-      [
-        result.file1,
-        result.file2,
-        result.dir2.file1,
-        result.dir2.file2,
-        result.dir2.dir2.file1,
-        result.dir2.dir2.file2,
-      ].forEach((file) => {
-        customFileMethods.forEach((method) => {
-          expect(file).toHaveProperty(method);
-          expect(file[method]).toBeInstanceOf(Function);
-        });
-      });
-    });
-
-    it('should have custom file operation methods on files created with fileCreate', () => {
+    it('should have custom file operation methods (fileCreate)', () => {
       useFileCreate((file) => {
-        customFileMethods.forEach((method) => {
-          expect(file).toHaveProperty(method);
-          expect(file[method]).toBeInstanceOf(Function);
+        expect(file).toEqual({
+          ...fileOperationsObject,
+          ...customFileOperationsObject,
         });
       });
     });
 
-    it('should return the path for files in the file tree', () => {
-      expect(result.file1.getFilePath()).toBe(joinTestPath('file1'));
-      expect(result.file2.getFilePath()).toBe(joinTestPath('file2'));
-      expect(result.dir2.file1.getFilePath()).toBe(
-        joinTestPath('dir2', 'file1'),
-      );
-      expect(result.dir2.file2.getFilePath()).toBe(
-        joinTestPath('dir2', 'file2'),
-      );
-      expect(result.dir2.dir2.file1.getFilePath()).toBe(
-        joinTestPath('dir2', 'dir2', 'file1'),
-      );
-      expect(result.dir2.dir2.file2.getFilePath()).toBe(
-        joinTestPath('dir2', 'dir2', 'file2'),
-      );
+    it('should return file path (file tree)', () => {
+      interface TestItem {
+        filePath: string;
+        getFilePath: () => string;
+      }
+
+      const files: TestItem[] = [
+        {
+          filePath: joinTestPath('file1'),
+          getFilePath: () => result.file1.getFilePath(),
+        },
+        {
+          filePath: joinTestPath('file2'),
+          getFilePath: () => result.file2.getFilePath(),
+        },
+        {
+          filePath: joinTestPath('dir2', 'file1'),
+          getFilePath: () => result.dir2.file1.getFilePath(),
+        },
+        {
+          filePath: joinTestPath('dir2', 'file2'),
+          getFilePath: () => result.dir2.file2.getFilePath(),
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir2', 'file1'),
+          getFilePath: () => result.dir2.dir2.file1.getFilePath(),
+        },
+        {
+          filePath: joinTestPath('dir2', 'dir2', 'file2'),
+          getFilePath: () => result.dir2.dir2.file2.getFilePath(),
+        },
+      ];
+
+      files.forEach(({ filePath, getFilePath }) => {
+        expect(getFilePath()).toBe(filePath);
+      });
     });
 
-    it('should return the path for files created with fileCreate', () => {
+    it('should return file path (fileCreate)', () => {
       useFileCreate((file, { path }) => {
         expect(file.getFilePath()).toBe(path);
       });
     });
 
-    it('should return file data for files in the file tree', () => {
+    it('should return file data (file tree)', () => {
       expect(result.file1.getFileData()).toBe(undefined);
       expect(result.file2.getFileData()).toBe(tree.file2.data);
       expect(result.dir2.file1.getFileData()).toBe(undefined);
@@ -1499,28 +1536,25 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       );
     });
 
-    it('should return file data for files created with fileCreate', () => {
+    it('should return file data (fileCreate)', () => {
       useFileCreate((file, { data }) => {
         expect(file.getFileData()).toBe(data);
       });
     });
 
-    it('should return file type for files in the file tree', () => {
-      expect(result.file1.getFileType()).toBe('file');
-      expect(result.file2.getFileType()).toBe('file');
-      expect(result.dir2.file1.getFileType()).toBe('file');
-      expect(result.dir2.file2.getFileType()).toBe('file');
-      expect(result.dir2.dir2.file1.getFileType()).toBe('file');
-      expect(result.dir2.dir2.file2.getFileType()).toBe('file');
+    it('should return file type (file tree)', () => {
+      useFileTreeFiles((file) => {
+        expect(file.getFileType()).toBe('file');
+      });
     });
 
-    it('should return file type for files created with fileCreate', () => {
+    it('should return file type (fileCreate)', () => {
       useFileCreate((file) => {
         expect(file.getFileType()).toBe('file');
       });
     });
 
-    it('should return skip value for files in the file tree', () => {
+    it('should return skip value (file tree)', () => {
       expect(result.file1.getFileSkip()).toBe(undefined);
       expect(result.file2.getFileSkip()).toBe(tree.file2.skip);
       expect(result.dir2.file1.getFileSkip()).toBe(undefined);
@@ -1533,22 +1567,19 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       );
     });
 
-    it('should return skip value for files created with fileCreate', () => {
+    it('should return skip value (fileCreate)', () => {
       useFileCreate((file) => {
         expect(file.getFileSkip()).toBe(false);
       });
     });
 
-    it('should add 1 for files in the file tree', () => {
-      expect(result.file1.plusOne(1)).toBe(2);
-      expect(result.file2.plusOne(1)).toBe(2);
-      expect(result.dir2.file1.plusOne(1)).toBe(2);
-      expect(result.dir2.file2.plusOne(1)).toBe(2);
-      expect(result.dir2.dir2.file1.plusOne(1)).toBe(2);
-      expect(result.dir2.dir2.file2.plusOne(1)).toBe(2);
+    it('should add 1 (file tree)', () => {
+      useFileTreeFiles((file) => {
+        expect(file.plusOne(1)).toBe(2);
+      });
     });
 
-    it('should add 1 for files created with fileCreate', () => {
+    it('should add 1 (fileCreate)', () => {
       useFileCreate((file) => {
         expect(file.plusOne(1)).toBe(2);
       });
