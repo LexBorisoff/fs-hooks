@@ -12,7 +12,7 @@ import { testSetup } from '../test-setup.js';
 import type {
   DirOperationsInterface,
   FileOperationsInterface,
-  FileOperationTreeType,
+  FileTreeOperationsType,
 } from '../../src/operations/operation.types.js';
 import type {
   FileInterface,
@@ -127,7 +127,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     const { testPath, setupTestDir } = useTestSetup(Test.CoreProperties);
     setupTestDir();
 
-    let result: FileOperationTreeType<Tree>;
+    let result: FileTreeOperationsType<Tree>;
     beforeEach(() => {
       result = buildOperationTree(testPath, tree);
     });
@@ -157,13 +157,14 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     });
   });
 
+  // TODO: finish this
   describe('buildOperationTree function - core file operations', () => {
     const { testPath, joinTestPath, setupTestDir } = useTestSetup(
       Test.CoreFileOperations,
     );
     setupTestDir();
 
-    let result: FileOperationTreeType<Tree>;
+    let result: FileTreeOperationsType<Tree>;
     beforeEach(() => {
       result = buildOperationTree(testPath, tree);
     });
@@ -213,7 +214,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     );
     setupTestDir();
 
-    let result: FileOperationTreeType<Tree>;
+    let result: FileTreeOperationsType<Tree>;
     beforeEach(() => {
       result = buildOperationTree(testPath, tree);
     });
@@ -1361,7 +1362,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       plusOne: expect.any(Function),
     };
 
-    let result: FileOperationTreeType<Tree, CustomFileOperations>;
+    let result: FileTreeOperationsType<Tree, CustomFileOperations>;
     beforeEach(() => {
       result = buildOperationTree(testPath, tree, {
         file: getFileOperations,
@@ -1586,6 +1587,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
     });
   });
 
+  // TODO: refactor this
   describe('buildOperationTree function - custom directory operations', () => {
     const { testPath, joinTestPath, setupTestDir } = useTestSetup(
       Test.CustomDirOperations,
@@ -1616,7 +1618,7 @@ suite('buildOperationTree Suite', { concurrent: false }, () => {
       'plusOne',
     ];
 
-    let result: FileOperationTreeType<Tree, undefined, CustomDirOperations>;
+    let result: FileTreeOperationsType<Tree, undefined, CustomDirOperations>;
     beforeEach(() => {
       result = buildOperationTree(testPath, tree, {
         dir: getDirOperations,

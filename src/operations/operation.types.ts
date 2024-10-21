@@ -143,7 +143,7 @@ export type OperationTreeType<
       : never;
 };
 
-export type FileOperationTreeType<
+export type FileTreeOperationsType<
   T extends FileTreeInterface,
   CustomFileOperations extends OperationsType | undefined = undefined,
   CustomDirOperations extends OperationsType | undefined = undefined,

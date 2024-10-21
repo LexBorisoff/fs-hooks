@@ -12,7 +12,7 @@ import type {
 import { createDir } from '../utils/create-dir.js';
 import { readFile } from '../utils/read-file.js';
 import type {
-  FileOperationTreeType,
+  FileTreeOperationsType,
   CustomOperationsInterface,
   DirOperationsInterface,
   OperationsType,
@@ -148,7 +148,7 @@ export function buildOperationTree<
     CustomFileOperations,
     CustomDirOperations
   > = {},
-): FileOperationTreeType<T, CustomFileOperations, CustomDirOperations> {
+): FileTreeOperationsType<T, CustomFileOperations, CustomDirOperations> {
   const { file: customFileOperations, dir: customDirOperations } =
     customOperations;
 
@@ -169,7 +169,7 @@ export function buildOperationTree<
   let result = {
     ...rootOperations,
     ...rootCustomOperations,
-  } as FileOperationTreeType<T, CustomFileOperations, CustomDirOperations>;
+  } as FileTreeOperationsType<T, CustomFileOperations, CustomDirOperations>;
 
   Object.entries(tree ?? {}).forEach(([key, value]) => {
     const withPath = {

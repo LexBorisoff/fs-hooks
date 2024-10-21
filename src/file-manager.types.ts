@@ -1,6 +1,6 @@
 import type { FileTreeInterface } from './file-tree/file-tree.types.js';
 import type {
-  FileOperationTreeType,
+  FileTreeOperationsType,
   OperationsType,
 } from './operations/operation.types.js';
 
@@ -13,7 +13,7 @@ export interface TreeResultInterface<
    * Object with methods to perform file operations
    * on the provided file `tree` at the specified `root` path
    */
-  files: FileOperationTreeType<T, CustomFileOperations, CustomDirOperations>;
+  files: FileTreeOperationsType<T, CustomFileOperations, CustomDirOperations>;
   /**
    * Creates files and directories in the file system
    * at the path provided in the `root`.
