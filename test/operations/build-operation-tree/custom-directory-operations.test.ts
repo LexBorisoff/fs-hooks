@@ -10,7 +10,7 @@ import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
 import { dirOperationsObject, Test, tree, type Tree } from './constants.js';
 
-const { setup, joinPath } = testSetup(Test.CustomFileOperations, import.meta);
+const { setup, joinPath } = testSetup(Test.CustomDirOperations, import.meta);
 
 enum CustomOperations {
   ObjectProperties = 'object-properties',

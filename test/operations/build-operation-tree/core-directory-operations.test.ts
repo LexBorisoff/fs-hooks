@@ -1,6 +1,9 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
-import type { FileTreeOperationsType } from '../../../src/operations/operation.types.js';
+import type {
+  DirOperationsInterface,
+  FileTreeOperationsType,
+} from '../../../src/operations/operation.types.js';
 import { buildOperationTree } from '../../../src/operations/build-operation-tree.js';
 import { testSetup } from '../../test-setup.js';
 import type { FileInterface } from '../../../src/file-tree/file-tree.types.js';
@@ -271,7 +274,57 @@ suite(
       });
 
       it('should check if files and directories exist (dirCreate)', () => {
-        // TODO:
+        const dirName = 'new-dir';
+        const testFile = 'test-file';
+        const testDir = 'test-dir';
+
+        interface TestItem {
+          dirCreate: () => DirOperationsInterface<
+            undefined,
+            undefined,
+            undefined
+          >;
+          dirNames: string[];
+        }
+
+        const dirs: TestItem[] = [
+          {
+            dirCreate: () => result.$dirCreate(dirName),
+            dirNames: [dirName],
+          },
+          {
+            dirCreate: () => result.dir1.$dirCreate(dirName),
+            dirNames: ['dir1', dirName],
+          },
+          {
+            dirCreate: () => result.dir2.$dirCreate(dirName),
+            dirNames: ['dir2', dirName],
+          },
+          {
+            dirCreate: () => result.dir2.dir1.$dirCreate(dirName),
+            dirNames: ['dir2', 'dir1', dirName],
+          },
+          {
+            dirCreate: () => result.dir2.dir2.$dirCreate(dirName),
+            dirNames: ['dir2', 'dir2', dirName],
+          },
+        ];
+
+        dirs.forEach(({ dirNames, dirCreate }) => {
+          const dir = dirCreate();
+
+          // expect false for files that do not exist yet
+          expect(dir.$exists(testDir)).toBe(false);
+          expect(dir.$exists(testFile)).toBe(false);
+
+          // create test file and directory manually
+          fs.mkdirSync(operationPath(...dirNames, testDir));
+          fs.writeFileSync(operationPath(...dirNames, testFile), '');
+
+          // expect true for files that exist
+          expect(dir.$exists(testDir)).toBe(true);
+          expect(dir.$exists(testFile)).toBe(true);
+        });
       });
     });
 
