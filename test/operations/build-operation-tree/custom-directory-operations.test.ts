@@ -153,15 +153,37 @@ suite(
       );
 
       it('should return directory path (file tree)', () => {
-        expect(result.getDirPath()).toBe(operationPath());
-        expect(result.dir1.getDirPath()).toBe(operationPath('dir1'));
-        expect(result.dir2.getDirPath()).toBe(operationPath('dir2'));
-        expect(result.dir2.dir1.getDirPath()).toBe(
-          operationPath('dir2', 'dir1'),
-        );
-        expect(result.dir2.dir2.getDirPath()).toBe(
-          operationPath('dir2', 'dir2'),
-        );
+        interface TestItem {
+          dirPath: string;
+          dir: DirOperations;
+        }
+
+        const dirs: TestItem[] = [
+          {
+            dir: result,
+            dirPath: operationPath(),
+          },
+          {
+            dir: result.dir1,
+            dirPath: operationPath('dir1'),
+          },
+          {
+            dir: result.dir2,
+            dirPath: operationPath('dir2'),
+          },
+          {
+            dir: result.dir2.dir1,
+            dirPath: operationPath('dir2', 'dir1'),
+          },
+          {
+            dir: result.dir2.dir2,
+            dirPath: operationPath('dir2', 'dir2'),
+          },
+        ];
+
+        dirs.forEach(({ dir, dirPath }) => {
+          expect(dir.getDirPath()).toBe(dirPath);
+        });
       });
 
       it('should return directory path (dirCreate)', () => {
@@ -195,21 +217,41 @@ suite(
       );
 
       it('should return directory children keys (file tree)', () => {
+        interface TestItem {
+          children: string[];
+          dir: DirOperations;
+        }
+
+        const dirs: TestItem[] = [
+          {
+            dir: result,
+            children: ['dir1', 'dir2', 'file1', 'file2'],
+          },
+          {
+            dir: result.dir1,
+            children: [],
+          },
+          {
+            dir: result.dir2,
+            children: ['dir1', 'dir2', 'file1', 'file2'],
+          },
+          {
+            dir: result.dir2.dir1,
+            children: [],
+          },
+          {
+            dir: result.dir2.dir2,
+            children: ['file1', 'file2'],
+          },
+        ];
+
         function sort(array: string[]): string[] {
           return array.concat().sort();
         }
 
-        expect(sort(result.getDirChildren())).toEqual(
-          sort(['dir1', 'dir2', 'file1', 'file2']),
-        );
-        expect(result.dir1.getDirChildren()).toEqual([]);
-        expect(sort(result.dir2.getDirChildren())).toEqual(
-          sort(['dir1', 'dir2', 'file1', 'file2']),
-        );
-        expect(result.dir2.dir1.getDirChildren()).toEqual([]);
-        expect(sort(result.dir2.dir2.getDirChildren())).toEqual(
-          sort(['file1', 'file2']),
-        );
+        dirs.forEach(({ dir, children }) => {
+          expect(sort(dir.getDirChildren())).toEqual(sort(children));
+        });
       });
 
       it('should return directory children keys (dirCreate)', () => {
@@ -224,13 +266,13 @@ suite(
         CustomOperations.PlusOne,
       );
 
-      it('should add 1 (file tree)', () => {
+      it('should add 1 on directory objects (file tree)', () => {
         useFileTreeDirs((dir) => {
           expect(dir.plusOne(1)).toBe(2);
         });
       });
 
-      it('should add 1 (dirCreate)', () => {
+      it('should add 1 on directory objects (dirCreate)', () => {
         useDirCreate((dir) => {
           expect(dir.plusOne(1)).toBe(2);
         });

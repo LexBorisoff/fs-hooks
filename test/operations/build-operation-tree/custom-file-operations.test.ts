@@ -5,6 +5,7 @@ import type {
   FileOperationsInterface,
   FileTreeOperationsType,
 } from '../../../src/operations/operation.types.js';
+import type { FileInterface } from '../../../src/file-tree/file-tree.types.js';
 import { buildFileOperations } from '../../../src/operations/build-operations.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
@@ -218,45 +219,45 @@ suite(
         CustomOperations.GetFilePath,
       );
 
-      it('should return file path (file tree)', () => {
+      it('should return file path - custom (file tree)', () => {
         interface TestItem {
           filePath: string;
-          getFilePath: () => string;
+          file: FileOperations;
         }
 
         const files: TestItem[] = [
           {
             filePath: operationPath('file1'),
-            getFilePath: () => result.file1.getFilePath(),
+            file: result.file1,
           },
           {
             filePath: operationPath('file2'),
-            getFilePath: () => result.file2.getFilePath(),
+            file: result.file2,
           },
           {
             filePath: operationPath('dir2', 'file1'),
-            getFilePath: () => result.dir2.file1.getFilePath(),
+            file: result.dir2.file1,
           },
           {
             filePath: operationPath('dir2', 'file2'),
-            getFilePath: () => result.dir2.file2.getFilePath(),
+            file: result.dir2.file2,
           },
           {
             filePath: operationPath('dir2', 'dir2', 'file1'),
-            getFilePath: () => result.dir2.dir2.file1.getFilePath(),
+            file: result.dir2.dir2.file1,
           },
           {
             filePath: operationPath('dir2', 'dir2', 'file2'),
-            getFilePath: () => result.dir2.dir2.file2.getFilePath(),
+            file: result.dir2.dir2.file2,
           },
         ];
 
-        files.forEach(({ filePath, getFilePath }) => {
-          expect(getFilePath()).toBe(filePath);
+        files.forEach(({ file, filePath }) => {
+          expect(file.getFilePath()).toBe(filePath);
         });
       });
 
-      it('should return file path (fileCreate)', () => {
+      it('should return file path - custom (fileCreate)', () => {
         useFileCreate((file, { path }) => {
           expect(file.getFilePath()).toBe(path);
         });
@@ -266,22 +267,49 @@ suite(
     describe('getFileData custom operation', () => {
       const { useFileCreate } = describeOperation(CustomOperations.GetFileData);
 
-      it('should return file data (file tree)', () => {
-        expect(result.file1.getFileData()).toBe(undefined);
-        expect(result.file2.getFileData()).toBe(tree.file2.data);
-        expect(result.dir2.file1.getFileData()).toBe(undefined);
-        expect(result.dir2.file2.getFileData()).toBe(
-          tree.dir2.children.file2.data(),
-        );
-        expect(result.dir2.dir2.file1.getFileData()).toBe(
-          tree.dir2.children.dir2.children.file1.data,
-        );
-        expect(result.dir2.dir2.file2.getFileData()).toBe(
-          tree.dir2.children.dir2.children.file2.data(),
-        );
+      it('should return file data - custom (file tree)', () => {
+        interface TestItem {
+          file: FileOperations;
+          data: string | undefined;
+        }
+
+        function getFileData({ data }: FileInterface): string | undefined {
+          return data instanceof Function ? data() : data;
+        }
+
+        const files: TestItem[] = [
+          {
+            file: result.file1,
+            data: getFileData(tree.file1),
+          },
+          {
+            file: result.file2,
+            data: getFileData(tree.file2),
+          },
+          {
+            file: result.dir2.file1,
+            data: getFileData(tree.dir2.children.file1),
+          },
+          {
+            file: result.dir2.file2,
+            data: getFileData(tree.dir2.children.file2),
+          },
+          {
+            file: result.dir2.dir2.file1,
+            data: getFileData(tree.dir2.children.dir2.children.file1),
+          },
+          {
+            file: result.dir2.dir2.file2,
+            data: getFileData(tree.dir2.children.dir2.children.file2),
+          },
+        ];
+
+        files.forEach(({ file, data }) => {
+          expect(file.getFileData()).toBe(data);
+        });
       });
 
-      it('should return file data (fileCreate)', () => {
+      it('should return file data - custom (fileCreate)', () => {
         useFileCreate((file, { data }) => {
           expect(file.getFileData()).toBe(data);
         });
@@ -334,13 +362,13 @@ suite(
         CustomOperations.PlusOne,
       );
 
-      it('should add 1 (file tree)', () => {
+      it('should add 1 on file objects (file tree)', () => {
         useFileTreeFiles((file) => {
           expect(file.plusOne(1)).toBe(2);
         });
       });
 
-      it('should add 1 (fileCreate)', () => {
+      it('should add 1 on file objects (fileCreate)', () => {
         useFileCreate((file) => {
           expect(file.plusOne(1)).toBe(2);
         });

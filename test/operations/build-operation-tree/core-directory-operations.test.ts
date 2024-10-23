@@ -30,6 +30,14 @@ enum CoreOperations {
   FileClear = 'file-clear',
 }
 
+function getFileDataArray(): string[] {
+  return [
+    'New File Test 1',
+    'New File Test 1\nNew File Test 2',
+    'New File Test 1\nNew File Test 2\nNew File Test 3',
+  ];
+}
+
 suite(
   'buildOperationTree - core directory operations',
   { concurrent: false },
@@ -60,79 +68,106 @@ suite(
       return operationPath;
     }
 
+    type DirType = DirOperationsInterface<undefined, undefined, undefined>;
+
+    interface UseFileTreeDirsCbOptions {
+      dir: DirType;
+      parentDirs: string[];
+    }
+
+    type UseFileTreeDirsCb = (options: UseFileTreeDirsCbOptions) => void;
+
+    function useFileTreeDirs(cb: UseFileTreeDirsCb): void {
+      const dirs: UseFileTreeDirsCbOptions[] = [
+        {
+          dir: result,
+          parentDirs: [],
+        },
+        {
+          dir: result.dir1,
+          parentDirs: ['dir1'],
+        },
+        {
+          dir: result.dir2,
+          parentDirs: ['dir2'],
+        },
+        {
+          dir: result.dir2.dir1,
+          parentDirs: ['dir2', 'dir1'],
+        },
+        {
+          dir: result.dir2.dir2,
+          parentDirs: ['dir2', 'dir2'],
+        },
+      ];
+
+      dirs.forEach((dir) => {
+        cb(dir);
+      });
+    }
+
+    interface UseDirCreateCbOptions {
+      parentDirs: string[];
+      getDir: () => DirType;
+    }
+
+    type UseDirCreateCb = (options: UseDirCreateCbOptions) => void;
+
+    function useDirCreate(cb: UseDirCreateCb): void {
+      const dirName = 'new-dir';
+
+      function getDir(dir: DirType): () => DirType {
+        return function () {
+          return dir.$dirCreate(dirName);
+        };
+      }
+
+      const dirs: UseDirCreateCbOptions[] = [
+        {
+          parentDirs: [],
+          getDir: getDir(result),
+        },
+        {
+          parentDirs: ['dir1'],
+          getDir: getDir(result.dir1),
+        },
+        {
+          parentDirs: ['dir2'],
+          getDir: getDir(result.dir2),
+        },
+        {
+          parentDirs: ['dir2', 'dir1'],
+          getDir: getDir(result.dir2.dir1),
+        },
+        {
+          parentDirs: ['dir2', 'dir2'],
+          getDir: getDir(result.dir2.dir2),
+        },
+      ].map(({ parentDirs, ...dir }) => ({
+        ...dir,
+        parentDirs: [...parentDirs, dirName],
+      }));
+
+      dirs.forEach((dir) => {
+        cb(dir);
+      });
+    }
+
     describe('getPath operation on directory objects', () => {
       const operationPath = describeOperation(CoreOperations.GetPath);
 
       it('should return directory path (file tree)', () => {
-        interface TestItem {
-          dirPath: string;
-          getPath: () => string;
-        }
-
-        const dirs: TestItem[] = [
-          {
-            dirPath: operationPath(),
-            getPath: () => result.$getPath(),
-          },
-          {
-            dirPath: operationPath('dir1'),
-            getPath: () => result.dir1.$getPath(),
-          },
-          {
-            dirPath: operationPath('dir2'),
-            getPath: () => result.dir2.$getPath(),
-          },
-          {
-            dirPath: operationPath('dir2', 'dir1'),
-            getPath: () => result.dir2.dir1.$getPath(),
-          },
-          {
-            dirPath: operationPath('dir2', 'dir2'),
-            getPath: () => result.dir2.dir2.$getPath(),
-          },
-        ];
-
-        dirs.forEach(({ dirPath, getPath }) => {
-          expect(getPath()).toBe(dirPath);
+        useFileTreeDirs(({ dir, parentDirs }) => {
+          const dirPath = operationPath(...parentDirs);
+          expect(dir.$getPath()).toBe(dirPath);
         });
       });
 
       it('should return directory path (dirCreate)', () => {
-        fs.mkdirSync(operationPath('dir1'));
-        fs.mkdirSync(operationPath('dir2', 'dir1'), { recursive: true });
-        fs.mkdirSync(operationPath('dir2', 'dir2'));
-
-        interface TestItem {
-          dirPath: string;
-          getPath: () => string;
-        }
-
-        const dirName = 'new-dir';
-        const dirs: TestItem[] = [
-          {
-            dirPath: operationPath(dirName),
-            getPath: () => result.$dirCreate(dirName).$getPath(),
-          },
-          {
-            dirPath: operationPath('dir1', dirName),
-            getPath: () => result.dir1.$dirCreate(dirName).$getPath(),
-          },
-          {
-            dirPath: operationPath('dir2', dirName),
-            getPath: () => result.dir2.$dirCreate(dirName).$getPath(),
-          },
-          {
-            dirPath: operationPath('dir2', 'dir1', dirName),
-            getPath: () => result.dir2.dir1.$dirCreate(dirName).$getPath(),
-          },
-          {
-            dirPath: operationPath('dir2', 'dir2', dirName),
-            getPath: () => result.dir2.dir2.$dirCreate(dirName).$getPath(),
-          },
-        ];
-
-        dirs.forEach(({ getPath, dirPath }) => {
-          expect(getPath()).toBe(dirPath);
+        useDirCreate(({ getDir, parentDirs }) => {
+          const dir = getDir();
+          const dirPath = operationPath(...parentDirs);
+          expect(dir.$getPath()).toBe(dirPath);
         });
       });
     });
@@ -214,114 +249,42 @@ suite(
       });
 
       it('should check if files and directories exist (non file tree)', () => {
-        const fileName = 'new-file';
         const dirName = 'new-dir';
+        const fileName = 'new-file';
 
-        interface TestItem {
-          path: string;
-          exists: () => boolean;
-        }
+        useFileTreeDirs(({ dir, parentDirs }) => {
+          // expect false before creating test directory and file
+          expect(dir.$exists(dirName)).toBe(false);
+          expect(dir.$exists(fileName)).toBe(false);
 
-        const dirs: TestItem[] = [
-          {
-            path: operationPath(dirName),
-            exists: () => result.$exists(dirName),
-          },
-          {
-            path: operationPath('dir1', dirName),
-            exists: () => result.dir1.$exists(dirName),
-          },
-          {
-            path: operationPath('dir2', 'dir1', dirName),
-            exists: () => result.dir2.dir1.$exists(dirName),
-          },
-        ];
-
-        const files: TestItem[] = [
-          {
-            path: operationPath(fileName),
-            exists: () => result.$exists(fileName),
-          },
-          {
-            path: operationPath('dir1', fileName),
-            exists: () => result.dir1.$exists(fileName),
-          },
-          {
-            path: operationPath('dir2', 'dir1', fileName),
-            exists: () => result.dir2.dir1.$exists(fileName),
-          },
-        ];
-
-        function checkExists(value: boolean): void {
-          dirs.concat(files).forEach(({ exists }) => {
-            expect(exists()).toBe(value);
-          });
-        }
-
-        // expect false before new files and directories are created
-        checkExists(false);
-
-        // create new files and directories
-        dirs.forEach(({ path: dirPath }) => {
+          // create test directory and file manually
+          const dirPath = operationPath(...parentDirs, dirName);
+          const filePath = operationPath(...parentDirs, fileName);
           fs.mkdirSync(dirPath, { recursive: true });
-        });
-        files.forEach(({ path: filePath }) => {
           fs.writeFileSync(filePath, '');
-        });
 
-        // expect true after new files and directories are created
-        checkExists(true);
+          // expect true after creating test directory and file
+          expect(dir.$exists(dirName)).toBe(true);
+          expect(dir.$exists(fileName)).toBe(true);
+        });
       });
 
       it('should check if files and directories exist (dirCreate)', () => {
-        const dirName = 'new-dir';
         const testFile = 'test-file';
         const testDir = 'test-dir';
 
-        interface TestItem {
-          dirCreate: () => DirOperationsInterface<
-            undefined,
-            undefined,
-            undefined
-          >;
-          dirNames: string[];
-        }
+        useDirCreate(({ parentDirs, getDir }) => {
+          const dir = getDir();
 
-        const dirs: TestItem[] = [
-          {
-            dirCreate: () => result.$dirCreate(dirName),
-            dirNames: [dirName],
-          },
-          {
-            dirCreate: () => result.dir1.$dirCreate(dirName),
-            dirNames: ['dir1', dirName],
-          },
-          {
-            dirCreate: () => result.dir2.$dirCreate(dirName),
-            dirNames: ['dir2', dirName],
-          },
-          {
-            dirCreate: () => result.dir2.dir1.$dirCreate(dirName),
-            dirNames: ['dir2', 'dir1', dirName],
-          },
-          {
-            dirCreate: () => result.dir2.dir2.$dirCreate(dirName),
-            dirNames: ['dir2', 'dir2', dirName],
-          },
-        ];
-
-        dirs.forEach(({ dirNames, dirCreate }) => {
-          const dir = dirCreate();
-
-          // expect false for files that do not exist yet
+          // expect false before creating test directory and file
           expect(dir.$exists(testDir)).toBe(false);
           expect(dir.$exists(testFile)).toBe(false);
 
-          // create test file and directory manually
-          fs.mkdirSync(operationPath(...dirNames, testDir));
-          fs.writeFileSync(operationPath(...dirNames, testFile), '');
+          // create test directory and file manually
+          fs.mkdirSync(operationPath(...parentDirs, testDir));
+          fs.writeFileSync(operationPath(...parentDirs, testFile), '');
 
-          // expect true for files that exist
+          // expect true after creating test directory and file
           expect(dir.$exists(testDir)).toBe(true);
           expect(dir.$exists(testFile)).toBe(true);
         });
@@ -336,73 +299,63 @@ suite(
 
         // create directories
         const dirs = [
-          result.$dirCreate(dirName),
-          result.dir1.$dirCreate(dirName),
-          result.dir2.$dirCreate(dirName),
-          result.dir2.dir1.$dirCreate(dirName),
-          result.dir2.dir2.$dirCreate(dirName),
-        ];
+          result,
+          result.dir1,
+          result.dir2,
+          result.dir2.dir1,
+          result.dir2.dir2,
+        ].map((dir) => dir.$dirCreate(dirName));
 
         // test created directory objects
         dirs.forEach((dir) => {
-          expect(dir).toBeDefined();
           expect(dir).toEqual(dirOperationsObject);
         });
       });
 
       it('should return directory operations object (dirCreate)', () => {
-        // TODO
+        const dirName = 'new-dir';
+        useDirCreate(({ getDir }) => {
+          const dir = getDir();
+          const createdDir = dir.$dirCreate(dirName);
+          expect(createdDir).toEqual(dirOperationsObject);
+        });
       });
 
       it('should create directories (file tree)', () => {
         const dirName = 'new-dir';
 
-        interface TestItem {
-          dirPath: string;
-          dirCreate: () => void;
-        }
+        useFileTreeDirs(({ dir, parentDirs }) => {
+          const dirPath = operationPath(...parentDirs, dirName);
 
-        const dirs: TestItem[] = [
-          {
-            dirPath: operationPath(dirName),
-            dirCreate(): void {
-              result.$dirCreate(dirName);
-            },
-          },
-          {
-            dirPath: operationPath('dir1', dirName),
-            dirCreate(): void {
-              result.dir1.$dirCreate(dirName);
-            },
-          },
-          {
-            dirPath: operationPath('dir2', 'dir1', dirName),
-            dirCreate(): void {
-              result.dir2.dir1.$dirCreate(dirName);
-            },
-          },
-        ];
+          // expect false before creating the directory
+          expect(fs.existsSync(dirPath)).toBe(false);
 
-        function checkExists(value: boolean): void {
-          dirs.forEach(({ dirPath }) => {
-            expect(fs.existsSync(dirPath)).toBe(value);
-          });
-        }
+          // create the directory
+          dir.$dirCreate(dirName);
 
-        // expect false before directories are created
-        checkExists(false);
-
-        // create directories
-        dirs.forEach(({ dirCreate }) => {
-          dirCreate();
+          // expect true after creating the directory
+          expect(fs.existsSync(dirPath)).toBe(true);
+          expect(fs.statSync(dirPath).isDirectory()).toBe(true);
         });
-
-        // expect true after directories are created
-        checkExists(true);
       });
 
       it('should create directories (dirCreate)', () => {
-        // TODO
+        const dirName = 'new-dir';
+
+        useDirCreate(({ getDir, parentDirs }) => {
+          const dir = getDir();
+          const dirPath = operationPath(...parentDirs, dirName);
+
+          // expect false before creating the directory
+          expect(fs.existsSync(dirPath)).toBe(false);
+
+          // create the directory
+          dir.$dirCreate(dirName);
+
+          // expect true after creating the directory
+          expect(fs.existsSync(dirPath)).toBe(true);
+          expect(fs.statSync(dirPath).isDirectory()).toBe(true);
+        });
       });
     });
 
@@ -410,40 +363,6 @@ suite(
       const operationPath = describeOperation(CoreOperations.DirDelete);
 
       it('should delete directories (file tree)', () => {
-        const dirs = [
-          operationPath('dir1'),
-          operationPath('dir2'),
-          operationPath('dir2', 'dir1'),
-          operationPath('dir2', 'dir2'),
-        ];
-
-        function checkExists(value: boolean): void {
-          dirs.forEach((dir) => {
-            expect(fs.existsSync(dir)).toBe(value);
-          });
-        }
-
-        // create directories manually to mock FileManager's create method
-        dirs.forEach((dir) => {
-          fs.mkdirSync(dir, { recursive: true });
-        });
-
-        // expect true before deleting directories
-        checkExists(true);
-
-        // delete directories
-        result.$dirDelete('dir1');
-        result.$dirDelete('dir2');
-        result.dir2.$dirDelete('dir1');
-        result.dir2.$dirDelete('dir2');
-
-        // expect false after deleting directories
-        checkExists(false);
-      });
-
-      it('should delete directories (non file tree)', () => {
-        const dirName = 'new-dir';
-
         interface TestItem {
           dirPath: string;
           dirDelete: () => void;
@@ -451,52 +370,71 @@ suite(
 
         const dirs: TestItem[] = [
           {
-            dirPath: operationPath(dirName),
-            dirDelete: () => result.$dirDelete(dirName),
+            dirPath: operationPath('dir1'),
+            dirDelete: () => result.$dirDelete('dir1'),
           },
           {
-            dirPath: operationPath('dir1', dirName),
-            dirDelete: () => result.dir1.$dirDelete(dirName),
+            dirPath: operationPath('dir2'),
+            dirDelete: () => result.$dirDelete('dir2'),
           },
           {
-            dirPath: operationPath('dir2', dirName),
-            dirDelete: () => result.dir2.$dirDelete(dirName),
+            dirPath: operationPath('dir2', 'dir1'),
+            dirDelete: () => result.dir2.$dirDelete('dir1'),
           },
           {
-            dirPath: operationPath('dir2', 'dir1', dirName),
-            dirDelete: () => result.dir2.dir1.$dirDelete(dirName),
-          },
-          {
-            dirPath: operationPath('dir2', 'dir2', dirName),
-            dirDelete: () => result.dir2.dir2.$dirDelete(dirName),
+            dirPath: operationPath('dir2', 'dir2'),
+            dirDelete: () => result.dir2.$dirDelete('dir2'),
           },
         ];
-
-        function checkExists(value: boolean): void {
-          dirs.forEach(({ dirPath }) => {
-            expect(fs.existsSync(dirPath)).toBe(value);
-          });
-        }
 
         // create directories manually to mock FileManager's create method
         dirs.forEach(({ dirPath }) => {
           fs.mkdirSync(dirPath, { recursive: true });
+          expect(fs.existsSync(dirPath)).toBe(true);
         });
-
-        // expect true before deleting directories
-        checkExists(true);
 
         // delete directories
-        dirs.forEach(({ dirDelete }) => {
+        dirs.forEach(({ dirDelete, dirPath }) => {
           dirDelete();
+          expect(fs.existsSync(dirPath)).toBe(false);
         });
+      });
 
-        // expect false after deleting directories
-        checkExists(false);
+      it('should delete directories (non file tree)', () => {
+        const dirName = 'new-dir';
+
+        function getDirPath(parentDirs: string[]): string {
+          return operationPath(...parentDirs, dirName);
+        }
+
+        // create directories manually to mock FileManager's create method
+        useFileTreeDirs(({ dir, parentDirs }) => {
+          const dirPath = getDirPath(parentDirs);
+
+          // create the directory
+          fs.mkdirSync(dirPath, { recursive: true });
+          expect(fs.existsSync(dirPath)).toBe(true);
+
+          // delete the directory
+          dir.$dirDelete(dirName);
+          expect(fs.existsSync(dirPath)).toBe(false);
+        });
       });
 
       it('should delete directories (dirCreate)', () => {
-        // TODO
+        const dirName = 'new-dir';
+
+        useDirCreate(({ getDir, parentDirs }) => {
+          // create the directory
+          const dir = getDir();
+          const dirPath = operationPath(...parentDirs, dirName);
+          fs.mkdirSync(dirPath);
+          expect(fs.existsSync(dirPath)).toBe(true);
+
+          // delete the directory
+          dir.$dirDelete(dirName);
+          expect(fs.existsSync(dirPath)).toBe(false);
+        });
       });
     });
 
@@ -557,73 +495,48 @@ suite(
 
       it('should read files (non file tree)', () => {
         const fileName = 'new-file';
-        const fileData = [
-          'New File Test',
-          'New File Test\nNew File Test',
-          'New File Test\nNew File Test\nNew File Test',
-        ];
+        const fileData = getFileDataArray();
 
-        interface TestItem {
-          filePath: string;
-          fileRead: () => string | null;
-        }
-
-        const files: TestItem[] = [
-          {
-            filePath: operationPath(fileName),
-            fileRead: () => result.$fileRead(fileName),
-          },
-          {
-            filePath: operationPath('dir1', fileName),
-            fileRead: () => result.dir1.$fileRead(fileName),
-          },
-          {
-            filePath: operationPath('dir2', fileName),
-            fileRead: () => result.dir2.$fileRead(fileName),
-          },
-          {
-            filePath: operationPath('dir2', 'dir1', fileName),
-            fileRead: () => result.dir2.dir1.$fileRead(fileName),
-          },
-          {
-            filePath: operationPath('dir2', 'dir2', fileName),
-            fileRead: () => result.dir2.dir2.$fileRead(fileName),
-          },
-        ];
-
-        // create files manually
         fs.mkdirSync(operationPath('dir1'));
         fs.mkdirSync(operationPath('dir2', 'dir1'), { recursive: true });
         fs.mkdirSync(operationPath('dir2', 'dir2'));
 
-        files.forEach(({ filePath, fileRead }) => {
+        useFileTreeDirs(({ dir, parentDirs }) => {
+          const filePath = operationPath(...parentDirs, fileName);
+
           fileData.forEach((data) => {
             fs.writeFileSync(filePath, data);
-            expect(fileRead()).toBe(data);
+            expect(dir.$fileRead(fileName)).toBe(data);
           });
         });
       });
 
       it('it should read files (dirCreate)', () => {
-        // TODO
+        const fileName = 'new-file';
+        const fileData = getFileDataArray();
+
+        useDirCreate(({ getDir, parentDirs }) => {
+          const dir = getDir();
+          const filePath = operationPath(...parentDirs, fileName);
+
+          fileData.forEach((data) => {
+            fs.writeFileSync(filePath, data);
+            expect(dir.$fileRead(fileName)).toBe(data);
+          });
+        });
       });
 
       it('should return null when reading a non-existent file (file tree)', () => {
-        const dirs = [
-          result,
-          result.dir1,
-          result.dir2,
-          result.dir2.dir1,
-          result.dir2.dir2,
-        ];
-
-        dirs.forEach((dir) => {
+        useFileTreeDirs(({ dir }) => {
           expect(dir.$fileRead('non-existent')).toBe(null);
         });
       });
 
       it('should return null when reading a non-existent file (dirCreate)', () => {
-        // TODO
+        useDirCreate(({ getDir }) => {
+          const dir = getDir();
+          expect(dir.$fileRead('non-existent')).toBe(null);
+        });
       });
     });
 
@@ -631,69 +544,56 @@ suite(
       const operationPath = describeOperation(CoreOperations.FileCreate);
 
       it('should return file operations object (file tree)', () => {
-        const fileName = 'new-file';
         fs.mkdirSync(operationPath('dir1'));
         fs.mkdirSync(operationPath('dir2', 'dir1'), { recursive: true });
         fs.mkdirSync(operationPath('dir2', 'dir2'));
 
-        // create files
-        const files = [
-          result.$fileCreate(fileName),
-          result.dir1.$fileCreate(fileName),
-          result.dir2.$fileCreate(fileName),
-          result.dir2.dir1.$fileCreate(fileName),
-          result.dir2.dir2.$fileCreate(fileName),
-        ];
+        const fileName = 'new-file';
 
-        // test created file objects
-        files.forEach((file) => {
-          expect(file).toBeDefined();
+        useFileTreeDirs(({ dir }) => {
+          const file = dir.$fileCreate(fileName);
           expect(file).toEqual(fileOperationsObject);
         });
       });
 
       it('should return file operations object (dirCreate)', () => {
-        //
+        const fileName = 'new-file';
+
+        useDirCreate(({ getDir }) => {
+          const dir = getDir();
+          const file = dir.$fileCreate(fileName);
+          expect(file).toEqual(fileOperationsObject);
+        });
       });
 
       it('should create files (file tree)', () => {
         const fileName = 'new-file';
 
         interface TestItem {
+          dir: DirType;
           filePath: string;
-          fileCreate: () => void;
         }
 
         const files: TestItem[] = [
           {
+            dir: result,
             filePath: operationPath(fileName),
-            fileCreate(): void {
-              result.$fileCreate(fileName);
-            },
           },
           {
+            dir: result.dir1,
             filePath: operationPath('dir1', fileName),
-            fileCreate(): void {
-              result.dir1.$fileCreate(fileName);
-            },
           },
           {
+            dir: result.dir2,
             filePath: operationPath('dir2', fileName),
-            fileCreate(): void {
-              result.dir2.$fileCreate(fileName);
-            },
           },
           {
+            dir: result.dir2.dir1,
             filePath: operationPath('dir2', 'dir1', fileName),
-            fileCreate(): void {
-              result.dir2.dir1.$fileCreate(fileName);
-            },
           },
           {
+            dir: result.dir2.dir2,
             filePath: operationPath('dir2', 'dir2', fileName),
-            fileCreate(): void {
-              result.dir2.dir2.$fileCreate(fileName);
-            },
           },
         ];
 
@@ -711,8 +611,8 @@ suite(
         checkExists(false);
 
         // create files
-        files.forEach(({ fileCreate }) => {
-          fileCreate();
+        files.forEach(({ dir }) => {
+          dir.$fileCreate(fileName);
         });
 
         // expect true after files are created
@@ -720,7 +620,17 @@ suite(
       });
 
       it('should create files (dirCreate)', () => {
-        // TODO
+        const fileName = 'new-file';
+
+        useDirCreate(({ getDir, parentDirs }) => {
+          const dir = getDir();
+          const filePath = operationPath(...parentDirs, fileName);
+
+          // expect false before creating a file
+          expect(fs.existsSync(filePath)).toBe(false);
+
+          // create a file
+        });
       });
 
       it('should create a nested file in an existing folder (file tree)', () => {
@@ -826,39 +736,27 @@ suite(
         const files: TestItem[] = [
           {
             filePath: operationPath('file1'),
-            fileDelete(): void {
-              result.$fileDelete('file1');
-            },
+            fileDelete: () => result.$fileDelete('file1'),
           },
           {
             filePath: operationPath('file2'),
-            fileDelete(): void {
-              result.$fileDelete('file2');
-            },
+            fileDelete: () => result.$fileDelete('file2'),
           },
           {
             filePath: operationPath('dir2', 'file1'),
-            fileDelete(): void {
-              result.dir2.$fileDelete('file1');
-            },
+            fileDelete: () => result.dir2.$fileDelete('file1'),
           },
           {
             filePath: operationPath('dir2', 'file2'),
-            fileDelete(): void {
-              result.dir2.$fileDelete('file2');
-            },
+            fileDelete: () => result.dir2.$fileDelete('file2'),
           },
           {
             filePath: operationPath('dir2', 'dir2', 'file1'),
-            fileDelete(): void {
-              result.dir2.dir2.$fileDelete('file1');
-            },
+            fileDelete: () => result.dir2.dir2.$fileDelete('file1'),
           },
           {
             filePath: operationPath('dir2', 'dir2', 'file2'),
-            fileDelete(): void {
-              result.dir2.dir2.$fileDelete('file2');
-            },
+            fileDelete: () => result.dir2.dir2.$fileDelete('file2'),
           },
         ];
 
@@ -893,33 +791,23 @@ suite(
         const files: TestItem[] = [
           {
             filePath: operationPath(fileName),
-            fileDelete(): void {
-              result.$fileDelete(fileName);
-            },
+            fileDelete: () => result.$fileDelete(fileName),
           },
           {
             filePath: operationPath('dir1', fileName),
-            fileDelete(): void {
-              result.dir1.$fileDelete(fileName);
-            },
+            fileDelete: () => result.dir1.$fileDelete(fileName),
           },
           {
             filePath: operationPath('dir2', fileName),
-            fileDelete(): void {
-              result.dir2.$fileDelete(fileName);
-            },
+            fileDelete: () => result.dir2.$fileDelete(fileName),
           },
           {
             filePath: operationPath('dir2', 'dir1', fileName),
-            fileDelete(): void {
-              result.dir2.dir1.$fileDelete(fileName);
-            },
+            fileDelete: () => result.dir2.dir1.$fileDelete(fileName),
           },
           {
             filePath: operationPath('dir2', 'dir2', fileName),
-            fileDelete(): void {
-              result.dir2.dir2.$fileDelete(fileName);
-            },
+            fileDelete: () => result.dir2.dir2.$fileDelete(fileName),
           },
         ];
 
@@ -990,39 +878,27 @@ suite(
         const files: TestItem[] = [
           {
             filePath: operationPath('file1'),
-            fileWrite(): void {
-              result.$fileWrite('file1', fileData);
-            },
+            fileWrite: () => result.$fileWrite('file1', fileData),
           },
           {
             filePath: operationPath('file2'),
-            fileWrite(): void {
-              result.$fileWrite('file2', fileData);
-            },
+            fileWrite: () => result.$fileWrite('file2', fileData),
           },
           {
             filePath: operationPath('dir2', 'file1'),
-            fileWrite(): void {
-              result.dir2.$fileWrite('file1', fileData);
-            },
+            fileWrite: () => result.dir2.$fileWrite('file1', fileData),
           },
           {
             filePath: operationPath('dir2', 'file2'),
-            fileWrite(): void {
-              result.dir2.$fileWrite('file2', fileData);
-            },
+            fileWrite: () => result.dir2.$fileWrite('file2', fileData),
           },
           {
             filePath: operationPath('dir2', 'dir2', 'file1'),
-            fileWrite(): void {
-              result.dir2.dir2.$fileWrite('file1', fileData);
-            },
+            fileWrite: () => result.dir2.dir2.$fileWrite('file1', fileData),
           },
           {
             filePath: operationPath('dir2', 'dir2', 'file2'),
-            fileWrite(): void {
-              result.dir2.dir2.$fileWrite('file2', fileData);
-            },
+            fileWrite: () => result.dir2.dir2.$fileWrite('file2', fileData),
           },
         ];
 
@@ -1055,33 +931,23 @@ suite(
         const files: TestItem[] = [
           {
             filePath: operationPath(fileName),
-            fileWrite(): void {
-              result.$fileWrite(fileName, fileData);
-            },
+            fileWrite: () => result.$fileWrite(fileName, fileData),
           },
           {
             filePath: operationPath('dir1', fileName),
-            fileWrite(): void {
-              result.dir1.$fileWrite(fileName, fileData);
-            },
+            fileWrite: () => result.dir1.$fileWrite(fileName, fileData),
           },
           {
             filePath: operationPath('dir2', fileName),
-            fileWrite(): void {
-              result.dir2.$fileWrite(fileName, fileData);
-            },
+            fileWrite: () => result.dir2.$fileWrite(fileName, fileData),
           },
           {
             filePath: operationPath('dir2', 'dir1', fileName),
-            fileWrite(): void {
-              result.dir2.dir1.$fileWrite(fileName, fileData);
-            },
+            fileWrite: () => result.dir2.dir1.$fileWrite(fileName, fileData),
           },
           {
             filePath: operationPath('dir2', 'dir2', fileName),
-            fileWrite(): void {
-              result.dir2.dir2.$fileWrite(fileName, fileData);
-            },
+            fileWrite: () => result.dir2.dir2.$fileWrite(fileName, fileData),
           },
         ];
 
@@ -1153,44 +1019,27 @@ suite(
         const files: TestItem[] = [
           {
             filePath: operationPath('file1'),
-            fileClear(): void {
-              result.$fileClear('file1');
-            },
+            fileClear: () => result.$fileClear('file1'),
           },
-
           {
             filePath: operationPath('file2'),
-            fileClear(): void {
-              result.$fileClear('file2');
-            },
+            fileClear: () => result.$fileClear('file2'),
           },
-
           {
             filePath: operationPath('dir2', 'file1'),
-            fileClear(): void {
-              result.dir2.$fileClear('file1');
-            },
+            fileClear: () => result.dir2.$fileClear('file1'),
           },
-
           {
             filePath: operationPath('dir2', 'file2'),
-            fileClear(): void {
-              result.dir2.$fileClear('file2');
-            },
+            fileClear: () => result.dir2.$fileClear('file2'),
           },
-
           {
             filePath: operationPath('dir2', 'dir2', 'file1'),
-            fileClear(): void {
-              result.dir2.dir2.$fileClear('file1');
-            },
+            fileClear: () => result.dir2.dir2.$fileClear('file1'),
           },
-
           {
             filePath: operationPath('dir2', 'dir2', 'file2'),
-            fileClear(): void {
-              result.dir2.dir2.$fileClear('file2');
-            },
+            fileClear: () => result.dir2.dir2.$fileClear('file2'),
           },
         ];
 
@@ -1221,33 +1070,23 @@ suite(
         const files: TestItem[] = [
           {
             filePath: operationPath(fileName),
-            fileClear(): void {
-              result.$fileClear(fileName);
-            },
+            fileClear: () => result.$fileClear(fileName),
           },
           {
             filePath: operationPath('dir1', fileName),
-            fileClear(): void {
-              result.dir1.$fileClear(fileName);
-            },
+            fileClear: () => result.dir1.$fileClear(fileName),
           },
           {
             filePath: operationPath('dir2', fileName),
-            fileClear(): void {
-              result.dir2.$fileClear(fileName);
-            },
+            fileClear: () => result.dir2.$fileClear(fileName),
           },
           {
             filePath: operationPath('dir2', 'dir1', fileName),
-            fileClear(): void {
-              result.dir2.dir1.$fileClear(fileName);
-            },
+            fileClear: () => result.dir2.dir1.$fileClear(fileName),
           },
           {
             filePath: operationPath('dir2', 'dir2', fileName),
-            fileClear(): void {
-              result.dir2.dir2.$fileClear(fileName);
-            },
+            fileClear: () => result.dir2.dir2.$fileClear(fileName),
           },
         ];
 
