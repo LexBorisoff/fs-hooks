@@ -1,10 +1,14 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
-import type { FileTreeOperationsType } from '../../../src/operations/operation.types.js';
+import type {
+  DirOperationsInterface,
+  FileOperationsInterface,
+  FileTreeOperationsType,
+} from '../../../src/operations/operation.types.js';
 import { buildOperationTree } from '../../../src/operations/build-operation-tree.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
-import { Test, tree, type Tree } from './constants.js';
+import { fileDataArray, Test, tree, type Tree } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.CoreFileOperations, import.meta);
 
@@ -26,6 +30,8 @@ suite(
       return setup();
     });
 
+    type FileType = FileOperationsInterface;
+    type DirType = DirOperationsInterface<undefined, undefined, undefined>;
     type OperationPathFn = (...args: string[]) => string;
 
     function describeOperation(testName: string): OperationPathFn {
@@ -46,117 +52,151 @@ suite(
       return operationPath;
     }
 
-    describe('getPath operation on file objects', () => {
-      const operationPath = describeOperation(CoreOperations.GetPath);
+    function useFiles(
+      testName: string,
+      cb: (file: FileType, fileName: string, parentDirs: string[]) => void,
+    ): void {
+      interface FileItem {
+        file: FileType;
+        dir: DirType;
+        fileName: string;
+        parentDirs: string[];
+      }
 
-      it('should return file path (file tree)', () => {
-        interface TestItem {
-          filePath: string;
-          getPath: () => string;
-        }
+      const files: FileItem[] = [
+        {
+          file: result.file1,
+          dir: result,
+          fileName: 'file1',
+          parentDirs: [],
+        },
+        {
+          file: result.file2,
+          dir: result,
+          fileName: 'file2',
+          parentDirs: [],
+        },
+        {
+          file: result.dir2.file1,
+          dir: result.dir2,
+          fileName: 'file1',
+          parentDirs: ['dir2'],
+        },
+        {
+          file: result.dir2.file2,
+          dir: result.dir2,
+          fileName: 'file2',
+          parentDirs: ['dir2'],
+        },
+        {
+          file: result.dir2.dir2.file1,
+          dir: result.dir2.dir2,
+          fileName: 'file1',
+          parentDirs: ['dir2', 'dir2'],
+        },
+        {
+          file: result.dir2.dir2.file2,
+          dir: result.dir2.dir2,
+          fileName: 'file2',
+          parentDirs: ['dir2', 'dir2'],
+        },
+      ];
 
-        const files: TestItem[] = [
-          {
-            filePath: operationPath('file1'),
-            getPath: () => result.file1.$getPath(),
-          },
-          {
-            filePath: operationPath('file2'),
-            getPath: () => result.file2.$getPath(),
-          },
-          {
-            filePath: operationPath('dir2', 'file1'),
-            getPath: () => result.dir2.file1.$getPath(),
-          },
-          {
-            filePath: operationPath('dir2', 'file2'),
-            getPath: () => result.dir2.file2.$getPath(),
-          },
-          {
-            filePath: operationPath('dir2', 'dir2', 'file1'),
-            getPath: () => result.dir2.dir2.file1.$getPath(),
-          },
-          {
-            filePath: operationPath('dir2', 'dir2', 'file2'),
-            getPath: () => result.dir2.dir2.file2.$getPath(),
-          },
-        ];
+      const newDirName = 'dirCreate';
+      const newFileName = 'fileCreate';
 
-        files.forEach(({ filePath, getPath }) => {
-          expect(getPath()).toBe(filePath);
+      /**
+       * Types of files for testing
+       * 1. from the file tree
+       * 2. created with $fileCreate on directories from the file tree
+       * 3. created with $dirCreate + $fileCreate combination
+       */
+      files.forEach(({ file, dir, fileName, parentDirs }) => {
+        const dirPath = joinPath(testName, ...parentDirs);
+        fs.mkdirSync(dirPath, { recursive: true });
+
+        // 1. from the tree file
+        cb(file, fileName, parentDirs);
+
+        // 2. created with $fileCreate on a directory from the file tree
+        let createdFile = dir.$fileCreate(newFileName);
+        cb(createdFile, newFileName, parentDirs);
+
+        // 2. created with $dirCreate + $fileCreate combination
+        const createdDir = dir.$dirCreate(newDirName);
+        createdFile = createdDir.$fileCreate(newFileName);
+        cb(createdFile, newFileName, parentDirs.concat(newDirName));
+      });
+    }
+
+    describe('getPath on file objects', () => {
+      const testName = CoreOperations.GetPath;
+      const operationPath = describeOperation(testName);
+
+      it('should return file path', () => {
+        useFiles(testName, (file, fileName, parentDirs) => {
+          const filePath = operationPath(...parentDirs, fileName);
+          const f = file instanceof Function ? file() : file;
+          expect(f.$getPath()).toBe(filePath);
         });
       });
+    });
 
-      it('should return file path (fileCreate)', () => {
-        const fileName = 'new-file';
-      });
+    describe('read', () => {
+      const testName = CoreOperations.Read;
+      const operationPath = describeOperation(testName);
 
-      it('should return file path (dirCreate + fileCreate)', () => {
-        // TODO
+      it('should read file data', () => {
+        useFiles(testName, (file, fileName, parentDirs) => {
+          const filePath = operationPath(...parentDirs, fileName);
+          const dirPath = operationPath(...parentDirs);
+          fs.mkdirSync(dirPath, { recursive: true });
+
+          fileDataArray.forEach((fileData) => {
+            fs.writeFileSync(filePath, fileData);
+            expect(file.$read()).toBe(fileData);
+          });
+        });
       });
     });
 
-    describe('exists operation on file objects', () => {
-      const operationPath = describeOperation(CoreOperations.Exists);
+    describe('write', () => {
+      const testName = CoreOperations.Write;
+      const operationPath = describeOperation(testName);
 
-      it('should check if file exists (file tree)', () => {
-        // TODO
-      });
+      it('should write data to the file', () => {
+        useFiles(testName, (file, fileName, parentDirs) => {
+          const filePath = operationPath(...parentDirs, fileName);
+          const dirPath = operationPath(...parentDirs);
+          fs.mkdirSync(dirPath, { recursive: true });
+          fs.writeFileSync(filePath, '');
 
-      it('should check if file exists (fileCreate)', () => {
-        // TODO
-      });
-
-      it('should check if file exists (dirCreate + fileCreate)', () => {
-        // TODO
-      });
-    });
-
-    describe('read operation', () => {
-      const operationPath = describeOperation(CoreOperations.Read);
-
-      it('should read file data (file tree)', () => {
-        // TODO
-      });
-
-      it('should read file data (fileCreate)', () => {
-        // TODO
-      });
-
-      it('should read file data (dirCreate + fileCreate)', () => {
-        // TODO
+          fileDataArray.forEach((fileData) => {
+            file.$write(fileData);
+            const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
+            expect(data).toBe(fileData);
+          });
+        });
       });
     });
 
-    describe('write operation', () => {
-      const operationPath = describeOperation(CoreOperations.Write);
+    describe('clear', () => {
+      const testName = CoreOperations.Clear;
+      const operationPath = describeOperation(testName);
 
-      it('should write data to the file (file tree)', () => {
-        // TODO
-      });
+      it('should clear file data', () => {
+        useFiles(testName, (file, fileName, parentDirs) => {
+          const filePath = operationPath(...parentDirs, fileName);
+          const dirPath = operationPath(...parentDirs);
+          fs.mkdirSync(dirPath, { recursive: true });
 
-      it('should write data to the file (fileCreate)', () => {
-        // TODO
-      });
-
-      it('should write data to the file (dirCreate + fileCreate)', () => {
-        // TODO
-      });
-    });
-
-    describe('clear operation', () => {
-      const operationPath = describeOperation(CoreOperations.Clear);
-
-      it('should clear file data (file tree)', () => {
-        // TODO
-      });
-
-      it('should clear file data (fileCreate)', () => {
-        // TODO
-      });
-
-      it('should clear file data (dirCreate + fileCreate)', () => {
-        // TODO
+          fileDataArray.forEach((fileData) => {
+            fs.writeFileSync(filePath, fileData);
+            file.$clear();
+            const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
+            expect(data).toBe('');
+          });
+        });
       });
     });
   },

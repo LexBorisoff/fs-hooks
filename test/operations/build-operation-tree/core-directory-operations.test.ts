@@ -10,6 +10,7 @@ import { deleteFolder } from '../../utils.js';
 import {
   dirOperationsObject,
   fileOperationsObject,
+  fileDataArray,
   Test,
   tree,
   type Tree,
@@ -28,13 +29,6 @@ enum CoreOperations {
   FileWrite = 'file-write',
   FileClear = 'file-clear',
 }
-
-const fileDataArray = [
-  '',
-  'New File Test 1',
-  'New File Test 1\nNew File Test 2',
-  'New File Test 1\nNew File Test 2\nNew File Test 3',
-];
 
 suite(
   'buildOperationTree - core directory operations',
@@ -96,16 +90,16 @@ suite(
         },
       ];
 
-      const dirName = 'dirCreate';
+      const newDirName = 'dirCreate';
 
       /**
-       * Test two types of directories
+       * Types of directories for testing
        * 1. from the file tree
        * 2. created with $dirCreate
        */
       dirs.forEach(({ dir, parentDirs }) => {
         cb(dir, parentDirs);
-        cb(dir.$dirCreate(dirName), parentDirs.concat(dirName));
+        cb(dir.$dirCreate(newDirName), parentDirs.concat(newDirName));
       });
     }
 
@@ -303,7 +297,8 @@ suite(
           fileDataArray.forEach((fileData) => {
             fs.writeFileSync(filePath, fileData);
             dir.$fileClear(fileName);
-            expect(fs.readFileSync(filePath, { encoding: 'utf-8' })).toBe('');
+            const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
+            expect(data).toBe('');
           });
         });
       });
