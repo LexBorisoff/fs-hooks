@@ -24,7 +24,6 @@ function fileOperations<F extends FileInterface>(
 ): FileOperationsInterface {
   const operations: FileOperationsInterface = {
     $getPath: () => file.path,
-    $exists: () => fs.existsSync(file.path),
     $clear() {
       this.$write('');
     },

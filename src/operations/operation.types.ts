@@ -35,10 +35,9 @@ export interface CustomOperationsInterface<
 
 export interface FileOperationsInterface {
   $getPath(): string;
-  $exists(): boolean;
-  $clear(): void;
   $read(): string | null;
   $write(data: string | (() => string)): void;
+  $clear(): void;
 }
 
 export type FileNamesType<Children extends FileTreeInterface | undefined> =
