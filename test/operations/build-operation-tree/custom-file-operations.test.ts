@@ -104,7 +104,7 @@ suite(
       parentDirs: string[];
     }
 
-    function getFiles(): FileInfo[] {
+    function getFilesInfo(): FileInfo[] {
       return [
         {
           file: result.file1,
@@ -160,14 +160,14 @@ suite(
     /**
      * Test files from the file tree
      */
-    function useFilesFromTree(
+    function useTreeFiles(
       testName: string,
       cb: (info: CbBaseInfo & { treeFile: FileInterface }) => void,
     ): void {
-      getFiles().forEach(({ file, fileName, parentDirs, treeFile }) => {
+      getFilesInfo().forEach(({ file, fileName, treeFile, parentDirs }) => {
         const dirPath = joinPath(testName, ...parentDirs);
         fs.mkdirSync(dirPath, { recursive: true });
-        cb({ file, fileName, parentDirs, treeFile });
+        cb({ file, fileName, treeFile, parentDirs });
       });
     }
 
@@ -183,14 +183,14 @@ suite(
       const dirName = 'dirCreate';
       const fileName = 'fileCreate';
 
-      getFiles().forEach(({ dir, parentDirs }) => {
+      getFilesInfo().forEach(({ dir, parentDirs }) => {
         const dirPath = joinPath(testName, ...parentDirs);
         fs.mkdirSync(dirPath, { recursive: true });
 
         fileDataArray.forEach((fileData) => {
           // 1. created with $fileCreate on a directory from the file tree
           let file = dir.$fileCreate(fileName, fileData);
-          cb({ file, fileName, parentDirs, fileData });
+          cb({ file, fileName, fileData, parentDirs });
 
           // 2. created with $dirCreate + $fileCreate combination
           const createdDir = dir.$dirCreate(dirName);
@@ -218,11 +218,13 @@ suite(
         expect(result).toBeDefined();
       });
 
-      it('should have custom file operations', () => {
-        useFilesFromTree(testName, ({ file }) => {
+      it('should have custom file operations for tree files', () => {
+        useTreeFiles(testName, ({ file }) => {
           expect(file).toEqual(fullFileOperations);
         });
+      });
 
+      it('should have custom file operations for created files', () => {
         useCreatedFiles(testName, ({ file }) => {
           expect(file).toEqual(fullFileOperations);
         });
@@ -233,12 +235,14 @@ suite(
       const testName = CustomOperations.GetFilePath;
       const operationPath = describeOperation(testName);
 
-      it('should return file path from custom operation', () => {
-        useFilesFromTree(testName, ({ file, fileName, parentDirs }) => {
+      it('should custom return file path for tree files', () => {
+        useTreeFiles(testName, ({ file, fileName, parentDirs }) => {
           const filePath = operationPath(...parentDirs, fileName);
           expect(file.getFilePath()).toBe(filePath);
         });
+      });
 
+      it('should custom return file path for created files', () => {
         useCreatedFiles(testName, ({ file, fileName, parentDirs }) => {
           const filePath = operationPath(...parentDirs, fileName);
           expect(file.getFilePath()).toBe(filePath);
@@ -250,12 +254,14 @@ suite(
       const testName = CustomOperations.GetFileData;
       describeOperation(testName);
 
-      it('should return file data from custom operation', () => {
-        useFilesFromTree(testName, ({ file, treeFile: { data } }) => {
+      it('should custom return file data for tree files', () => {
+        useTreeFiles(testName, ({ file, treeFile: { data } }) => {
           const fileData = data instanceof Function ? data() : data;
           expect(file.getFileData()).toBe(fileData);
         });
+      });
 
+      it('should custom return file data for created files', () => {
         useCreatedFiles(testName, ({ file, fileData }) => {
           expect(file.getFileData()).toBe(fileData);
         });
@@ -266,11 +272,13 @@ suite(
       const testName = CustomOperations.GetFileType;
       describeOperation(testName);
 
-      it('should return file type from custom operation', () => {
-        useFilesFromTree(testName, ({ file }) => {
+      it('should custom return file type for tree files', () => {
+        useTreeFiles(testName, ({ file }) => {
           expect(file.getFileType()).toBe('file');
         });
+      });
 
+      it('should custom return file type for created files', () => {
         useCreatedFiles(testName, ({ file }) => {
           expect(file.getFileType()).toBe('file');
         });
@@ -281,11 +289,13 @@ suite(
       const testName = CustomOperations.GetFileSkip;
       describeOperation(testName);
 
-      it('should return skip value from custom operation', () => {
-        useFilesFromTree(testName, ({ file, treeFile: { skip } }) => {
+      it('should custom return skip value for tree files', () => {
+        useTreeFiles(testName, ({ file, treeFile: { skip } }) => {
           expect(file.getFileSkip()).toBe(skip);
         });
+      });
 
+      it('should custom return skip value for created files', () => {
         useCreatedFiles(testName, ({ file }) => {
           expect(file.getFileSkip()).toBe(false);
         });
@@ -296,11 +306,13 @@ suite(
       const testName = CustomOperations.PlusOne;
       describeOperation(testName);
 
-      it('should add 1 in custom operation', () => {
-        useFilesFromTree(testName, ({ file }) => {
+      it('should add 1 for tree files', () => {
+        useTreeFiles(testName, ({ file }) => {
           expect(file.plusOne(1)).toBe(2);
         });
+      });
 
+      it('should add 1 for created files', () => {
         useCreatedFiles(testName, ({ file }) => {
           expect(file.plusOne(1)).toBe(2);
         });

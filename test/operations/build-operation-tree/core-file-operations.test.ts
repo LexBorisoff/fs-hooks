@@ -8,11 +8,18 @@ import type {
 import { buildOperationTree } from '../../../src/operations/build-operation-tree.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
-import { fileDataArray, Test, tree, type Tree } from './constants.js';
+import {
+  fileDataArray,
+  fileOperationsObject,
+  Test,
+  tree,
+  type Tree,
+} from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.CoreFileOperations, import.meta);
 
 enum CoreOperations {
+  ObjectProperties = 'object-properties',
   GetPath = 'get-path',
   Exists = 'exists',
   Read = 'read',
@@ -54,87 +61,112 @@ suite(
 
     function useFiles(
       testName: string,
-      cb: (file: FileType, fileName: string, parentDirs: string[]) => void,
+      cb: (info: {
+        file: FileType;
+        fileName: string;
+        parentDirs: string[];
+      }) => void,
     ): void {
-      interface FileItem {
+      interface FileInfo {
+        fileName: string;
         file: FileType;
         dir: DirType;
-        fileName: string;
         parentDirs: string[];
       }
 
-      const files: FileItem[] = [
+      const files: FileInfo[] = [
         {
+          fileName: 'file1',
           file: result.file1,
           dir: result,
-          fileName: 'file1',
           parentDirs: [],
         },
         {
+          fileName: 'file2',
           file: result.file2,
           dir: result,
-          fileName: 'file2',
           parentDirs: [],
         },
         {
+          fileName: 'file1',
           file: result.dir2.file1,
           dir: result.dir2,
-          fileName: 'file1',
           parentDirs: ['dir2'],
         },
         {
+          fileName: 'file2',
           file: result.dir2.file2,
           dir: result.dir2,
-          fileName: 'file2',
           parentDirs: ['dir2'],
         },
         {
+          fileName: 'file1',
           file: result.dir2.dir2.file1,
           dir: result.dir2.dir2,
-          fileName: 'file1',
           parentDirs: ['dir2', 'dir2'],
         },
         {
+          fileName: 'file2',
           file: result.dir2.dir2.file2,
           dir: result.dir2.dir2,
-          fileName: 'file2',
           parentDirs: ['dir2', 'dir2'],
         },
       ];
 
-      const newDirName = 'dirCreate';
-      const newFileName = 'fileCreate';
+      /**
+       * Test files from the file tree
+       */
+      files.forEach(({ file, fileName, parentDirs }) => {
+        const dirPath = joinPath(testName, ...parentDirs);
+        fs.mkdirSync(dirPath, { recursive: true });
+        cb({ file, fileName, parentDirs });
+      });
+
+      const dirName = 'dirCreate';
+      const fileName = 'fileCreate';
 
       /**
        * Types of files for testing
-       * 1. from the file tree
-       * 2. created with $fileCreate on directories from the file tree
-       * 3. created with $dirCreate + $fileCreate combination
+       * 1. created with $fileCreate on directories from the file tree
+       * 2. created with $dirCreate + $fileCreate combination
        */
-      files.forEach(({ file, dir, fileName, parentDirs }) => {
-        const dirPath = joinPath(testName, ...parentDirs);
-        fs.mkdirSync(dirPath, { recursive: true });
-
-        // 1. from the tree file
-        cb(file, fileName, parentDirs);
-
-        // 2. created with $fileCreate on a directory from the file tree
-        let createdFile = dir.$fileCreate(newFileName);
-        cb(createdFile, newFileName, parentDirs);
+      files.forEach(({ dir, parentDirs }) => {
+        // 1. created with $fileCreate on a directory from the file tree
+        let file = dir.$fileCreate(fileName);
+        cb({ file, fileName, parentDirs });
 
         // 2. created with $dirCreate + $fileCreate combination
-        const createdDir = dir.$dirCreate(newDirName);
-        createdFile = createdDir.$fileCreate(newFileName);
-        cb(createdFile, newFileName, parentDirs.concat(newDirName));
+        const createdDir = dir.$dirCreate(dirName);
+        file = createdDir.$fileCreate(fileName);
+        cb({
+          file,
+          fileName,
+          parentDirs: parentDirs.concat(dirName),
+        });
       });
     }
+
+    describe('file operations properties', () => {
+      const testName = CoreOperations.ObjectProperties;
+      describeOperation(testName);
+
+      it('should be defined', () => {
+        expect(result).toBeDefined();
+      });
+
+      it('should have core file operations', () => {
+        useFiles(testName, ({ file }) => {
+          expect(file).toEqual(fileOperationsObject);
+        });
+      });
+    });
 
     describe('getPath on file objects', () => {
       const testName = CoreOperations.GetPath;
       const operationPath = describeOperation(testName);
 
       it('should return file path', () => {
-        useFiles(testName, (file, fileName, parentDirs) => {
+        useFiles(testName, ({ file, fileName, parentDirs }) => {
           const filePath = operationPath(...parentDirs, fileName);
           const f = file instanceof Function ? file() : file;
           expect(f.$getPath()).toBe(filePath);
@@ -147,7 +179,7 @@ suite(
       const operationPath = describeOperation(testName);
 
       it('should read file data', () => {
-        useFiles(testName, (file, fileName, parentDirs) => {
+        useFiles(testName, ({ file, fileName, parentDirs }) => {
           const filePath = operationPath(...parentDirs, fileName);
           const dirPath = operationPath(...parentDirs);
           fs.mkdirSync(dirPath, { recursive: true });
@@ -165,7 +197,7 @@ suite(
       const operationPath = describeOperation(testName);
 
       it('should write data to the file', () => {
-        useFiles(testName, (file, fileName, parentDirs) => {
+        useFiles(testName, ({ file, fileName, parentDirs }) => {
           const filePath = operationPath(...parentDirs, fileName);
           const dirPath = operationPath(...parentDirs);
           fs.mkdirSync(dirPath, { recursive: true });
@@ -185,7 +217,7 @@ suite(
       const operationPath = describeOperation(testName);
 
       it('should clear file data', () => {
-        useFiles(testName, (file, fileName, parentDirs) => {
+        useFiles(testName, ({ file, fileName, parentDirs }) => {
           const filePath = operationPath(...parentDirs, fileName);
           const dirPath = operationPath(...parentDirs);
           fs.mkdirSync(dirPath, { recursive: true });
