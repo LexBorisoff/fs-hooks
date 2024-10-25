@@ -34,7 +34,6 @@ export type Tree = typeof tree;
 
 export const fileOperationsObject = {
   $getPath: expect.any(Function),
-  $exists: expect.any(Function),
   $read: expect.any(Function),
   $write: expect.any(Function),
   $clear: expect.any(Function),
