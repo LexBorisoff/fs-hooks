@@ -6,7 +6,7 @@ import { isDirectory } from './is-directory.js';
  *
  * @throws if path already exists and is not a directory
  */
-export function createDir(dirPath: string, recursive = true): void {
+export function createDir(dirPath: string, recursive = false): void {
   if (fs.existsSync(dirPath)) {
     if (!isDirectory(dirPath)) {
       throw new Error(`Cannot create directory ${dirPath}`);
