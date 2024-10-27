@@ -1,9 +1,9 @@
 import { test, expect } from 'vitest';
-import { buildFileTree } from '../../src/file-tree/build-file-tree.js';
+import { getFileTree } from '../../src/file-tree/get-file-tree.js';
 import type { FileTreeInterface } from '../../src/file-tree/file-tree.types.js';
 
-test('buildFileTree', () => {
+test('getFileTree', () => {
   const tree: FileTreeInterface = {};
-  const result = buildFileTree(tree);
+  const result = getFileTree(tree);
   expect(result).toBe(tree);
 });
