@@ -8,20 +8,20 @@ import type {
  * Identity function that helps create a function
  * that returns custom file operations
  */
-export function buildFileOperations<
+export function getFileOperations<
   FileOperations extends OperationsType,
   Fn extends GetFileOperationsFn<FileOperations>,
->(getOperations: Fn): Fn {
-  return getOperations;
+>(cb: Fn): Fn {
+  return cb;
 }
 
 /**
  * Identity function that helps create a function
  * that returns custom dir operations
  */
-export function buildDirOperations<
+export function getDirOperations<
   DirOperations extends OperationsType,
   Fn extends GetDirOperationsFn<DirOperations>,
->(getOperations: Fn): Fn {
-  return getOperations;
+>(cb: Fn): Fn {
+  return cb;
 }

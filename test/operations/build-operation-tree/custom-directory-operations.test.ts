@@ -5,7 +5,7 @@ import type {
   DirOperationsInterface,
   FileTreeOperationsType,
 } from '../../../src/operations/operation.types.js';
-import { buildDirOperations } from '../../../src/operations/build-operations.js';
+import { getDirOperations } from '../../../src/operations/get-operations.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
 import { dirOperationsObject, Test, tree, type Tree } from './constants.js';
@@ -24,7 +24,7 @@ suite(
   'buildOperationTree - custom directory operations',
   { concurrent: false },
   () => {
-    const getDirOperations = buildDirOperations((dir) => ({
+    const getDirOperations = getDirOperations((dir) => ({
       getDirPath(): string {
         return dir.path;
       },

@@ -1,31 +1,31 @@
 import { describe, it, expect, suite } from 'vitest';
 import {
-  buildDirOperations,
-  buildFileOperations,
-} from '../../src/operations/build-operations.js';
+  getDirOperations,
+  getFileOperations,
+} from '../../src/operations/get-operations.js';
 import type {
   GetDirOperationsFn,
   GetFileOperationsFn,
   OperationsType,
 } from '../../src/operations/operation.types.js';
 
-suite('buildOperations Suite', () => {
-  describe('buildFileOperations function', () => {
+suite('getOperations Suite', () => {
+  describe('getFileOperations function', () => {
     it('should return a function for getting file operations', () => {
       const getOperations: GetFileOperationsFn<OperationsType> = () => ({
         custom(): void {},
       });
-      const result = buildFileOperations(getOperations);
+      const result = getFileOperations(getOperations);
       expect(result).toBe(getOperations);
     });
   });
 
-  describe('buildDirOperations function', () => {
+  describe('getDirOperations function', () => {
     it('should return a function for getting directory operations', () => {
       const getOperations: GetDirOperationsFn<OperationsType> = () => ({
         custom(): void {},
       });
-      const result = buildDirOperations(getOperations);
+      const result = getDirOperations(getOperations);
       expect(result).toBe(getOperations);
     });
   });

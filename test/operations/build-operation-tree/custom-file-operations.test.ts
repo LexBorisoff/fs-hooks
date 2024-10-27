@@ -7,7 +7,7 @@ import type {
   FileTreeOperationsType,
 } from '../../../src/operations/operation.types.js';
 import type { FileInterface } from '../../../src/file-tree/file-tree.types.js';
-import { buildFileOperations } from '../../../src/operations/build-operations.js';
+import { getFileOperations } from '../../../src/operations/get-operations.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
 import {
@@ -33,7 +33,7 @@ suite(
   'buildOperationTree - custom file operations',
   { concurrent: false },
   () => {
-    const getFileOperations = buildFileOperations((file) => ({
+    const getFileOperations = getFileOperations((file) => ({
       getFilePath(): string {
         return file.path;
       },
