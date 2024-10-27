@@ -1,73 +1,68 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { getFullPath } from './file-tree/get-full-path.js';
+import type { FileTreeInterface } from './file-tree/file-tree.types.js';
 import { buildOperationTree } from './operations/build-operation-tree.js';
 import type {
-  DirWithPathInterface,
-  FileTreeInterface,
-  FileWithPathInterface,
-} from './file-tree/file-tree.types.js';
-import type {
   CustomOperationsInterface,
+  RootOperationTreeType,
   OperationsType,
 } from './operations/operation.types.js';
 import { isDirectory } from './utils/is-directory.js';
+import { getFullPath } from './file-tree/get-full-path.js';
 import { createDir } from './utils/create-dir.js';
-import type {
-  RootResultInterface,
-  TreeResultInterface,
-} from './file-manager.types.js';
-import { buildFileTree } from './file-tree/build-file-tree.js';
+import { getFileTree } from './file-tree/get-file-tree.js';
 import {
-  buildDirOperations,
-  buildFileOperations,
-} from './operations/build-operations.js';
+  getDirOperations,
+  getFileOperations,
+} from './operations/get-operations.js';
 
 export class FileManager<
+  Tree extends FileTreeInterface,
   CustomFileOperations extends OperationsType | undefined = undefined,
   CustomDirOperations extends OperationsType | undefined = undefined,
 > {
-  #customOperations: CustomOperationsInterface<
+  #rootPath: string;
+
+  #fileTree?: Tree;
+
+  #operationTree: RootOperationTreeType<
+    Tree,
     CustomFileOperations,
     CustomDirOperations
-  > = {};
+  >;
 
   constructor(
+    rootPath: string,
+    fileTree?: Tree,
     customOperations: CustomOperationsInterface<
       CustomFileOperations,
       CustomDirOperations
     > = {},
   ) {
-    this.#customOperations = customOperations;
+    this.#rootPath = path.isAbsolute(rootPath)
+      ? rootPath
+      : path.resolve(rootPath);
+    this.#fileTree = fileTree;
+    this.#operationTree = buildOperationTree(
+      rootPath,
+      fileTree,
+      customOperations,
+    );
+  }
+
+  get operationTree(): RootOperationTreeType<
+    Tree,
+    CustomFileOperations,
+    CustomDirOperations
+  > {
+    return this.#operationTree;
   }
 
   /**
-   * @param root - Root path where to create and manipulate files
+   * Creates directories and files specified by the tree at the root path
    */
-  root(
-    root: string,
-  ): RootResultInterface<CustomFileOperations, CustomDirOperations> {
-    return {
-      /**
-       * @param tree - Describes the structure of files at the `root` path
-       */
-      tree: (tree) => this.#tree(root, tree),
-    };
-  }
-
-  #tree<T extends FileTreeInterface>(
-    root: string,
-    tree?: T,
-  ): TreeResultInterface<T, CustomFileOperations, CustomDirOperations> {
-    const rootPath = path.resolve(root);
-    return {
-      files: buildOperationTree(rootPath, tree, this.#customOperations),
-      create: () => this.#create(rootPath, tree),
-    };
-  }
-
-  #create<T extends FileTreeInterface>(root: string, tree?: T): void {
-    const rootPath = path.resolve(root);
+  mount(): void {
+    const rootPath = this.#rootPath;
     if (fs.existsSync(rootPath) && !isDirectory(rootPath)) {
       throw new Error('Root path already exists and is not a directory');
     }
@@ -80,44 +75,34 @@ export class FileManager<
       );
     }
 
-    function createFiles<Tree extends FileTreeInterface>(
+    function createFiles<T extends FileTreeInterface>(
       parentPath: string,
-      fileTree?: Tree,
+      fileTree?: T,
     ): void {
       Object.entries(fileTree ?? {}).forEach(([key, value]) => {
-        const withPath = {
-          ...value,
-          path: getFullPath(parentPath, key),
-        } satisfies FileWithPathInterface | DirWithPathInterface;
+        const fullPath = getFullPath(parentPath, key);
 
-        if (withPath.type === 'file') {
-          if (withPath.skip) {
+        if (typeof value === 'string') {
+          if (fs.existsSync(fullPath) && isDirectory(fullPath)) {
+            addError('file', fullPath);
             return;
           }
 
-          if (fs.existsSync(withPath.path) && isDirectory(withPath.path)) {
-            addError('file', withPath.path);
-            return;
-          }
-
-          const { data } = withPath;
-          const content = data instanceof Function ? data() : (data ?? '');
-          fs.writeFileSync(withPath.path, content);
+          fs.writeFileSync(fullPath, value);
           return;
         }
 
         try {
-          createDir(withPath.path);
+          createDir(fullPath);
 
-          const { children } = withPath;
-          if (children != null && Object.keys(children).length > 0) {
-            createFiles(withPath.path, children);
+          if (Object.keys(value).length > 0) {
+            createFiles(fullPath, value);
           }
         } catch (error) {
           if (error instanceof Error) {
             errors.push(error.message);
           } else {
-            addError('dir', withPath.path);
+            addError('dir', fullPath);
           }
         }
       });
@@ -128,7 +113,7 @@ export class FileManager<
         createDir(rootPath);
       }
 
-      createFiles(rootPath, tree);
+      createFiles(rootPath, this.#fileTree);
     } catch (error) {
       if (error instanceof Error) {
         errors.push(error.message);
@@ -149,9 +134,9 @@ export class FileManager<
   }
 
   // convenience static methods
-  static buildFileTree = buildFileTree;
+  static getFileTree = getFileTree;
 
-  static buildFileOperations = buildFileOperations;
+  static getFileOperations = getFileOperations;
 
-  static buildDirOperations = buildDirOperations;
+  static getDirOperations = getDirOperations;
 }
