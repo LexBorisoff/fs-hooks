@@ -1,26 +1,60 @@
 import fs from 'node:fs';
 import { getFullPath } from '../file-tree/get-full-path.js';
 import type {
-  DirInterface,
-  DirWithPathInterface,
-  DirWithPathType,
-  FileInterface,
+  DirObjectInterface,
+  FileObjectInterface,
   FileTreeInterface,
-  FileWithPathInterface,
-  FileWithPathType,
+  FileTreeType,
 } from '../file-tree/file-tree.types.js';
 import { createDir } from '../utils/create-dir.js';
 import { readFile } from '../utils/read-file.js';
 import type {
-  FileTreeOperationsType,
+  RootOperationTreeType,
   CustomOperationsInterface,
   DirOperationsInterface,
   OperationsType,
   FileOperationsInterface,
 } from './operation.types.js';
 
-function fileOperations<F extends FileInterface>(
-  file: FileWithPathType<F>,
+function buildFileTree<T extends FileTreeInterface>(
+  parentPath: string,
+  tree?: T,
+): FileTreeType<T> {
+  let result = {} as FileTreeType<T>;
+
+  Object.entries(tree ?? {}).forEach(([key, value]) => {
+    if (typeof value === 'string') {
+      const file: FileObjectInterface = {
+        type: 'file',
+        data: value,
+        path: getFullPath(parentPath, key),
+      };
+
+      result = {
+        ...result,
+        [key]: file,
+      };
+      return;
+    }
+
+    const dirPath = getFullPath(parentPath, key);
+    const dir: DirObjectInterface<typeof value> = {
+      type: 'dir',
+      children: buildFileTree(dirPath, value),
+      path: dirPath,
+    };
+
+    result = {
+      ...result,
+      [key]: dir,
+    };
+  });
+
+  return result;
+}
+
+function fileOperations<F extends FileObjectInterface>(
+  file: F,
 ): FileOperationsInterface {
   const operations: FileOperationsInterface = {
     $getPath: () => file.path,
@@ -38,18 +72,17 @@ function fileOperations<F extends FileInterface>(
 }
 
 function dirOperations<
-  D extends DirInterface,
-  P extends DirWithPathType<D>,
+  ChildTree extends FileTreeInterface,
   CustomFileOperations extends OperationsType | undefined,
   CustomDirOperations extends OperationsType | undefined,
 >(
-  dir: P,
+  dir: DirObjectInterface<ChildTree>,
   customOperations: CustomOperationsInterface<
     CustomFileOperations,
     CustomDirOperations
   > = {},
 ): DirOperationsInterface<
-  P['children'],
+  ChildTree,
   CustomFileOperations,
   CustomDirOperations
 > {
@@ -58,7 +91,7 @@ function dirOperations<
   }
 
   const operations: DirOperationsInterface<
-    (typeof dir)['children'],
+    ChildTree,
     CustomFileOperations,
     CustomDirOperations
   > = {
@@ -68,12 +101,12 @@ function dirOperations<
       type DirCreateResult = CustomDirOperations extends OperationsType
         ? CustomDirOperations &
             DirOperationsInterface<
-              undefined,
+              FileTreeInterface,
               CustomFileOperations,
               CustomDirOperations
             >
         : DirOperationsInterface<
-            undefined,
+            FileTreeInterface,
             CustomFileOperations,
             CustomDirOperations
           >;
@@ -86,7 +119,8 @@ function dirOperations<
       const newDir = {
         type: 'dir',
         path: dirPath,
-      } satisfies DirWithPathInterface;
+        children: {},
+      } satisfies DirObjectInterface<FileTreeInterface>;
 
       return {
         ...dirOperations(newDir, customOperations),
@@ -104,18 +138,18 @@ function dirOperations<
         this.$fileWrite(fileName, '');
       }
     },
-    $fileCreate(fileName, data) {
+    $fileCreate(fileName, fileData) {
       type FileCreateResult = CustomFileOperations extends OperationsType
         ? FileOperationsInterface & CustomFileOperations
         : FileOperationsInterface;
 
-      this.$fileWrite(fileName, data ?? '');
+      const data = fileData ?? '';
+      this.$fileWrite(fileName, data);
 
-      const file: FileWithPathInterface = {
+      const file: FileObjectInterface = {
         type: 'file',
         data,
         path: getPath(fileName),
-        skip: false,
       };
 
       return {
@@ -127,9 +161,8 @@ function dirOperations<
       fs.rmSync(getPath(fileName));
     },
     $fileRead: (fileName) => readFile(getPath(fileName)),
-    $fileWrite(fileName, data) {
-      const content = data instanceof Function ? data() : data;
-      fs.writeFileSync(getPath(fileName), content);
+    $fileWrite(fileName, fileData) {
+      fs.writeFileSync(getPath(fileName), fileData);
     },
   };
 
@@ -137,28 +170,28 @@ function dirOperations<
 }
 
 export function buildOperationTree<
-  T extends FileTreeInterface,
+  Tree extends FileTreeInterface,
   CustomFileOperations extends OperationsType | undefined,
   CustomDirOperations extends OperationsType | undefined,
 >(
   parentPath: string,
-  tree?: T,
+  tree?: Tree,
   customOperations: CustomOperationsInterface<
     CustomFileOperations,
     CustomDirOperations
   > = {},
-): FileTreeOperationsType<T, CustomFileOperations, CustomDirOperations> {
+): RootOperationTreeType<Tree, CustomFileOperations, CustomDirOperations> {
   const { file: customFileOperations, dir: customDirOperations } =
     customOperations;
 
   const rootDir = {
     type: 'dir',
-    children: tree,
+    children: buildFileTree(parentPath, tree),
     path: parentPath,
-  } satisfies DirWithPathInterface;
+  } satisfies DirObjectInterface<Tree>;
 
   const rootOperations: DirOperationsInterface<
-    T,
+    Tree,
     CustomFileOperations,
     CustomDirOperations
   > = dirOperations(rootDir, customOperations);
@@ -168,18 +201,21 @@ export function buildOperationTree<
   let result = {
     ...rootOperations,
     ...rootCustomOperations,
-  } as FileTreeOperationsType<T, CustomFileOperations, CustomDirOperations>;
+  } as RootOperationTreeType<Tree, CustomFileOperations, CustomDirOperations>;
 
   Object.entries(tree ?? {}).forEach(([key, value]) => {
-    const withPath = {
-      ...value,
-      path: getFullPath(parentPath, key),
-    } satisfies FileWithPathInterface | DirWithPathInterface;
+    const fullPath = getFullPath(parentPath, key);
 
-    if (withPath.type === 'file') {
+    if (typeof value === 'string') {
+      const file: FileObjectInterface = {
+        type: 'file',
+        data: value,
+        path: fullPath,
+      };
+
       const operations = {
-        ...fileOperations(withPath),
-        ...(customFileOperations?.(withPath) as CustomFileOperations),
+        ...fileOperations(file),
+        ...(customFileOperations?.(file) as CustomFileOperations),
       };
 
       result = {
@@ -189,19 +225,21 @@ export function buildOperationTree<
       return;
     }
 
-    const { children } = withPath;
-    const childTree =
-      children != null
-        ? buildOperationTree(withPath.path, children, customOperations)
-        : null;
+    const childTree = buildOperationTree(fullPath, value, customOperations);
+
+    const dir: DirObjectInterface<typeof value> = {
+      type: 'dir',
+      children: buildFileTree(parentPath, value),
+      path: fullPath,
+    };
 
     const operations: DirOperationsInterface<
-      typeof children,
+      typeof value,
       CustomFileOperations,
       CustomDirOperations
     > = {
-      ...dirOperations(withPath, customOperations),
-      ...(customDirOperations?.(withPath) as CustomDirOperations),
+      ...dirOperations(dir),
+      ...(customDirOperations?.(dir) as CustomDirOperations),
       ...childTree,
     };
 
