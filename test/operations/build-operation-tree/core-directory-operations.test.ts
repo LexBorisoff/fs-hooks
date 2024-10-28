@@ -47,14 +47,14 @@ suite(
       undefined,
       undefined
     >;
-    type OperationPathFn = (...args: string[]) => string;
+    type GetDescribePathFn = (...args: string[]) => string;
 
-    function describeOperation(testName: string): OperationPathFn {
-      function operationPath(...args: string[]): string {
+    function describeTest(testName: string): GetDescribePathFn {
+      function getDescribePath(...args: string[]): string {
         return joinPath(testName, ...args);
       }
 
-      const testPath = operationPath();
+      const testPath = getDescribePath();
 
       beforeEach(() => {
         result = buildOperationTree(testPath, tree);
@@ -64,7 +64,7 @@ suite(
         };
       });
 
-      return operationPath;
+      return getDescribePath;
     }
 
     function useDirs(
@@ -117,7 +117,7 @@ suite(
 
     describe('directory operations properties', () => {
       const testName = CoreOperations.ObjectProperties;
-      describeOperation(testName);
+      describeTest(testName);
 
       it('should be defined', () => {
         expect(result).toBeDefined();
@@ -132,11 +132,11 @@ suite(
 
     describe('getPath on directory objects', () => {
       const testName = CoreOperations.GetPath;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should return directory path', () => {
         useDirs(testName, (dir, parentDirs) => {
-          const dirPath = operationPath(...parentDirs);
+          const dirPath = getDescribePath(...parentDirs);
           expect(dir.$getPath()).toBe(dirPath);
         });
       });
@@ -144,7 +144,7 @@ suite(
 
     describe('exists on directory objects', () => {
       const testName = CoreOperations.Exists;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should check if files and directories exist', () => {
         const dirName = 'new-dir';
@@ -154,8 +154,8 @@ suite(
           expect(dir.$exists(dirName)).toBe(false);
           expect(dir.$exists(fileName)).toBe(false);
 
-          const dirPath = operationPath(...parentDirs, dirName);
-          const filePath = operationPath(...parentDirs, fileName);
+          const dirPath = getDescribePath(...parentDirs, dirName);
+          const filePath = getDescribePath(...parentDirs, fileName);
           fs.mkdirSync(dirPath, { recursive: true });
           fs.writeFileSync(filePath, '');
 
@@ -167,13 +167,13 @@ suite(
 
     describe('dirCreate', () => {
       const testName = CoreOperations.DirCreate;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should create directories', () => {
         const dirName = 'new-dir';
 
         useDirs(testName, (dir, parentDirs) => {
-          const dirPath = operationPath(...parentDirs, dirName);
+          const dirPath = getDescribePath(...parentDirs, dirName);
           expect(fs.existsSync(dirPath)).toBe(false);
 
           const createdDir = dir.$dirCreate(dirName);
@@ -187,13 +187,13 @@ suite(
 
     describe('dirDelete', () => {
       const testName = CoreOperations.DirDelete;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should delete directories', () => {
         const dirName = 'new-dir';
 
         useDirs(testName, (dir, parentDirs) => {
-          const dirPath = operationPath(...parentDirs, dirName);
+          const dirPath = getDescribePath(...parentDirs, dirName);
           fs.mkdirSync(dirPath, { recursive: true });
           expect(fs.existsSync(dirPath)).toBe(true);
 
@@ -205,14 +205,14 @@ suite(
 
     describe('fileCreate', () => {
       const testName = CoreOperations.FileCreate;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should create files', () => {
         const fileName = 'new-file';
 
         useDirs(testName, (dir, parentDirs) => {
-          const filePath = operationPath(...parentDirs, fileName);
-          const dirPath = operationPath(...parentDirs);
+          const filePath = getDescribePath(...parentDirs, fileName);
+          const dirPath = getDescribePath(...parentDirs);
           fs.mkdirSync(dirPath, { recursive: true });
           expect(fs.existsSync(filePath)).toBe(false);
 
@@ -229,8 +229,8 @@ suite(
         const nestedFile = nestedDirs.join('/') + '/new-file';
 
         useDirs(testName, (dir, parentDirs) => {
-          const nestedFilePath = operationPath(...parentDirs, nestedFile);
-          const nestedDirPath = operationPath(...parentDirs, ...nestedDirs);
+          const nestedFilePath = getDescribePath(...parentDirs, nestedFile);
+          const nestedDirPath = getDescribePath(...parentDirs, ...nestedDirs);
           fs.mkdirSync(nestedDirPath, { recursive: true });
           expect(fs.existsSync(nestedFilePath)).toBe(false);
 
@@ -251,14 +251,14 @@ suite(
 
     describe('fileDelete', () => {
       const testName = CoreOperations.FileDelete;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should delete specified files', () => {
         const fileName = 'new-file';
 
         useDirs(testName, (dir, parentDirs) => {
-          const filePath = operationPath(...parentDirs, fileName);
-          const dirPath = operationPath(...parentDirs);
+          const filePath = getDescribePath(...parentDirs, fileName);
+          const dirPath = getDescribePath(...parentDirs);
 
           fs.mkdirSync(dirPath, { recursive: true });
           fs.writeFileSync(filePath, '');
@@ -272,14 +272,14 @@ suite(
 
     describe('fileRead', () => {
       const testName = CoreOperations.FileRead;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should read files', () => {
         const fileName = 'new-file';
 
         useDirs(testName, (dir, parentDirs) => {
-          const filePath = operationPath(...parentDirs, fileName);
-          const dirPath = operationPath(...parentDirs);
+          const filePath = getDescribePath(...parentDirs, fileName);
+          const dirPath = getDescribePath(...parentDirs);
           fs.mkdirSync(dirPath, { recursive: true });
 
           fileDataArray.forEach((fileData) => {
@@ -298,14 +298,14 @@ suite(
 
     describe('fileWrite', () => {
       const testName = CoreOperations.FileWrite;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should write to specified files', () => {
         const fileName = 'new-file';
 
         useDirs(testName, (dir, parentDirs) => {
-          const filePath = operationPath(...parentDirs, fileName);
-          const dirPath = operationPath(...parentDirs);
+          const filePath = getDescribePath(...parentDirs, fileName);
+          const dirPath = getDescribePath(...parentDirs);
           fs.mkdirSync(dirPath, { recursive: true });
           fs.writeFileSync(filePath, '');
 
@@ -320,14 +320,14 @@ suite(
 
     describe('fileClear', () => {
       const testName = CoreOperations.FileClear;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should clear data for specified files', () => {
         const fileName = 'new-file';
 
         useDirs(testName, (dir, parentDirs) => {
-          const filePath = operationPath(...parentDirs, fileName);
-          const dirPath = operationPath(...parentDirs);
+          const filePath = getDescribePath(...parentDirs, fileName);
+          const dirPath = getDescribePath(...parentDirs);
           fs.mkdirSync(dirPath, { recursive: true });
 
           fileDataArray.forEach((fileData) => {

@@ -57,20 +57,20 @@ suite(
       return setup();
     });
 
-    type OperationPathFn = (...args: string[]) => string;
+    type GetDescribePathFn = (...args: string[]) => string;
     type UseFileTreeDirsCb = (dir: DirOperations) => void;
     type UseDirCreateCb = (dir: DirOperations, path: string) => void;
 
-    function describeOperation(testName: string): {
-      operationPath: OperationPathFn;
+    function describeTest(testName: string): {
+      getDescribePath: GetDescribePathFn;
       useFileTreeDirs: (testCb: UseFileTreeDirsCb) => void;
       useDirCreate: (testCb: UseDirCreateCb) => void;
     } {
-      function operationPath(...args: string[]): string {
+      function getDescribePath(...args: string[]): string {
         return joinPath(testName, ...args);
       }
 
-      const testPath = operationPath();
+      const testPath = getDescribePath();
 
       beforeEach(() => {
         result = buildOperationTree(testPath, tree, {
@@ -118,14 +118,14 @@ suite(
       }
 
       return {
-        operationPath,
+        getDescribePath,
         useFileTreeDirs,
         useDirCreate,
       };
     }
 
     describe('custom directory operations properties', () => {
-      const { useFileTreeDirs, useDirCreate } = describeOperation(
+      const { useFileTreeDirs, useDirCreate } = describeTest(
         CustomOperations.ObjectProperties,
       );
 
@@ -152,7 +152,7 @@ suite(
     });
 
     describe('getDirPath custom operation', () => {
-      const { operationPath, useDirCreate } = describeOperation(
+      const { getDescribePath, useDirCreate } = describeTest(
         CustomOperations.GetDirPath,
       );
 
@@ -165,23 +165,23 @@ suite(
         const dirs: TestItem[] = [
           {
             dir: result,
-            dirPath: operationPath(),
+            dirPath: getDescribePath(),
           },
           {
             dir: result.dir1,
-            dirPath: operationPath('dir1'),
+            dirPath: getDescribePath('dir1'),
           },
           {
             dir: result.dir2,
-            dirPath: operationPath('dir2'),
+            dirPath: getDescribePath('dir2'),
           },
           {
             dir: result.dir2.dir1,
-            dirPath: operationPath('dir2', 'dir1'),
+            dirPath: getDescribePath('dir2', 'dir1'),
           },
           {
             dir: result.dir2.dir2,
-            dirPath: operationPath('dir2', 'dir2'),
+            dirPath: getDescribePath('dir2', 'dir2'),
           },
         ];
 
@@ -198,7 +198,7 @@ suite(
     });
 
     describe('getDirType custom operation', () => {
-      const { useFileTreeDirs, useDirCreate } = describeOperation(
+      const { useFileTreeDirs, useDirCreate } = describeTest(
         CustomOperations.GetDirType,
       );
 
@@ -216,9 +216,7 @@ suite(
     });
 
     describe('getDirChildren custom operation', () => {
-      const { useDirCreate } = describeOperation(
-        CustomOperations.GetDirChildren,
-      );
+      const { useDirCreate } = describeTest(CustomOperations.GetDirChildren);
 
       it('should return directory children keys (file tree)', () => {
         interface TestItem {
@@ -266,7 +264,7 @@ suite(
     });
 
     describe('plusOne custom operation', () => {
-      const { useFileTreeDirs, useDirCreate } = describeOperation(
+      const { useFileTreeDirs, useDirCreate } = describeTest(
         CustomOperations.PlusOne,
       );
 

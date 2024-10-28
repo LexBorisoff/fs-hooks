@@ -44,14 +44,14 @@ suite(
       undefined,
       undefined
     >;
-    type OperationPathFn = (...args: string[]) => string;
+    type GetDescribePathFn = (...args: string[]) => string;
 
-    function describeOperation(testName: string): OperationPathFn {
-      function operationPath(...args: string[]): string {
+    function describeTest(testName: string): GetDescribePathFn {
+      function getDescribePath(...args: string[]): string {
         return joinPath(testName, ...args);
       }
 
-      const testPath = operationPath();
+      const testPath = getDescribePath();
 
       beforeEach(() => {
         result = buildOperationTree(testPath, tree);
@@ -61,7 +61,7 @@ suite(
         };
       });
 
-      return operationPath;
+      return getDescribePath;
     }
 
     function useFiles(
@@ -153,7 +153,7 @@ suite(
 
     describe('file operations properties', () => {
       const testName = CoreOperations.ObjectProperties;
-      describeOperation(testName);
+      describeTest(testName);
 
       it('should be defined', () => {
         expect(result).toBeDefined();
@@ -168,11 +168,11 @@ suite(
 
     describe('getPath on file objects', () => {
       const testName = CoreOperations.GetPath;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should return file path', () => {
         useFiles(testName, ({ file, fileName, parentDirs }) => {
-          const filePath = operationPath(...parentDirs, fileName);
+          const filePath = getDescribePath(...parentDirs, fileName);
           const f = file instanceof Function ? file() : file;
           expect(f.$getPath()).toBe(filePath);
         });
@@ -181,12 +181,12 @@ suite(
 
     describe('read', () => {
       const testName = CoreOperations.Read;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should read file data', () => {
         useFiles(testName, ({ file, fileName, parentDirs }) => {
-          const filePath = operationPath(...parentDirs, fileName);
-          const dirPath = operationPath(...parentDirs);
+          const filePath = getDescribePath(...parentDirs, fileName);
+          const dirPath = getDescribePath(...parentDirs);
           fs.mkdirSync(dirPath, { recursive: true });
 
           fileDataArray.forEach((fileData) => {
@@ -199,12 +199,12 @@ suite(
 
     describe('write', () => {
       const testName = CoreOperations.Write;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should write data to the file', () => {
         useFiles(testName, ({ file, fileName, parentDirs }) => {
-          const filePath = operationPath(...parentDirs, fileName);
-          const dirPath = operationPath(...parentDirs);
+          const filePath = getDescribePath(...parentDirs, fileName);
+          const dirPath = getDescribePath(...parentDirs);
           fs.mkdirSync(dirPath, { recursive: true });
           fs.writeFileSync(filePath, '');
 
@@ -219,12 +219,12 @@ suite(
 
     describe('clear', () => {
       const testName = CoreOperations.Clear;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should clear file data', () => {
         useFiles(testName, ({ file, fileName, parentDirs }) => {
-          const filePath = operationPath(...parentDirs, fileName);
-          const dirPath = operationPath(...parentDirs);
+          const filePath = getDescribePath(...parentDirs, fileName);
+          const dirPath = getDescribePath(...parentDirs);
           fs.mkdirSync(dirPath, { recursive: true });
 
           fileDataArray.forEach((fileData) => {

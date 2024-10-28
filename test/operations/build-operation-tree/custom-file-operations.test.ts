@@ -72,14 +72,14 @@ suite(
       return setup();
     });
 
-    type OperationPathFn = (...args: string[]) => string;
+    type GetDescribePathFn = (...args: string[]) => string;
 
-    function describeOperation(testName: string): OperationPathFn {
-      function operationPath(...args: string[]): string {
+    function describeTest(testName: string): GetDescribePathFn {
+      function getDescribePath(...args: string[]): string {
         return joinPath(testName, ...args);
       }
 
-      const testPath = operationPath();
+      const testPath = getDescribePath();
 
       beforeEach(() => {
         result = buildOperationTree(testPath, tree, {
@@ -92,7 +92,7 @@ suite(
         };
       });
 
-      return operationPath;
+      return getDescribePath;
     }
 
     interface FileInfo {
@@ -206,7 +206,7 @@ suite(
 
     describe('custom file operations properties', () => {
       const testName = CustomOperations.ObjectProperties;
-      describeOperation(testName);
+      describeTest(testName);
 
       const fullFileOperations = {
         ...fileOperationsObject,
@@ -232,7 +232,7 @@ suite(
 
     describe('getFileType custom operation', () => {
       const testName = CustomOperations.GetFileType;
-      describeOperation(testName);
+      describeTest(testName);
 
       it('should custom return file type for tree files', () => {
         useTreeFiles(testName, ({ file }) => {
@@ -249,7 +249,7 @@ suite(
 
     describe('getFileData custom operation', () => {
       const testName = CustomOperations.GetFileData;
-      describeOperation(testName);
+      describeTest(testName);
 
       it('should custom return file data for tree files', () => {
         useTreeFiles(testName, ({ file, treeFile }) => {
@@ -266,18 +266,18 @@ suite(
 
     describe('getFilePath custom operation', () => {
       const testName = CustomOperations.GetFilePath;
-      const operationPath = describeOperation(testName);
+      const getDescribePath = describeTest(testName);
 
       it('should custom return file path for tree files', () => {
         useTreeFiles(testName, ({ file, fileName, parentDirs }) => {
-          const filePath = operationPath(...parentDirs, fileName);
+          const filePath = getDescribePath(...parentDirs, fileName);
           expect(file.getFilePath()).toBe(filePath);
         });
       });
 
       it('should custom return file path for created files', () => {
         useCreatedFiles(testName, ({ file, fileName, parentDirs }) => {
-          const filePath = operationPath(...parentDirs, fileName);
+          const filePath = getDescribePath(...parentDirs, fileName);
           expect(file.getFilePath()).toBe(filePath);
         });
       });
@@ -285,7 +285,7 @@ suite(
 
     describe('plusOne custom operation', () => {
       const testName = CustomOperations.PlusOne;
-      describeOperation(testName);
+      describeTest(testName);
 
       it('should add 1 for tree files', () => {
         useTreeFiles(testName, ({ file }) => {
