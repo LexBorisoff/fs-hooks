@@ -2,30 +2,16 @@ import { expect } from 'vitest';
 import type { FileTreeInterface } from '../../../src/file-tree/file-tree.types.js';
 
 export const tree = {
-  file1: { type: 'file' },
-  file2: { type: 'file', data: 'File 2 test', skip: true },
-  dir1: { type: 'dir' },
+  file1: '',
+  file2: 'File 2 test',
+  dir1: {},
   dir2: {
-    type: 'dir',
-    children: {
-      file1: { type: 'file' },
-      file2: {
-        type: 'file',
-        data: (): string => 'Dir 2\nFile 2 test',
-        skip: false,
-      },
-      dir1: { type: 'dir' },
-      dir2: {
-        type: 'dir',
-        children: {
-          file1: { type: 'file', data: 'Dir 2\nDir 2\nFile 1 test' },
-          file2: {
-            type: 'file',
-            data: (): string => 'Dir 2\nDir 2\nFile 2 test',
-            skip: true,
-          },
-        },
-      },
+    file1: '',
+    file2: 'Dir 2\nFile 2 test',
+    dir1: {},
+    dir2: {
+      file1: 'Dir2 2\nDir2 2\nFile 1 test',
+      file2: 'Dir2 2\nDir2 2\nFile 2 test',
     },
   },
 } satisfies FileTreeInterface;

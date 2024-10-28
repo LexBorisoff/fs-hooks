@@ -3,11 +3,12 @@ import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import type {
   DirOperationsInterface,
   FileOperationsInterface,
-  FileTreeOperationsType,
+  RootOperationTreeType,
 } from '../../../src/operations/operation.types.js';
 import { buildOperationTree } from '../../../src/operations/build-operation-tree.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
+import type { FileTreeInterface } from '../../../src/file-tree/file-tree.types.js';
 import {
   fileDataArray,
   fileOperationsObject,
@@ -31,14 +32,18 @@ suite(
   'buildOperationTree - core file operations',
   { concurrent: false },
   () => {
-    let result: FileTreeOperationsType<Tree>;
+    let result: RootOperationTreeType<Tree>;
 
     beforeAll(() => {
       return setup();
     });
 
     type FileType = FileOperationsInterface;
-    type DirType = DirOperationsInterface<undefined, undefined, undefined>;
+    type DirType = DirOperationsInterface<
+      FileTreeInterface,
+      undefined,
+      undefined
+    >;
     type OperationPathFn = (...args: string[]) => string;
 
     function describeOperation(testName: string): OperationPathFn {

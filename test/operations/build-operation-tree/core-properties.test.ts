@@ -1,6 +1,6 @@
 import { beforeAll, beforeEach, expect, it, suite } from 'vitest';
 import { buildOperationTree } from '../../../src/operations/build-operation-tree.js';
-import type { FileTreeOperationsType } from '../../../src/operations/operation.types.js';
+import type { RootOperationTreeType } from '../../../src/operations/operation.types.js';
 import { testSetup } from '../../test-setup.js';
 import {
   dirOperationsObject,
@@ -16,7 +16,7 @@ const { setup: setupSuite, joinPath } = testSetup(
 );
 
 suite('buildOperationTree - core properties', { concurrent: false }, () => {
-  let result: FileTreeOperationsType<Tree>;
+  let result: RootOperationTreeType<Tree>;
 
   beforeAll(() => {
     return setupSuite();

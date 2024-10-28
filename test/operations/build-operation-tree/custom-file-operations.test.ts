@@ -4,9 +4,12 @@ import { buildOperationTree } from '../../../src/operations/build-operation-tree
 import type {
   DirOperationsInterface,
   FileOperationsInterface,
-  FileTreeOperationsType,
+  RootOperationTreeType,
 } from '../../../src/operations/operation.types.js';
-import type { FileInterface } from '../../../src/file-tree/file-tree.types.js';
+import type {
+  FileTreeInterface,
+  TreeFileType,
+} from '../../../src/file-tree/file-tree.types.js';
 import { getFileOperations } from '../../../src/operations/get-operations.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
@@ -33,41 +36,37 @@ suite(
   'buildOperationTree - custom file operations',
   { concurrent: false },
   () => {
-    const getFileOperations = getFileOperations((file) => ({
-      getFilePath(): string {
-        return file.path;
-      },
-      getFileData(): string | undefined {
-        return file.data instanceof Function ? file.data() : file.data;
-      },
+    const customFileOperations = getFileOperations((file) => ({
       getFileType(): 'file' {
         return file.type;
       },
-      getFileSkip(): boolean | undefined {
-        return file.skip;
+      getFileData(): string {
+        return file.data;
+      },
+      getFilePath(): string {
+        return file.path;
       },
       plusOne(value: number): number {
         return value + 1;
       },
     }));
 
-    type CustomFileOperations = ReturnType<typeof getFileOperations>;
+    type CustomFileOperations = ReturnType<typeof customFileOperations>;
     type FileOperations = FileOperationsInterface & CustomFileOperations;
     type DirType = DirOperationsInterface<
-      undefined,
+      FileTreeInterface,
       CustomFileOperations,
       undefined
     >;
 
     const customFileOperationsObject = {
-      getFilePath: expect.any(Function),
-      getFileData: expect.any(Function),
       getFileType: expect.any(Function),
-      getFileSkip: expect.any(Function),
+      getFileData: expect.any(Function),
+      getFilePath: expect.any(Function),
       plusOne: expect.any(Function),
     };
 
-    let result: FileTreeOperationsType<Tree, CustomFileOperations>;
+    let result: RootOperationTreeType<Tree, CustomFileOperations>;
 
     beforeAll(() => {
       return setup();
@@ -84,7 +83,7 @@ suite(
 
       beforeEach(() => {
         result = buildOperationTree(testPath, tree, {
-          file: getFileOperations,
+          file: customFileOperations,
         });
 
         fs.mkdirSync(testPath);
@@ -99,7 +98,7 @@ suite(
     interface FileInfo {
       file: FileOperations;
       fileName: string;
-      treeFile: FileInterface;
+      treeFile: TreeFileType;
       dir: DirType;
       parentDirs: string[];
     }
@@ -123,28 +122,28 @@ suite(
         {
           file: result.dir2.file1,
           fileName: 'file1',
-          treeFile: tree.dir2.children.file1,
+          treeFile: tree.dir2.file1,
           dir: result.dir2,
           parentDirs: ['dir2'],
         },
         {
           file: result.dir2.file2,
           fileName: 'file2',
-          treeFile: tree.dir2.children.file2,
+          treeFile: tree.dir2.file2,
           dir: result.dir2,
           parentDirs: ['dir2'],
         },
         {
           file: result.dir2.dir2.file1,
           fileName: 'file1',
-          treeFile: tree.dir2.children.dir2.children.file1,
+          treeFile: tree.dir2.dir2.file1,
           dir: result.dir2.dir2,
           parentDirs: ['dir2', 'dir2'],
         },
         {
           file: result.dir2.dir2.file2,
           fileName: 'file2',
-          treeFile: tree.dir2.children.dir2.children.file2,
+          treeFile: tree.dir2.dir2.file2,
           dir: result.dir2.dir2,
           parentDirs: ['dir2', 'dir2'],
         },
@@ -162,7 +161,7 @@ suite(
      */
     function useTreeFiles(
       testName: string,
-      cb: (info: CbBaseInfo & { treeFile: FileInterface }) => void,
+      cb: (info: CbBaseInfo & { treeFile: TreeFileType }) => void,
     ): void {
       getFilesInfo().forEach(({ file, fileName, treeFile, parentDirs }) => {
         const dirPath = joinPath(testName, ...parentDirs);
@@ -231,43 +230,6 @@ suite(
       });
     });
 
-    describe('getFilePath custom operation', () => {
-      const testName = CustomOperations.GetFilePath;
-      const operationPath = describeOperation(testName);
-
-      it('should custom return file path for tree files', () => {
-        useTreeFiles(testName, ({ file, fileName, parentDirs }) => {
-          const filePath = operationPath(...parentDirs, fileName);
-          expect(file.getFilePath()).toBe(filePath);
-        });
-      });
-
-      it('should custom return file path for created files', () => {
-        useCreatedFiles(testName, ({ file, fileName, parentDirs }) => {
-          const filePath = operationPath(...parentDirs, fileName);
-          expect(file.getFilePath()).toBe(filePath);
-        });
-      });
-    });
-
-    describe('getFileData custom operation', () => {
-      const testName = CustomOperations.GetFileData;
-      describeOperation(testName);
-
-      it('should custom return file data for tree files', () => {
-        useTreeFiles(testName, ({ file, treeFile: { data } }) => {
-          const fileData = data instanceof Function ? data() : data;
-          expect(file.getFileData()).toBe(fileData);
-        });
-      });
-
-      it('should custom return file data for created files', () => {
-        useCreatedFiles(testName, ({ file, fileData }) => {
-          expect(file.getFileData()).toBe(fileData);
-        });
-      });
-    });
-
     describe('getFileType custom operation', () => {
       const testName = CustomOperations.GetFileType;
       describeOperation(testName);
@@ -285,19 +247,38 @@ suite(
       });
     });
 
-    describe('getFileSkip custom operation', () => {
-      const testName = CustomOperations.GetFileSkip;
+    describe('getFileData custom operation', () => {
+      const testName = CustomOperations.GetFileData;
       describeOperation(testName);
 
-      it('should custom return skip value for tree files', () => {
-        useTreeFiles(testName, ({ file, treeFile: { skip } }) => {
-          expect(file.getFileSkip()).toBe(skip);
+      it('should custom return file data for tree files', () => {
+        useTreeFiles(testName, ({ file, treeFile }) => {
+          expect(file.getFileData()).toBe(treeFile);
         });
       });
 
-      it('should custom return skip value for created files', () => {
-        useCreatedFiles(testName, ({ file }) => {
-          expect(file.getFileSkip()).toBe(false);
+      it('should custom return file data for created files', () => {
+        useCreatedFiles(testName, ({ file, fileData }) => {
+          expect(file.getFileData()).toBe(fileData);
+        });
+      });
+    });
+
+    describe('getFilePath custom operation', () => {
+      const testName = CustomOperations.GetFilePath;
+      const operationPath = describeOperation(testName);
+
+      it('should custom return file path for tree files', () => {
+        useTreeFiles(testName, ({ file, fileName, parentDirs }) => {
+          const filePath = operationPath(...parentDirs, fileName);
+          expect(file.getFilePath()).toBe(filePath);
+        });
+      });
+
+      it('should custom return file path for created files', () => {
+        useCreatedFiles(testName, ({ file, fileName, parentDirs }) => {
+          const filePath = operationPath(...parentDirs, fileName);
+          expect(file.getFilePath()).toBe(filePath);
         });
       });
     });

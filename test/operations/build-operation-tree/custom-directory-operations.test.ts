@@ -3,9 +3,10 @@ import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperationTree } from '../../../src/operations/build-operation-tree.js';
 import type {
   DirOperationsInterface,
-  FileTreeOperationsType,
+  RootOperationTreeType,
 } from '../../../src/operations/operation.types.js';
 import { getDirOperations } from '../../../src/operations/get-operations.js';
+import type { FileTreeInterface } from '../../../src/file-tree/file-tree.types.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
 import { dirOperationsObject, Test, tree, type Tree } from './constants.js';
@@ -24,7 +25,7 @@ suite(
   'buildOperationTree - custom directory operations',
   { concurrent: false },
   () => {
-    const getDirOperations = getDirOperations((dir) => ({
+    const customDirOperations = getDirOperations((dir) => ({
       getDirPath(): string {
         return dir.path;
       },
@@ -39,9 +40,9 @@ suite(
       },
     }));
 
-    type CustomDirOperations = ReturnType<typeof getDirOperations>;
+    type CustomDirOperations = ReturnType<typeof customDirOperations>;
     type DirOperations = CustomDirOperations &
-      DirOperationsInterface<undefined, undefined, CustomDirOperations>;
+      DirOperationsInterface<FileTreeInterface, undefined, CustomDirOperations>;
 
     const customDirOperationsObject = {
       getDirPath: expect.any(Function),
@@ -50,7 +51,7 @@ suite(
       plusOne: expect.any(Function),
     };
 
-    let result: FileTreeOperationsType<Tree, undefined, CustomDirOperations>;
+    let result: RootOperationTreeType<Tree, undefined, CustomDirOperations>;
 
     beforeAll(() => {
       return setup();
@@ -73,7 +74,7 @@ suite(
 
       beforeEach(() => {
         result = buildOperationTree(testPath, tree, {
-          dir: getDirOperations,
+          dir: customDirOperations,
         });
 
         fs.mkdirSync(testPath);
@@ -103,6 +104,9 @@ suite(
        * Tests directories created via dirCreate
        */
       function useDirCreate(testCb: UseDirCreateCb): void {
+        fs.mkdirSync(joinPath(testName, 'dir1'), { recursive: true });
+        fs.mkdirSync(joinPath(testName, 'dir2', 'dir1'), { recursive: true });
+
         const dirName = 'new-dir';
         const dir1 = result.$dirCreate(dirName);
         const dir2 = result.dir1.$dirCreate(dirName);
