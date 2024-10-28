@@ -31,7 +31,7 @@ suite('createDir Suite', { concurrent: false }, () => {
     it('should create a nested directory', () => {
       const dirPath = joinPath('dir1', 'dir2');
       expect(fs.existsSync(dirPath)).toBe(false);
-      createDir(dirPath);
+      createDir(dirPath, true);
       expect(fs.existsSync(dirPath)).toBe(true);
     });
 
