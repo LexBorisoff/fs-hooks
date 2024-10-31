@@ -9,7 +9,7 @@ import type {
   DirOperationsInterface,
   FileOperationsInterface,
   FileOperationsFn,
-  FileTreeOperationsType,
+  OperationsType,
 } from '../../../src/types/operation.types.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
@@ -56,7 +56,7 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     plusOne: expect.any(Function),
   };
 
-  let result: FileTreeOperationsType<Tree, ExtraFileOperations>;
+  let result: OperationsType<Tree, ExtraFileOperations>;
 
   beforeAll(() => {
     return setup();
@@ -196,7 +196,7 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     const testName = ExtraOperations.ObjectProperties;
     describeTest(testName);
 
-    const fullFileOperations = {
+    const operationsObject = {
       ...fileOperationsObject,
       ...extraFileOperationsObject,
     };
@@ -207,13 +207,13 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
 
     it('should have extra file operations for tree files', () => {
       useTreeFiles(testName, ({ file }) => {
-        expect(file).toEqual(fullFileOperations);
+        expect(file).toEqual(operationsObject);
       });
     });
 
     it('should have extra file operations for created files', () => {
       useCreatedFiles(testName, ({ file }) => {
-        expect(file).toEqual(fullFileOperations);
+        expect(file).toEqual(operationsObject);
       });
     });
   });

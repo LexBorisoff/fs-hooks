@@ -6,7 +6,7 @@ import type {
   DirOperationsInterface,
   DirOperationsFn,
   OperationsRecord,
-  FileTreeOperationsType,
+  OperationsType,
 } from '../../../src/types/operation.types.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
@@ -54,11 +54,7 @@ suite(
       plusOne: expect.any(Function),
     };
 
-    let result: FileTreeOperationsType<
-      Tree,
-      OperationsRecord,
-      ExtraDirOperations
-    >;
+    let result: OperationsType<Tree, ExtraFileOperations, ExtraDirOperations>;
 
     beforeAll(() => {
       return setup();
@@ -134,7 +130,7 @@ suite(
         ExtraOperations.ObjectProperties,
       );
 
-      const fullDirOperations = {
+      const operationsObject = {
         ...dirOperationsObject,
         ...extraDirOperationsObject,
       };
@@ -145,13 +141,13 @@ suite(
 
       it('should have extra directory operations (file tree)', () => {
         useFileTreeDirs((dir) => {
-          expect(dir).toMatchObject(fullDirOperations);
+          expect(dir).toMatchObject(operationsObject);
         });
       });
 
       it('should have extra directory operations (dirCreate)', () => {
         useDirCreate((dir) => {
-          expect(dir).toMatchObject(fullDirOperations);
+          expect(dir).toMatchObject(operationsObject);
         });
       });
     });

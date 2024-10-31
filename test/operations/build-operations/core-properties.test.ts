@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, expect, it, suite } from 'vitest';
-import type { FileTreeOperationsType } from '../../../src/types/operation.types.js';
+import type { OperationsType } from '../../../src/types/operation.types.js';
 import { buildOperations } from '../../../src/operations/build-operations.js';
 import { testSetup } from '../../test-setup.js';
 import {
@@ -16,7 +16,7 @@ const { setup: setupSuite, joinPath } = testSetup(
 );
 
 suite('buildOperations - core properties', { concurrent: false }, () => {
-  let result: FileTreeOperationsType<Tree>;
+  let result: OperationsType<Tree>;
 
   beforeAll(() => {
     return setupSuite();

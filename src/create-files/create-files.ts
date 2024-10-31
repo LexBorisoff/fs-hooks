@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { FileTreeInterface } from '../types/file-tree.types.js';
 import type {
   OperationsRecord,
-  FileTreeOperationsType,
+  OperationsType,
 } from '../types/operation.types.js';
 import { isDirectory } from '../utils/is-directory.js';
 import { createDir } from '../utils/create-dir.js';
@@ -17,7 +17,7 @@ function logErrors(errors: string[]): void {
 
 // TODO: test
 export function createFiles(
-  operationTree: FileTreeOperationsType<
+  operationTree: OperationsType<
     FileTreeInterface,
     OperationsRecord,
     OperationsRecord

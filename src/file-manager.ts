@@ -2,7 +2,7 @@ import path from 'node:path';
 import type { FileTreeInterface } from './types/file-tree.types.js';
 import type {
   ExtensionsInterface,
-  FileTreeOperationsType,
+  OperationsType,
   OperationsRecord,
 } from './types/index.js';
 import { buildOperations } from './operations/build-operations.js';
@@ -22,7 +22,7 @@ export class FileManager<
   mount<Tree extends FileTreeInterface>(
     rootPath: string,
     tree?: Tree,
-  ): FileTreeOperationsType<Tree, ExtraFileOperations, ExtraDirOperations> {
+  ): OperationsType<Tree, ExtraFileOperations, ExtraDirOperations> {
     const extensions = this.#extensions;
 
     const rootPathResolved = path.isAbsolute(rootPath)

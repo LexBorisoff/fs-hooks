@@ -4,7 +4,7 @@ import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
 import type {
   DirOperationsInterface,
   FileOperationsInterface,
-  FileTreeOperationsType,
+  OperationsType,
 } from '../../../src/types/operation.types.js';
 import { buildOperations } from '../../../src/operations/build-operations.js';
 import { testSetup } from '../../test-setup.js';
@@ -29,7 +29,7 @@ enum CoreOperations {
 }
 
 suite('buildOperations - core file operations', { concurrent: false }, () => {
-  let result: FileTreeOperationsType<Tree>;
+  let result: OperationsType<Tree>;
 
   beforeAll(() => {
     return setup();

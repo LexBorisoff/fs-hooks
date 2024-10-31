@@ -102,7 +102,7 @@ type OperationTreeType<
       : never;
 };
 
-export type FileTreeOperationsType<
+export type OperationsType<
   Tree extends FileTreeInterface,
   ExtraFileOperations extends OperationsRecord = OperationsRecord,
   ExtraDirOperations extends OperationsRecord = OperationsRecord,

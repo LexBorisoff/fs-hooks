@@ -7,7 +7,7 @@ import type {
   FileTreeType,
 } from '../types/file-tree.types.js';
 import type {
-  FileTreeOperationsType,
+  OperationsType,
   ExtensionsInterface,
   DirOperationsInterface,
   OperationsRecord,
@@ -162,7 +162,7 @@ export function buildOperations<
   parentPath: string,
   tree?: Tree,
   extensions: ExtensionsInterface<ExtraFileOperations, ExtraDirOperations> = {},
-): FileTreeOperationsType<Tree, ExtraFileOperations, ExtraDirOperations> {
+): OperationsType<Tree, ExtraFileOperations, ExtraDirOperations> {
   const {
     fileOperations: extraFileOperations,
     dirOperations: extraDirOperations,
@@ -184,7 +184,7 @@ export function buildOperations<
   let result = {
     ...rootOperations,
     ...rootExtraOperations,
-  } as FileTreeOperationsType<Tree, ExtraFileOperations, ExtraDirOperations>;
+  } as OperationsType<Tree, ExtraFileOperations, ExtraDirOperations>;
 
   Object.entries(tree ?? {}).forEach(([key, value]) => {
     const fullPath = path.resolve(parentPath, key);
