@@ -9,10 +9,10 @@ import type {
 import { createDir } from '../utils/create-dir.js';
 import { readFile } from '../utils/read-file.js';
 import type {
-  RootOperationTreeType,
-  CustomOperationsInterface,
+  FileTreeOperationsType,
+  ExtensionsInterface,
   DirOperationsInterface,
-  OperationsType,
+  OperationsRecord,
   FileOperationsInterface,
 } from './operation.types.js';
 
@@ -77,37 +77,30 @@ function getFileOperations<F extends FileObjectInterface>(
 
 function getDirOperations<
   ChildTree extends FileTreeInterface,
-  CustomFileOperations extends OperationsType,
-  CustomDirOperations extends OperationsType,
+  ExtraFileOperations extends OperationsRecord,
+  ExtraDirOperations extends OperationsRecord,
 >(
   dir: DirObjectInterface<ChildTree>,
-  customOperations: CustomOperationsInterface<
-    CustomFileOperations,
-    CustomDirOperations
-  >,
-): DirOperationsInterface<
-  ChildTree,
-  CustomFileOperations,
-  CustomDirOperations
-> {
+  extensions: ExtensionsInterface<ExtraFileOperations, ExtraDirOperations>,
+): DirOperationsInterface<ChildTree, ExtraFileOperations, ExtraDirOperations> {
   function getPath(fileName: string): string {
     return getFullPath(dir.path, fileName);
   }
 
   const operations: DirOperationsInterface<
     ChildTree,
-    CustomFileOperations,
-    CustomDirOperations
+    ExtraFileOperations,
+    ExtraDirOperations
   > = {
     $getPath: () => dir.path,
     $exists: (fileName) => fs.existsSync(getPath(fileName)),
     $dirCreate(dirName) {
       type DirCreateResult = DirOperationsInterface<
         FileTreeInterface,
-        CustomFileOperations,
-        CustomDirOperations
+        ExtraFileOperations,
+        ExtraDirOperations
       > &
-        CustomDirOperations;
+        ExtraDirOperations;
 
       const dirPath = getPath(dirName);
       if (!this.$exists(dirName)) {
@@ -121,8 +114,8 @@ function getDirOperations<
       } satisfies DirObjectInterface<FileTreeInterface>;
 
       return {
-        ...getDirOperations(newDir, customOperations),
-        ...customOperations.dirOperations?.(newDir),
+        ...getDirOperations(newDir, extensions),
+        ...extensions.dirOperations?.(newDir),
       } as DirCreateResult;
     },
     $dirDelete(dirName) {
@@ -137,7 +130,7 @@ function getDirOperations<
       }
     },
     $fileCreate(fileName, fileData) {
-      type FileCreateResult = FileOperationsInterface & CustomFileOperations;
+      type FileCreateResult = FileOperationsInterface & ExtraFileOperations;
 
       const data = fileData ?? '';
       this.$fileWrite(fileName, data);
@@ -150,7 +143,7 @@ function getDirOperations<
 
       return {
         ...getFileOperations(file),
-        ...customOperations.fileOperations?.(file),
+        ...extensions.fileOperations?.(file),
       } as FileCreateResult;
     },
     $fileDelete(fileName) {
@@ -167,20 +160,17 @@ function getDirOperations<
 
 export function buildOperationTree<
   Tree extends FileTreeInterface,
-  CustomFileOperations extends OperationsType,
-  CustomDirOperations extends OperationsType,
+  ExtraFileOperations extends OperationsRecord,
+  ExtraDirOperations extends OperationsRecord,
 >(
   parentPath: string,
   tree?: Tree,
-  customOperations: CustomOperationsInterface<
-    CustomFileOperations,
-    CustomDirOperations
-  > = {},
-): RootOperationTreeType<Tree, CustomFileOperations, CustomDirOperations> {
+  extensions: ExtensionsInterface<ExtraFileOperations, ExtraDirOperations> = {},
+): FileTreeOperationsType<Tree, ExtraFileOperations, ExtraDirOperations> {
   const {
-    fileOperations: customFileOperations,
-    dirOperations: customDirOperations,
-  } = customOperations;
+    fileOperations: extraFileOperations,
+    dirOperations: extraDirOperations,
+  } = extensions;
 
   const rootDir = {
     type: 'dir',
@@ -190,16 +180,16 @@ export function buildOperationTree<
 
   const rootOperations: DirOperationsInterface<
     Tree,
-    CustomFileOperations,
-    CustomDirOperations
-  > = getDirOperations(rootDir, customOperations);
+    ExtraFileOperations,
+    ExtraDirOperations
+  > = getDirOperations(rootDir, extensions);
 
-  const rootCustomOperations = customDirOperations?.(rootDir);
+  const rootExtraOperations = extraDirOperations?.(rootDir);
 
   let result = {
     ...rootOperations,
-    ...rootCustomOperations,
-  } as RootOperationTreeType<Tree, CustomFileOperations, CustomDirOperations>;
+    ...rootExtraOperations,
+  } as FileTreeOperationsType<Tree, ExtraFileOperations, ExtraDirOperations>;
 
   Object.entries(tree ?? {}).forEach(([key, value]) => {
     const fullPath = getFullPath(parentPath, key);
@@ -213,7 +203,7 @@ export function buildOperationTree<
 
       const operations = {
         ...getFileOperations(file),
-        ...(customFileOperations?.(file) as CustomFileOperations),
+        ...(extraFileOperations?.(file) as ExtraFileOperations),
       };
 
       result = {
@@ -223,7 +213,7 @@ export function buildOperationTree<
       return;
     }
 
-    const childTree = buildOperationTree(fullPath, value, customOperations);
+    const childTreeOperations = buildOperationTree(fullPath, value, extensions);
 
     const dir: DirObjectInterface<typeof value> = {
       type: 'dir',
@@ -233,12 +223,12 @@ export function buildOperationTree<
 
     const operations: DirOperationsInterface<
       typeof value,
-      CustomFileOperations,
-      CustomDirOperations
+      ExtraFileOperations,
+      ExtraDirOperations
     > = {
-      ...getDirOperations(dir, customOperations),
-      ...(customDirOperations?.(dir) as CustomDirOperations),
-      ...childTree,
+      ...getDirOperations(dir, extensions),
+      ...(extraDirOperations?.(dir) as ExtraDirOperations),
+      ...childTreeOperations,
     };
 
     result = {

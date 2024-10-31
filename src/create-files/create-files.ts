@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import type { FileTreeInterface } from '../file-tree/file-tree.types.js';
 import type {
-  OperationsType,
-  RootOperationTreeType,
+  OperationsRecord,
+  FileTreeOperationsType,
 } from '../operations/operation.types.js';
 import { isDirectory } from '../utils/is-directory.js';
 import { getFullPath } from '../file-tree/get-full-path.js';
@@ -16,10 +16,10 @@ function logErrors(errors: string[]): void {
 }
 
 export function createFiles(
-  operationTree: RootOperationTreeType<
+  operationTree: FileTreeOperationsType<
     FileTreeInterface,
-    OperationsType,
-    OperationsType
+    OperationsRecord,
+    OperationsRecord
   >,
 ): void {
   const rootPath = operationTree.$getPath();

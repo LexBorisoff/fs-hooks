@@ -2,46 +2,40 @@ import path from 'node:path';
 import type { FileTreeInterface } from './file-tree/file-tree.types.js';
 import { buildOperationTree } from './operations/build-operation-tree.js';
 import type {
-  CustomOperationsInterface,
-  RootOperationTreeType,
-  OperationsType,
+  ExtensionsInterface,
+  FileTreeOperationsType,
+  OperationsRecord,
 } from './operations/operation.types.js';
 
 export class FileManager<
-  CustomFileOperations extends OperationsType = OperationsType,
-  CustomDirOperations extends OperationsType = OperationsType,
+  ExtraFileOperations extends OperationsRecord = OperationsRecord,
+  ExtraDirOperations extends OperationsRecord = OperationsRecord,
 > {
-  #customOperations?: CustomOperationsInterface<
-    CustomFileOperations,
-    CustomDirOperations
-  >;
+  #extensions?: ExtensionsInterface<ExtraFileOperations, ExtraDirOperations>;
 
   constructor(
-    customOperations?: CustomOperationsInterface<
-      CustomFileOperations,
-      CustomDirOperations
-    >,
+    extensions?: ExtensionsInterface<ExtraFileOperations, ExtraDirOperations>,
   ) {
-    this.#customOperations = customOperations;
+    this.#extensions = extensions;
   }
 
   mount<Tree extends FileTreeInterface>(
     rootPath: string,
     tree?: Tree,
-  ): RootOperationTreeType<Tree, CustomFileOperations, CustomDirOperations> {
-    const customOperations = this.#customOperations;
+  ): FileTreeOperationsType<Tree, ExtraFileOperations, ExtraDirOperations> {
+    const extensions = this.#extensions;
 
     const rootPathResolved = path.isAbsolute(rootPath)
       ? rootPath
       : path.resolve(rootPath);
 
-    return buildOperationTree(rootPathResolved, tree, customOperations);
+    return buildOperationTree(rootPathResolved, tree, extensions);
   }
 
   /**
    * Identity function that helps create a file tree
    */
-  static tree<T extends FileTreeInterface>(tree: T): T {
+  static tree<Tree extends FileTreeInterface>(tree: Tree): Tree {
     return tree;
   }
 
@@ -49,11 +43,11 @@ export class FileManager<
    * Identity function that helps create extensions
    */
   static extend<
-    FileOperations extends OperationsType,
-    DirOperations extends OperationsType,
+    FileOperations extends OperationsRecord,
+    DirOperations extends OperationsRecord,
   >(
-    extensions: CustomOperationsInterface<FileOperations, DirOperations>,
-  ): CustomOperationsInterface<FileOperations, DirOperations> {
+    extensions: ExtensionsInterface<FileOperations, DirOperations>,
+  ): ExtensionsInterface<FileOperations, DirOperations> {
     return extensions;
   }
 }
