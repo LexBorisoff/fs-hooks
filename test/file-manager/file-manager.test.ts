@@ -4,7 +4,6 @@ import type {
   ExtensionsInterface,
   DirOperationsFn,
   FileOperationsFn,
-  OperationsRecord,
 } from '../../src/types/operation.types.js';
 import { FileManager } from '../../src/file-manager.js';
 import { buildOperations } from '../../src/operations/build-operations.js';
@@ -53,19 +52,12 @@ suite('FileManager class', () => {
   });
 
   function describeTest(testName: string): (...args: string[]) => string {
-    function getDescribePath(...args: string[]): string {
+    return function getDescribePath(...args) {
       return joinPath(testName, ...args);
-    }
-
-    return getDescribePath;
+    };
   }
 
-  function useTree(
-    cb: (
-      extensions?: ExtensionsInterface<OperationsRecord, OperationsRecord>,
-      testTree?: FileTreeInterface,
-    ) => void,
-  ): void {
+  function useTree(cb: (testTree?: FileTreeInterface) => void): void {
     const tree = FileManager.tree({
       file1: 'File 1 Test',
       file2: 'File 2 Test',
@@ -81,6 +73,10 @@ suite('FileManager class', () => {
       },
     });
 
+    cb(tree);
+  }
+
+  function useExtensions(cb: (extensions?: ExtensionsInterface) => void): void {
     const fileOperations: FileOperationsFn = (file) => ({
       $getFileData: (): string => file.data,
       $getFilePath: (): string => file.path,
@@ -103,7 +99,6 @@ suite('FileManager class', () => {
 
     extraOperations.forEach((extensions) => {
       cb(extensions);
-      cb(extensions, tree);
     });
   }
 
@@ -125,30 +120,44 @@ suite('FileManager class', () => {
     const describePath = getDescribePath();
 
     it('should return an operations object', () => {
-      useTree((extensions, tree) => {
-        const fileManager = new FileManager(extensions);
-        const result = fileManager.mount(describePath, tree);
-        const operationTree = buildOperations(describePath, tree, extensions);
+      useTree((tree) => {
+        useExtensions((extensions) => {
+          const fileManager = new FileManager(extensions);
+          const result = fileManager.mount(describePath, tree);
+          const operationTree = buildOperations(describePath, tree, extensions);
 
-        expect(result).toEqual(expectObject(operationTree));
+          expect(result).toEqual(expectObject(operationTree));
+        });
       });
     });
 
     it('should call buildOperations', () => {
-      useTree((extensions, tree) => {
-        const fileManager = new FileManager(extensions);
-        fileManager.mount(describePath, tree);
+      useTree((tree) => {
+        useExtensions((extensions) => {
+          const fileManager = new FileManager(extensions);
+          fileManager.mount(describePath, tree);
 
-        expect(buildOperations).toHaveBeenCalledWith(
-          describePath,
-          tree,
-          extensions,
-        );
+          expect(buildOperations).toHaveBeenCalledWith(
+            describePath,
+            tree,
+            extensions,
+          );
+        });
       });
     });
   });
 
-  // TODO: test static extend method
+  describe('tree static method', () => {
+    it('should return a tree object', () => {
+      const tree: FileTreeInterface = {};
+      expect(FileManager.tree(tree)).toBe(tree);
+    });
+  });
 
-  // TODO: test getting the hidden __tree__ property
+  describe('extend static method', () => {
+    it('should return an extensions object', () => {
+      const extensions: ExtensionsInterface = {};
+      expect(FileManager.extend(extensions)).toBe(extensions);
+    });
+  });
 });
