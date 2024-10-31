@@ -2,9 +2,9 @@ import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import type {
   DirOperationsInterface,
-  RootOperationTreeType,
+  FileTreeOperationsType,
 } from '../../../src/operations/operation.types.js';
-import { buildOperationTree } from '../../../src/operations/build-operation-tree.js';
+import { buildOperations } from '../../../src/operations/build-operations.js';
 import type { FileTreeInterface } from '../../../src/file-tree/file-tree.types.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
@@ -33,20 +33,16 @@ enum CoreOperations {
 }
 
 suite(
-  'buildOperationTree - core directory operations',
+  'buildOperations - core directory operations',
   { concurrent: false },
   () => {
-    let result: RootOperationTreeType<Tree>;
+    let result: FileTreeOperationsType<Tree>;
 
     beforeAll(() => {
       return setup();
     });
 
-    type DirType = DirOperationsInterface<
-      FileTreeInterface,
-      undefined,
-      undefined
-    >;
+    type DirType = DirOperationsInterface<FileTreeInterface>;
     type GetDescribePathFn = (...args: string[]) => string;
 
     function describeTest(testName: string): GetDescribePathFn {
@@ -57,7 +53,7 @@ suite(
       const testPath = getDescribePath();
 
       beforeEach(() => {
-        result = buildOperationTree(testPath, tree);
+        result = buildOperations(testPath, tree);
         fs.mkdirSync(testPath);
         return (): void => {
           deleteFolder(testPath);

@@ -1,20 +1,20 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
-import { buildOperationTree } from '../../../src/operations/build-operation-tree.js';
+import { buildOperations } from '../../../src/operations/build-operations.js';
 import type {
   DirOperationsInterface,
-  GetDirOperationsFn,
-  OperationsType,
-  RootOperationTreeType,
+  DirOperationsFn,
+  OperationsRecord,
+  FileTreeOperationsType,
 } from '../../../src/operations/operation.types.js';
 import type { FileTreeInterface } from '../../../src/file-tree/file-tree.types.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
 import { dirOperationsObject, Test, tree, type Tree } from './constants.js';
 
-const { setup, joinPath } = testSetup(Test.CustomDirOperations, import.meta);
+const { setup, joinPath } = testSetup(Test.ExtraDirOperations, import.meta);
 
-enum CustomOperations {
+enum ExtraOperations {
   ObjectProperties = 'object-properties',
   GetDirPath = 'get-dir-path',
   GetDirChildren = 'get-dir-children',
@@ -23,10 +23,10 @@ enum CustomOperations {
 }
 
 suite(
-  'buildOperationTree - custom directory operations',
+  'buildOperations - extra directory operations',
   { concurrent: false },
   () => {
-    const dirOperations: GetDirOperationsFn = (dir) => ({
+    const dirOperations: DirOperationsFn = (dir) => ({
       getDirPath(): string {
         return dir.path;
       },
@@ -41,25 +41,26 @@ suite(
       },
     });
 
-    type CustomDirOperations = ReturnType<typeof dirOperations>;
-    type DirOperations = CustomDirOperations &
+    type ExtraDirOperations = ReturnType<typeof dirOperations>;
+    type ExtraFileOperations = OperationsRecord;
+    type DirOperations = ExtraDirOperations &
       DirOperationsInterface<
         FileTreeInterface,
-        OperationsType,
-        CustomDirOperations
+        ExtraFileOperations,
+        ExtraDirOperations
       >;
 
-    const customDirOperationsObject = {
+    const extraDirOperationsObject = {
       getDirPath: expect.any(Function),
       getDirType: expect.any(Function),
       getDirChildren: expect.any(Function),
       plusOne: expect.any(Function),
     };
 
-    let result: RootOperationTreeType<
+    let result: FileTreeOperationsType<
       Tree,
-      OperationsType,
-      CustomDirOperations
+      OperationsRecord,
+      ExtraDirOperations
     >;
 
     beforeAll(() => {
@@ -82,7 +83,7 @@ suite(
       const testPath = getDescribePath();
 
       beforeEach(() => {
-        result = buildOperationTree(testPath, tree, { dirOperations });
+        result = buildOperations(testPath, tree, { dirOperations });
 
         fs.mkdirSync(testPath);
         return (): void => {
@@ -131,36 +132,36 @@ suite(
       };
     }
 
-    describe('custom directory operations properties', () => {
+    describe('extra directory operations properties', () => {
       const { useFileTreeDirs, useDirCreate } = describeTest(
-        CustomOperations.ObjectProperties,
+        ExtraOperations.ObjectProperties,
       );
 
       const fullDirOperations = {
         ...dirOperationsObject,
-        ...customDirOperationsObject,
+        ...extraDirOperationsObject,
       };
 
       it('should be defined', () => {
         expect(result).toBeDefined();
       });
 
-      it('should have custom directory operations (file tree)', () => {
+      it('should have extra directory operations (file tree)', () => {
         useFileTreeDirs((dir) => {
           expect(dir).toMatchObject(fullDirOperations);
         });
       });
 
-      it('should have custom directory operations (dirCreate)', () => {
+      it('should have extra directory operations (dirCreate)', () => {
         useDirCreate((dir) => {
           expect(dir).toMatchObject(fullDirOperations);
         });
       });
     });
 
-    describe('getDirPath custom operation', () => {
+    describe('getDirPath extra operation', () => {
       const { getDescribePath, useDirCreate } = describeTest(
-        CustomOperations.GetDirPath,
+        ExtraOperations.GetDirPath,
       );
 
       it('should return directory path (file tree)', () => {
@@ -204,9 +205,9 @@ suite(
       });
     });
 
-    describe('getDirType custom operation', () => {
+    describe('getDirType extra operation', () => {
       const { useFileTreeDirs, useDirCreate } = describeTest(
-        CustomOperations.GetDirType,
+        ExtraOperations.GetDirType,
       );
 
       it('should return directory type (file tree)', () => {
@@ -222,8 +223,8 @@ suite(
       });
     });
 
-    describe('getDirChildren custom operation', () => {
-      const { useDirCreate } = describeTest(CustomOperations.GetDirChildren);
+    describe('getDirChildren extra operation', () => {
+      const { useDirCreate } = describeTest(ExtraOperations.GetDirChildren);
 
       it('should return directory children keys (file tree)', () => {
         interface TestItem {
@@ -270,9 +271,9 @@ suite(
       });
     });
 
-    describe('plusOne custom operation', () => {
+    describe('plusOne extra operation', () => {
       const { useFileTreeDirs, useDirCreate } = describeTest(
-        CustomOperations.PlusOne,
+        ExtraOperations.PlusOne,
       );
 
       it('should add 1 on directory objects (file tree)', () => {

@@ -41,8 +41,8 @@ export enum Test {
   CoreProperties = 'core-properties',
   CoreFileOperations = 'core-file-operations',
   CoreDirOperations = 'core-dir-operations',
-  CustomFileOperations = 'custom-file-operations',
-  CustomDirOperations = 'custom-dir-operations',
+  ExtraFileOperations = 'extra-file-operations',
+  ExtraDirOperations = 'extra-dir-operations',
 }
 
 export const fileDataArray = [
