@@ -6,7 +6,7 @@ import type {
 
 /**
  * Identity function that helps create a function
- * that returns custom file operations
+ * returning custom file operations
  */
 export function getFileOperations<
   FileOperations extends OperationsType,
@@ -17,7 +17,7 @@ export function getFileOperations<
 
 /**
  * Identity function that helps create a function
- * that returns custom dir operations
+ * returning custom dir operations
  */
 export function getDirOperations<
   DirOperations extends OperationsType,
