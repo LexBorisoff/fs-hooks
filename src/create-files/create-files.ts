@@ -1,11 +1,11 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import type { FileTreeInterface } from '../file-tree/file-tree.types.js';
 import type {
   OperationsRecord,
   FileTreeOperationsType,
 } from '../operations/operation.types.js';
 import { isDirectory } from '../utils/is-directory.js';
-import { getFullPath } from '../file-tree/get-full-path.js';
 import { createDir } from '../utils/create-dir.js';
 import { HIDDEN_PROPERTIES } from '../operations/build-operations.js';
 
@@ -15,6 +15,7 @@ function logErrors(errors: string[]): void {
   });
 }
 
+// TODO: test
 export function createFiles(
   operationTree: FileTreeOperationsType<
     FileTreeInterface,
@@ -41,7 +42,7 @@ export function createFiles(
     currentFileTree?: FileTreeInterface,
   ): void {
     Object.entries(currentFileTree ?? {}).forEach(([key, value]) => {
-      const fullPath = getFullPath(parentPath, key);
+      const fullPath = path.resolve(parentPath, key);
 
       if (typeof value === 'string') {
         if (fs.existsSync(fullPath) && isDirectory(fullPath)) {

@@ -13,13 +13,11 @@ export interface PathInterface {
 }
 
 export interface FileObjectInterface extends PathInterface {
-  type: 'file';
   data: string;
 }
 
 export interface DirObjectInterface<ChildTree extends FileTreeInterface>
   extends PathInterface {
-  type: 'dir';
   children: FileTreeType<ChildTree>;
 }
 

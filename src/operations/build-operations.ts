@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { getFullPath } from '../file-tree/get-full-path.js';
+import path from 'node:path';
 import type {
   DirObjectInterface,
   FileObjectInterface,
@@ -29,9 +29,8 @@ function buildFileTree<T extends FileTreeInterface>(
   Object.entries(tree ?? {}).forEach(([key, value]) => {
     if (typeof value === 'string') {
       const file: FileObjectInterface = {
-        type: 'file',
         data: value,
-        path: getFullPath(parentPath, key),
+        path: path.resolve(parentPath, key),
       };
 
       result = {
@@ -41,17 +40,18 @@ function buildFileTree<T extends FileTreeInterface>(
       return;
     }
 
-    const dirPath = getFullPath(parentPath, key);
-    const dir: DirObjectInterface<typeof value> = {
-      type: 'dir',
-      children: buildFileTree(dirPath, value),
-      path: dirPath,
-    };
+    if (typeof value === 'object') {
+      const dirPath = path.resolve(parentPath, key);
+      const dir: DirObjectInterface<typeof value> = {
+        children: buildFileTree(dirPath, value),
+        path: dirPath,
+      };
 
-    result = {
-      ...result,
-      [key]: dir,
-    };
+      result = {
+        ...result,
+        [key]: dir,
+      };
+    }
   });
 
   return result;
@@ -84,7 +84,7 @@ function getDirOperations<
   extensions: ExtensionsInterface<ExtraFileOperations, ExtraDirOperations>,
 ): DirOperationsInterface<ChildTree, ExtraFileOperations, ExtraDirOperations> {
   function getPath(fileName: string): string {
-    return getFullPath(dir.path, fileName);
+    return path.resolve(dir.path, fileName);
   }
 
   const operations: DirOperationsInterface<
@@ -108,7 +108,6 @@ function getDirOperations<
       }
 
       const newDir = {
-        type: 'dir',
         path: dirPath,
         children: {},
       } satisfies DirObjectInterface<FileTreeInterface>;
@@ -136,7 +135,6 @@ function getDirOperations<
       this.$fileWrite(fileName, data);
 
       const file: FileObjectInterface = {
-        type: 'file',
         data,
         path: getPath(fileName),
       };
@@ -173,7 +171,6 @@ export function buildOperations<
   } = extensions;
 
   const rootDir = {
-    type: 'dir',
     children: buildFileTree(parentPath, tree),
     path: parentPath,
   } satisfies DirObjectInterface<Tree>;
@@ -192,11 +189,10 @@ export function buildOperations<
   } as FileTreeOperationsType<Tree, ExtraFileOperations, ExtraDirOperations>;
 
   Object.entries(tree ?? {}).forEach(([key, value]) => {
-    const fullPath = getFullPath(parentPath, key);
+    const fullPath = path.resolve(parentPath, key);
 
     if (typeof value === 'string') {
       const file: FileObjectInterface = {
-        type: 'file',
         data: value,
         path: fullPath,
       };
@@ -213,28 +209,29 @@ export function buildOperations<
       return;
     }
 
-    const childTreeOperations = buildOperations(fullPath, value, extensions);
+    if (typeof value === 'object') {
+      const childTreeOperations = buildOperations(fullPath, value, extensions);
 
-    const dir: DirObjectInterface<typeof value> = {
-      type: 'dir',
-      children: buildFileTree(parentPath, value),
-      path: fullPath,
-    };
+      const dir: DirObjectInterface<typeof value> = {
+        children: buildFileTree(parentPath, value),
+        path: fullPath,
+      };
 
-    const operations: DirOperationsInterface<
-      typeof value,
-      ExtraFileOperations,
-      ExtraDirOperations
-    > = {
-      ...getDirOperations(dir, extensions),
-      ...(extraDirOperations?.(dir) as ExtraDirOperations),
-      ...childTreeOperations,
-    };
+      const operations: DirOperationsInterface<
+        typeof value,
+        ExtraFileOperations,
+        ExtraDirOperations
+      > = {
+        ...getDirOperations(dir, extensions),
+        ...(extraDirOperations?.(dir) as ExtraDirOperations),
+        ...childTreeOperations,
+      };
 
-    result = {
-      ...result,
-      [key]: operations,
-    };
+      result = {
+        ...result,
+        [key]: operations,
+      };
+    }
   });
 
   Object.defineProperties(result, {
