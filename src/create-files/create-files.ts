@@ -7,7 +7,7 @@ import type {
 import { isDirectory } from '../utils/is-directory.js';
 import { getFullPath } from '../file-tree/get-full-path.js';
 import { createDir } from '../utils/create-dir.js';
-import { HIDDEN_PROPERTIES } from '../operations/build-operation-tree.js';
+import { HIDDEN_PROPERTIES } from '../operations/build-operations.js';
 
 function logErrors(errors: string[]): void {
   errors.forEach((error) => {

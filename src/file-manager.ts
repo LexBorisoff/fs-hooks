@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type { FileTreeInterface } from './file-tree/file-tree.types.js';
-import { buildOperationTree } from './operations/build-operation-tree.js';
+import { buildOperations } from './operations/build-operations.js';
 import type {
   ExtensionsInterface,
   FileTreeOperationsType,
@@ -29,7 +29,7 @@ export class FileManager<
       ? rootPath
       : path.resolve(rootPath);
 
-    return buildOperationTree(rootPathResolved, tree, extensions);
+    return buildOperations(rootPathResolved, tree, extensions);
   }
 
   /**

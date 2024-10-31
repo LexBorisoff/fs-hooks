@@ -158,7 +158,7 @@ function getDirOperations<
   return operations;
 }
 
-export function buildOperationTree<
+export function buildOperations<
   Tree extends FileTreeInterface,
   ExtraFileOperations extends OperationsRecord,
   ExtraDirOperations extends OperationsRecord,
@@ -213,7 +213,7 @@ export function buildOperationTree<
       return;
     }
 
-    const childTreeOperations = buildOperationTree(fullPath, value, extensions);
+    const childTreeOperations = buildOperations(fullPath, value, extensions);
 
     const dir: DirObjectInterface<typeof value> = {
       type: 'dir',
