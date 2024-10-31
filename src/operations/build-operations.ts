@@ -16,9 +16,7 @@ import type {
 import { createDir } from '../utils/create-dir.js';
 import { readFile } from '../utils/read-file.js';
 
-export enum HIDDEN_PROPERTIES {
-  Tree = '__tree__',
-}
+export const TREE_SYM = Symbol('tree');
 
 function buildFileTree<T extends FileTreeInterface>(
   parentPath: string,
@@ -235,7 +233,7 @@ export function buildOperations<
   });
 
   Object.defineProperties(result, {
-    [HIDDEN_PROPERTIES.Tree]: { value: tree },
+    [TREE_SYM]: { value: tree },
   });
 
   return result;

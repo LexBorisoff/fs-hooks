@@ -7,7 +7,7 @@ import type {
 } from '../types/operation.types.js';
 import { isDirectory } from '../utils/is-directory.js';
 import { createDir } from '../utils/create-dir.js';
-import { HIDDEN_PROPERTIES } from '../operations/build-operations.js';
+import { TREE_SYM } from '../operations/build-operations.js';
 
 function logErrors(errors: string[]): void {
   errors.forEach((error) => {
@@ -77,7 +77,7 @@ export function createFiles(
 
     const fileTree: FileTreeInterface = Object.getOwnPropertyDescriptor(
       operationTree,
-      HIDDEN_PROPERTIES.Tree,
+      TREE_SYM,
     )?.value;
 
     createFilesRecursively(rootPath, fileTree);
