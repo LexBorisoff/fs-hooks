@@ -1,6 +1,9 @@
 import { beforeAll, beforeEach, expect, it, suite } from 'vitest';
 import type { OperationsType } from '../../../src/types/operation.types.js';
-import { buildOperations } from '../../../src/operations/build-operations.js';
+import {
+  buildOperations,
+  TREE_SYM,
+} from '../../../src/operations/build-operations.js';
 import { testSetup } from '../../test-setup.js';
 import {
   dirOperationsObject,
@@ -48,5 +51,10 @@ suite('buildOperations - core properties', { concurrent: false }, () => {
         },
       },
     });
+  });
+
+  it('should have a symbol property key with file tree value', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(result, TREE_SYM);
+    expect(descriptor?.value).toBe(tree);
   });
 });
