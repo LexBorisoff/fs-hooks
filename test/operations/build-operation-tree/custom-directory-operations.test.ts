@@ -3,9 +3,10 @@ import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperationTree } from '../../../src/operations/build-operation-tree.js';
 import type {
   DirOperationsInterface,
+  GetDirOperationsFn,
+  OperationsType,
   RootOperationTreeType,
 } from '../../../src/operations/operation.types.js';
-import { getDirOperations } from '../../../src/operations/get-operations.js';
 import type { FileTreeInterface } from '../../../src/file-tree/file-tree.types.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
@@ -25,7 +26,7 @@ suite(
   'buildOperationTree - custom directory operations',
   { concurrent: false },
   () => {
-    const customDirOperations = getDirOperations((dir) => ({
+    const dirOperations: GetDirOperationsFn = (dir) => ({
       getDirPath(): string {
         return dir.path;
       },
@@ -38,11 +39,15 @@ suite(
       plusOne(value: number): number {
         return value + 1;
       },
-    }));
+    });
 
-    type CustomDirOperations = ReturnType<typeof customDirOperations>;
+    type CustomDirOperations = ReturnType<typeof dirOperations>;
     type DirOperations = CustomDirOperations &
-      DirOperationsInterface<FileTreeInterface, undefined, CustomDirOperations>;
+      DirOperationsInterface<
+        FileTreeInterface,
+        OperationsType,
+        CustomDirOperations
+      >;
 
     const customDirOperationsObject = {
       getDirPath: expect.any(Function),
@@ -51,7 +56,11 @@ suite(
       plusOne: expect.any(Function),
     };
 
-    let result: RootOperationTreeType<Tree, undefined, CustomDirOperations>;
+    let result: RootOperationTreeType<
+      Tree,
+      OperationsType,
+      CustomDirOperations
+    >;
 
     beforeAll(() => {
       return setup();
@@ -73,9 +82,7 @@ suite(
       const testPath = getDescribePath();
 
       beforeEach(() => {
-        result = buildOperationTree(testPath, tree, {
-          dir: customDirOperations,
-        });
+        result = buildOperationTree(testPath, tree, { dirOperations });
 
         fs.mkdirSync(testPath);
         return (): void => {

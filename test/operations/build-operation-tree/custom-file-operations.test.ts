@@ -4,13 +4,13 @@ import { buildOperationTree } from '../../../src/operations/build-operation-tree
 import type {
   DirOperationsInterface,
   FileOperationsInterface,
+  GetFileOperationsFn,
   RootOperationTreeType,
 } from '../../../src/operations/operation.types.js';
 import type {
   FileTreeInterface,
   TreeFileType,
 } from '../../../src/file-tree/file-tree.types.js';
-import { getFileOperations } from '../../../src/operations/get-operations.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
 import {
@@ -36,7 +36,7 @@ suite(
   'buildOperationTree - custom file operations',
   { concurrent: false },
   () => {
-    const customFileOperations = getFileOperations((file) => ({
+    const fileOperations: GetFileOperationsFn = (file) => ({
       getFileType(): 'file' {
         return file.type;
       },
@@ -49,14 +49,13 @@ suite(
       plusOne(value: number): number {
         return value + 1;
       },
-    }));
+    });
 
-    type CustomFileOperations = ReturnType<typeof customFileOperations>;
+    type CustomFileOperations = ReturnType<typeof fileOperations>;
     type FileOperations = FileOperationsInterface & CustomFileOperations;
     type DirType = DirOperationsInterface<
       FileTreeInterface,
-      CustomFileOperations,
-      undefined
+      CustomFileOperations
     >;
 
     const customFileOperationsObject = {
@@ -82,9 +81,7 @@ suite(
       const testPath = getDescribePath();
 
       beforeEach(() => {
-        result = buildOperationTree(testPath, tree, {
-          file: customFileOperations,
-        });
+        result = buildOperationTree(testPath, tree, { fileOperations });
 
         fs.mkdirSync(testPath);
         return (): void => {
