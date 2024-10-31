@@ -2,15 +2,15 @@ import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../src/operations/build-operations.js';
 import type {
+  FileTreeInterface,
+  TreeFileType,
+} from '../../../src/types/file-tree.types.js';
+import type {
   DirOperationsInterface,
   FileOperationsInterface,
   FileOperationsFn,
   FileTreeOperationsType,
-} from '../../../src/operations/operation.types.js';
-import type {
-  FileTreeInterface,
-  TreeFileType,
-} from '../../../src/file-tree/file-tree.types.js';
+} from '../../../src/types/operation.types.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
 import {
@@ -34,9 +34,6 @@ enum ExtraOperations {
 
 suite('buildOperations - extra file operations', { concurrent: false }, () => {
   const fileOperations: FileOperationsFn = (file) => ({
-    getFileType(): 'file' {
-      return file.type;
-    },
     getFileData(): string {
       return file.data;
     },

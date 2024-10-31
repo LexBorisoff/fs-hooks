@@ -1,14 +1,14 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
+import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
 import type {
   DirOperationsInterface,
   FileOperationsInterface,
   FileTreeOperationsType,
-} from '../../../src/operations/operation.types.js';
+} from '../../../src/types/operation.types.js';
 import { buildOperations } from '../../../src/operations/build-operations.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
-import type { FileTreeInterface } from '../../../src/file-tree/file-tree.types.js';
 import {
   fileDataArray,
   fileOperationsObject,

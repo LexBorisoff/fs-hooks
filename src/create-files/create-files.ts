@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { FileTreeInterface } from '../file-tree/file-tree.types.js';
+import type { FileTreeInterface } from '../types/file-tree.types.js';
 import type {
   OperationsRecord,
   FileTreeOperationsType,
-} from '../operations/operation.types.js';
+} from '../types/operation.types.js';
 import { isDirectory } from '../utils/is-directory.js';
 import { createDir } from '../utils/create-dir.js';
 import { HIDDEN_PROPERTIES } from '../operations/build-operations.js';

@@ -5,16 +5,16 @@ import type {
   FileObjectInterface,
   FileTreeInterface,
   FileTreeType,
-} from '../file-tree/file-tree.types.js';
-import { createDir } from '../utils/create-dir.js';
-import { readFile } from '../utils/read-file.js';
+} from '../types/file-tree.types.js';
 import type {
   FileTreeOperationsType,
   ExtensionsInterface,
   DirOperationsInterface,
   OperationsRecord,
   FileOperationsInterface,
-} from './operation.types.js';
+} from '../types/operation.types.js';
+import { createDir } from '../utils/create-dir.js';
+import { readFile } from '../utils/read-file.js';
 
 export enum HIDDEN_PROPERTIES {
   Tree = '__tree__',

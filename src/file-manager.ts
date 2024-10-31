@@ -1,11 +1,11 @@
 import path from 'node:path';
-import type { FileTreeInterface } from './file-tree/file-tree.types.js';
-import { buildOperations } from './operations/build-operations.js';
+import type { FileTreeInterface } from './types/file-tree.types.js';
 import type {
   ExtensionsInterface,
   FileTreeOperationsType,
   OperationsRecord,
-} from './operations/operation.types.js';
+} from './types/index.js';
+import { buildOperations } from './operations/build-operations.js';
 
 export class FileManager<
   ExtraFileOperations extends OperationsRecord = OperationsRecord,

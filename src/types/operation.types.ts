@@ -4,7 +4,7 @@ import type {
   FileTreeInterface,
   TreeDirInterface,
   TreeFileType,
-} from '../file-tree/file-tree.types.js';
+} from './file-tree.types.js';
 
 export type Fn = (...args: any[]) => any;
 export type OperationsRecord = Record<string, Fn>;

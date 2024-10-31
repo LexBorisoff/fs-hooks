@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import type { FileTreeInterface } from '../../../src/file-tree/file-tree.types.js';
+import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
 
 export const tree = {
   file1: '',

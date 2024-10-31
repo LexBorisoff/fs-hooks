@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../src/operations/build-operations.js';
+import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
 import type {
   DirOperationsInterface,
   DirOperationsFn,
   OperationsRecord,
   FileTreeOperationsType,
-} from '../../../src/operations/operation.types.js';
-import type { FileTreeInterface } from '../../../src/file-tree/file-tree.types.js';
+} from '../../../src/types/operation.types.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
 import { dirOperationsObject, Test, tree, type Tree } from './constants.js';
@@ -29,9 +29,6 @@ suite(
     const dirOperations: DirOperationsFn = (dir) => ({
       getDirPath(): string {
         return dir.path;
-      },
-      getDirType(): 'dir' {
-        return dir.type;
       },
       getDirChildren(): string[] {
         return Object.keys(dir.children ?? {});

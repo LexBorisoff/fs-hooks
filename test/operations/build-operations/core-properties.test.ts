@@ -1,6 +1,6 @@
 import { beforeAll, beforeEach, expect, it, suite } from 'vitest';
+import type { FileTreeOperationsType } from '../../../src/types/operation.types.js';
 import { buildOperations } from '../../../src/operations/build-operations.js';
-import type { FileTreeOperationsType } from '../../../src/operations/operation.types.js';
 import { testSetup } from '../../test-setup.js';
 import {
   dirOperationsObject,
