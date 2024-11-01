@@ -15,15 +15,12 @@ function logErrors(errors: string[]): void {
   });
 }
 
-// TODO: test
-export function createFiles(
-  operationTree: OperationsType<
-    FileTreeInterface,
-    OperationsRecord,
-    OperationsRecord
-  >,
-): void {
-  const rootPath = operationTree.$getPath();
+export function createFiles<
+  Tree extends FileTreeInterface,
+  FileOperations extends OperationsRecord = OperationsRecord,
+  DirOperations extends OperationsRecord = OperationsRecord,
+>(operations: OperationsType<Tree, FileOperations, DirOperations>): void {
+  const rootPath = operations.$getPath();
 
   if (fs.existsSync(rootPath) && !isDirectory(rootPath)) {
     throw new Error('Root path already exists and is not a directory');
@@ -37,7 +34,7 @@ export function createFiles(
     );
   }
 
-  function createFilesRecursively(
+  function traverse(
     parentPath: string,
     currentFileTree?: FileTreeInterface,
   ): void {
@@ -58,7 +55,7 @@ export function createFiles(
         createDir(fullPath);
 
         if (Object.keys(value).length > 0) {
-          createFilesRecursively(fullPath, value);
+          traverse(fullPath, value);
         }
       } catch (error) {
         if (error instanceof Error) {
@@ -76,11 +73,11 @@ export function createFiles(
     }
 
     const fileTree: FileTreeInterface = Object.getOwnPropertyDescriptor(
-      operationTree,
+      operations,
       TREE_SYM,
     )?.value;
 
-    createFilesRecursively(rootPath, fileTree);
+    traverse(rootPath, fileTree);
   } catch (error) {
     if (error instanceof Error) {
       errors.push(error.message);
