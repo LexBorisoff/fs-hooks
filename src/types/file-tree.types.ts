@@ -1,11 +1,7 @@
-export type TreeFileType = string;
-
-export interface TreeDirInterface {
-  [name: string]: TreeFileType | TreeDirInterface;
-}
+export type FileType = string;
 
 export interface FileTreeInterface {
-  [key: string]: TreeFileType | TreeDirInterface;
+  [key: string]: FileType | FileTreeInterface;
 }
 
 export interface PathInterface {
@@ -22,9 +18,9 @@ export interface DirObjectInterface<ChildTree extends FileTreeInterface>
 }
 
 export type FileTreeType<Tree extends FileTreeInterface> = {
-  [key in keyof Tree]: Tree[key] extends TreeFileType
+  [key in keyof Tree]: Tree[key] extends FileType
     ? FileObjectInterface
-    : Tree[key] extends TreeDirInterface
+    : Tree[key] extends FileTreeInterface
       ? DirObjectInterface<Tree[key]>
       : never;
 };

@@ -156,8 +156,8 @@ function getDirOperations<
 
 export function buildOperations<
   Tree extends FileTreeInterface,
-  ExtraFileOperations extends OperationsRecord,
-  ExtraDirOperations extends OperationsRecord,
+  ExtraFileOperations extends OperationsRecord = OperationsRecord,
+  ExtraDirOperations extends OperationsRecord = OperationsRecord,
 >(
   parentPath: string,
   tree?: Tree,

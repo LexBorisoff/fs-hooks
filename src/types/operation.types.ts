@@ -2,8 +2,7 @@ import type {
   DirObjectInterface,
   FileObjectInterface,
   FileTreeInterface,
-  TreeDirInterface,
-  TreeFileType,
+  FileType,
 } from './file-tree.types.js';
 
 export type Fn = (...args: any[]) => any;
@@ -36,7 +35,7 @@ export interface FileOperationsInterface {
 
 export type FileNamesType<ChildTree extends FileTreeInterface> = {
   [key in keyof ChildTree]: key extends string
-    ? ChildTree[key] extends TreeFileType
+    ? ChildTree[key] extends FileType
       ? key
       : never
     : never;
@@ -44,7 +43,7 @@ export type FileNamesType<ChildTree extends FileTreeInterface> = {
 
 export type DirNamesType<ChildTree extends FileTreeInterface> = {
   [key in keyof ChildTree]: key extends string
-    ? ChildTree[key] extends TreeDirInterface
+    ? ChildTree[key] extends FileTreeInterface
       ? key
       : never
     : never;
@@ -94,9 +93,9 @@ type OperationTreeType<
   ExtraFileOperations extends OperationsRecord,
   ExtraDirOperations extends OperationsRecord,
 > = {
-  [key in keyof Tree]: Tree[key] extends TreeFileType
+  [key in keyof Tree]: Tree[key] extends FileType
     ? FileOperationsInterface & ExtraFileOperations
-    : Tree[key] extends TreeDirInterface
+    : Tree[key] extends FileTreeInterface
       ? DirOperationsType<Tree[key], ExtraFileOperations, ExtraDirOperations> &
           OperationTreeType<Tree[key], ExtraFileOperations, ExtraDirOperations>
       : never;
