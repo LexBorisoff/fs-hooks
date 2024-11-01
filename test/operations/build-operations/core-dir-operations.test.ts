@@ -11,11 +11,10 @@ import { deleteFolder } from '../../utils.js';
 import {
   dirOperationsObject,
   fileOperationsObject,
-  fileDataArray,
-  Test,
   tree,
   type Tree,
-} from './constants.js';
+} from '../../constants.js';
+import { fileDataArray, Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.CoreDirOperations, import.meta);
 
@@ -72,6 +71,7 @@ suite(
         parentDirs: string[];
       }
 
+      // TODO: refactor or extract
       const dirs: DirInfo[] = [
         {
           dir: result,

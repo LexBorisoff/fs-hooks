@@ -3,7 +3,7 @@ import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../src/operations/build-operations.js';
 import type {
   FileTreeInterface,
-  TreeFileType,
+  FileType,
 } from '../../../src/types/file-tree.types.js';
 import type {
   DirOperationsInterface,
@@ -13,13 +13,8 @@ import type {
 } from '../../../src/types/operation.types.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
-import {
-  fileDataArray,
-  fileOperationsObject,
-  Test,
-  tree,
-  type Tree,
-} from './constants.js';
+import { fileOperationsObject, tree, type Tree } from '../../constants.js';
+import { fileDataArray, Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.ExtraFileOperations, import.meta);
 
@@ -86,11 +81,12 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
   interface FileInfo {
     file: FileOperations;
     fileName: string;
-    treeFile: TreeFileType;
+    treeFile: FileType;
     dir: DirType;
     parentDirs: string[];
   }
 
+  // TODO: refactor, there are more files in the file tree
   function getFilesInfo(): FileInfo[] {
     return [
       {
@@ -149,7 +145,7 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
    */
   function useTreeFiles(
     testName: string,
-    cb: (info: CbBaseInfo & { treeFile: TreeFileType }) => void,
+    cb: (info: CbBaseInfo & { treeFile: FileType }) => void,
   ): void {
     getFilesInfo().forEach(({ file, fileName, treeFile, parentDirs }) => {
       const dirPath = joinPath(testName, ...parentDirs);

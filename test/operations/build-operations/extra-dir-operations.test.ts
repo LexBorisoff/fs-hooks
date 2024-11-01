@@ -10,7 +10,8 @@ import type {
 } from '../../../src/types/operation.types.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
-import { dirOperationsObject, Test, tree, type Tree } from './constants.js';
+import { dirOperationsObject, tree, type Tree } from '../../constants.js';
+import { Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.ExtraDirOperations, import.meta);
 

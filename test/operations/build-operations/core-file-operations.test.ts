@@ -9,13 +9,8 @@ import type {
 import { buildOperations } from '../../../src/operations/build-operations.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
-import {
-  fileDataArray,
-  fileOperationsObject,
-  Test,
-  tree,
-  type Tree,
-} from './constants.js';
+import { fileOperationsObject, tree, type Tree } from '../../constants.js';
+import { fileDataArray, Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.CoreFileOperations, import.meta);
 
@@ -35,7 +30,6 @@ suite('buildOperations - core file operations', { concurrent: false }, () => {
     return setup();
   });
 
-  type FileType = FileOperationsInterface;
   type DirType = DirOperationsInterface<FileTreeInterface>;
   type GetDescribePathFn = (...args: string[]) => string;
 
@@ -58,7 +52,7 @@ suite('buildOperations - core file operations', { concurrent: false }, () => {
   }
 
   interface Info {
-    file: FileType;
+    file: FileOperationsInterface;
     fileName: string;
     parentDirs: string[];
   }
@@ -69,6 +63,7 @@ suite('buildOperations - core file operations', { concurrent: false }, () => {
       dir: DirType;
     }
 
+    // TODO: refactor in a generic way as there are more files in the tree
     const files: FileInfo[] = [
       {
         fileName: 'file1',

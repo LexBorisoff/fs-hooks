@@ -8,10 +8,10 @@ import { testSetup } from '../../test-setup.js';
 import {
   dirOperationsObject,
   fileOperationsObject,
-  Test,
   tree,
   type Tree,
-} from './constants.js';
+} from '../../constants.js';
+import { Test } from './constants.js';
 
 const { setup: setupSuite, joinPath } = testSetup(
   Test.CoreProperties,
@@ -34,6 +34,7 @@ suite('buildOperations - core properties', { concurrent: false }, () => {
   });
 
   it('should have directory operation methods on result object', () => {
+    // TODO: refactore, there are more files in the file tree
     expect(result).toEqual({
       ...dirOperationsObject,
       file1: fileOperationsObject,
