@@ -45,9 +45,8 @@ export class FileManager<
   static extend<
     FileOperations extends OperationsRecord,
     DirOperations extends OperationsRecord,
-  >(
-    extensions: ExtensionsInterface<FileOperations, DirOperations>,
-  ): ExtensionsInterface<FileOperations, DirOperations> {
+    Extensions = ExtensionsInterface<FileOperations, DirOperations>,
+  >(extensions: Extensions): Extensions {
     return extensions;
   }
 }

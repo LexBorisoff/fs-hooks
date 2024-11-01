@@ -3,8 +3,8 @@ import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../src/operations/build-operations.js';
 import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
 import type {
-  DirOperationsInterface,
   DirOperationsFn,
+  DirOperationsInterface,
   OperationsRecord,
   OperationsType,
 } from '../../../src/types/operation.types.js';
@@ -27,19 +27,24 @@ suite(
   'buildOperations - extra directory operations',
   { concurrent: false },
   () => {
-    const dirOperations: DirOperationsFn = (dir) => ({
-      getDirPath(): string {
+    type ExtraDirOperations = {
+      getDirPath: () => string;
+      getDirChildren: () => string[];
+      plusOne: (num: number) => number;
+    };
+
+    const dirOperations: DirOperationsFn<ExtraDirOperations> = (dir) => ({
+      getDirPath() {
         return dir.path;
       },
-      getDirChildren(): string[] {
+      getDirChildren() {
         return Object.keys(dir.children ?? {});
       },
-      plusOne(value: number): number {
-        return value + 1;
+      plusOne(num) {
+        return num + 1;
       },
     });
 
-    type ExtraDirOperations = ReturnType<typeof dirOperations>;
     type ExtraFileOperations = OperationsRecord;
     type DirOperations = ExtraDirOperations &
       DirOperationsInterface<
@@ -48,9 +53,13 @@ suite(
         ExtraDirOperations
       >;
 
-    const extraDirOperationsObject = {
+    type ExtraDiroperationsObject = Record<
+      keyof ExtraDirOperations,
+      ReturnType<typeof expect.any>
+    >;
+
+    const extraDirOperationsObject: ExtraDiroperationsObject = {
       getDirPath: expect.any(Function),
-      getDirType: expect.any(Function),
       getDirChildren: expect.any(Function),
       plusOne: expect.any(Function),
     };
@@ -62,13 +71,17 @@ suite(
     });
 
     type GetDescribePathFn = (...args: string[]) => string;
-    type UseFileTreeDirsCb = (dir: DirOperations) => void;
-    type UseDirCreateCb = (dir: DirOperations, path: string) => void;
+    type UseDirsCb = (
+      dir: DirOperations,
+      info: {
+        parentDirs: string[];
+        children: string[];
+      },
+    ) => void;
 
     function describeTest(testName: string): {
       getDescribePath: GetDescribePathFn;
-      useFileTreeDirs: (testCb: UseFileTreeDirsCb) => void;
-      useDirCreate: (testCb: UseDirCreateCb) => void;
+      useDirs: (cb: UseDirsCb) => void;
     } {
       function getDescribePath(...args: string[]): string {
         return joinPath(testName, ...args);
@@ -85,51 +98,69 @@ suite(
         };
       });
 
-      /**
-       * Tests directories from the file tree
-       */
-      function useFileTreeDirs(testCb: UseFileTreeDirsCb): void {
-        const dirs = [
-          result,
-          result.dir1,
-          result.dir2,
-          result.dir2.dir1,
-          result.dir2.dir2,
-        ];
-
-        dirs.forEach((dir) => {
-          testCb(dir);
-        });
+      interface DirType {
+        dir: DirOperations;
+        parentDirs: string[];
+        children: string[];
       }
 
-      /**
-       * Tests directories created via dirCreate
-       */
-      function useDirCreate(testCb: UseDirCreateCb): void {
-        fs.mkdirSync(joinPath(testName, 'dir1'), { recursive: true });
-        fs.mkdirSync(joinPath(testName, 'dir2', 'dir1'), { recursive: true });
+      function useDirs(cb: UseDirsCb): void {
+        const dirs: DirType[] = [];
+
+        function buildDirs(
+          dir: DirOperations,
+          parentDirs: string[] = [],
+        ): void {
+          const children = Object.entries(dir)
+            .filter(([, value]) => !(value instanceof Function))
+            .map(([key]) => key);
+
+          dirs.push({
+            dir,
+            parentDirs,
+            children,
+          });
+
+          Object.entries(children).forEach(([key, child]) => {
+            if (
+              typeof child === 'object' &&
+              child !== null &&
+              !Array.isArray(child)
+            ) {
+              buildDirs(child, [...parentDirs, key]);
+            }
+          });
+        }
+
+        buildDirs(result);
 
         const dirName = 'new-dir';
-        const dir1 = result.$dirCreate(dirName);
-        const dir2 = result.dir1.$dirCreate(dirName);
-        const dir3 = result.dir2.dir1.$dirCreate(dirName);
 
-        testCb(dir1, joinPath(testName, dirName));
-        testCb(dir2, joinPath(testName, 'dir1', dirName));
-        testCb(dir3, joinPath(testName, 'dir2', 'dir1', dirName));
+        /**
+         * Types of directories for testing
+         * 1. from the file tree
+         * 2. created with $dirCreate
+         */
+        dirs.forEach(({ dir, parentDirs, children }) => {
+          const dirPath = getDescribePath(...parentDirs);
+          fs.mkdirSync(dirPath, { recursive: true });
+
+          cb(dir, { parentDirs, children });
+          cb(dir.$dirCreate(dirName), {
+            parentDirs: parentDirs.concat(dirName),
+            children: [],
+          });
+        });
       }
 
       return {
         getDescribePath,
-        useFileTreeDirs,
-        useDirCreate,
+        useDirs,
       };
     }
 
     describe('extra directory operations properties', () => {
-      const { useFileTreeDirs, useDirCreate } = describeTest(
-        ExtraOperations.ObjectProperties,
-      );
+      const { useDirs } = describeTest(ExtraOperations.ObjectProperties);
 
       const operationsObject = {
         ...dirOperationsObject,
@@ -140,144 +171,44 @@ suite(
         expect(result).toBeDefined();
       });
 
-      it('should have extra directory operations (file tree)', () => {
-        useFileTreeDirs((dir) => {
-          expect(dir).toMatchObject(operationsObject);
-        });
-      });
-
-      it('should have extra directory operations (dirCreate)', () => {
-        useDirCreate((dir) => {
+      it('should have extra directory operations', () => {
+        useDirs((dir) => {
           expect(dir).toMatchObject(operationsObject);
         });
       });
     });
 
     describe('getDirPath extra operation', () => {
-      const { getDescribePath, useDirCreate } = describeTest(
+      const { getDescribePath, useDirs } = describeTest(
         ExtraOperations.GetDirPath,
       );
 
-      it('should return directory path (file tree)', () => {
-        interface TestItem {
-          dirPath: string;
-          dir: DirOperations;
-        }
-
-        const dirs: TestItem[] = [
-          {
-            dir: result,
-            dirPath: getDescribePath(),
-          },
-          {
-            dir: result.dir1,
-            dirPath: getDescribePath('dir1'),
-          },
-          {
-            dir: result.dir2,
-            dirPath: getDescribePath('dir2'),
-          },
-          {
-            dir: result.dir2.dir1,
-            dirPath: getDescribePath('dir2', 'dir1'),
-          },
-          {
-            dir: result.dir2.dir2,
-            dirPath: getDescribePath('dir2', 'dir2'),
-          },
-        ];
-
-        dirs.forEach(({ dir, dirPath }) => {
-          expect(dir.getDirPath()).toBe(dirPath);
-        });
-      });
-
-      it('should return directory path (dirCreate)', () => {
-        useDirCreate((dir, dirPath) => {
-          expect(dir.getDirPath()).toBe(dirPath);
-        });
-      });
-    });
-
-    describe('getDirType extra operation', () => {
-      const { useFileTreeDirs, useDirCreate } = describeTest(
-        ExtraOperations.GetDirType,
-      );
-
-      it('should return directory type (file tree)', () => {
-        useFileTreeDirs((dir) => {
-          expect(dir.getDirType()).toBe('dir');
-        });
-      });
-
-      it('should return directory type (dirCreate)', () => {
-        useDirCreate((dir) => {
-          expect(dir.getDirType()).toBe('dir');
+      it('should return directory path', () => {
+        useDirs((dir, { parentDirs }) => {
+          expect(dir.getDirPath()).toBe(getDescribePath(...parentDirs));
         });
       });
     });
 
     describe('getDirChildren extra operation', () => {
-      const { useDirCreate } = describeTest(ExtraOperations.GetDirChildren);
+      const { useDirs } = describeTest(ExtraOperations.GetDirChildren);
 
-      it('should return directory children keys (file tree)', () => {
-        interface TestItem {
-          children: string[];
-          dir: DirOperations;
-        }
+      function sort(array: string[]): string[] {
+        return array.concat().sort();
+      }
 
-        const dirs: TestItem[] = [
-          {
-            dir: result,
-            children: ['dir1', 'dir2', 'file1', 'file2'],
-          },
-          {
-            dir: result.dir1,
-            children: [],
-          },
-          {
-            dir: result.dir2,
-            children: ['dir1', 'dir2', 'file1', 'file2'],
-          },
-          {
-            dir: result.dir2.dir1,
-            children: [],
-          },
-          {
-            dir: result.dir2.dir2,
-            children: ['file1', 'file2'],
-          },
-        ];
-
-        function sort(array: string[]): string[] {
-          return array.concat().sort();
-        }
-
-        dirs.forEach(({ dir, children }) => {
+      it('should return directory children keys', () => {
+        useDirs((dir, { children }) => {
           expect(sort(dir.getDirChildren())).toEqual(sort(children));
-        });
-      });
-
-      it('should return directory children keys (dirCreate)', () => {
-        useDirCreate((dir) => {
-          expect(dir.getDirChildren()).toEqual([]);
         });
       });
     });
 
     describe('plusOne extra operation', () => {
-      const { useFileTreeDirs, useDirCreate } = describeTest(
-        ExtraOperations.PlusOne,
-      );
+      const { useDirs } = describeTest(ExtraOperations.PlusOne);
 
-      it('should add 1 on directory objects (file tree)', () => {
-        useFileTreeDirs((dir) => {
-          expect(dir.plusOne(1)).toBe(2);
-        });
-      });
-
-      it('should add 1 on directory objects (dirCreate)', () => {
-        useDirCreate((dir) => {
+      it('should add 1 on directory objects', () => {
+        useDirs((dir) => {
           expect(dir.plusOne(1)).toBe(2);
         });
       });

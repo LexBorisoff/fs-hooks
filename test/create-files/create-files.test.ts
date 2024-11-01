@@ -6,8 +6,9 @@ import type { FileTreeInterface } from '../../src/types/file-tree.types.js';
 import { buildOperations } from '../../src/operations/build-operations.js';
 import { createFiles } from '../../src/create-files/create-files.js';
 import { tree } from '../constants.js';
+import { deleteFolder } from '../utils.js';
 
-const { setup, joinPath } = testSetup('create-files', import.meta);
+const { testPath, setup, joinPath } = testSetup('create-files', import.meta);
 
 interface PathTreeDir {
   type: 'dir';
@@ -39,8 +40,8 @@ function getPathArray(
       if (typeof value === 'string') {
         result.push({
           type: 'file',
-          data: value,
           path: currentPath,
+          data: value,
         });
         return;
       }
@@ -63,21 +64,18 @@ suite('createFiles function', { concurrent: false }, () => {
     return setup();
   });
 
-  function joinTest(...args: string[]): string {
-    return joinPath('operations', ...args);
-  }
-
-  const operationsDir = joinTest();
-  const operations = buildOperations(operationsDir, tree);
-  const pathArray = getPathArray(tree, operationsDir);
+  const operations = buildOperations(testPath, tree);
+  const pathArray = getPathArray(tree, testPath);
 
   beforeEach(() => {
-    fs.mkdirSync(operationsDir);
     createFiles(operations);
   });
 
   afterEach(() => {
-    fs.rmSync(operationsDir, { force: true, recursive: true });
+    const files = fs.readdirSync(testPath);
+    files.forEach((file) => {
+      deleteFolder(joinPath(file));
+    });
   });
 
   it('should create files and directories', () => {

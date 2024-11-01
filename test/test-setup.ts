@@ -16,10 +16,10 @@ interface TestSetup {
    * in the test file's directory
    *
    * @returns a cleanup function that deletes the test folder,
-   * unless keepTestFolder param or KEEP_TEST_FOLDER env variable
-   * is set to true
+   * unless deleteTestFolder param is set to false
+   * or KEEP_TEST_FOLDER env variable is set to true
    */
-  setup: (keepTestFolder?: boolean) => CleanupFn;
+  setup: (deleteTestFolder?: boolean) => CleanupFn;
   /**
    * Joins the provided arg names with the testPath
    */
@@ -32,14 +32,14 @@ export function testSetup(testName: string, meta: ImportMeta): TestSetup {
 
   const result: TestSetup = {
     testPath,
-    setup(keepTestFolder = false) {
+    setup(deleteTestFolder = true) {
       if (fs.existsSync(testPath)) {
         deleteFolder(testPath);
       }
       fs.mkdirSync(testPath);
 
       return function cleanup() {
-        if (!keepTestFolder && !KEEP_TEST_FOLDER) {
+        if (deleteTestFolder && !KEEP_TEST_FOLDER) {
           deleteFolder(testPath);
         }
       };

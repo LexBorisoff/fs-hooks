@@ -28,7 +28,13 @@ enum ExtraOperations {
 }
 
 suite('buildOperations - extra file operations', { concurrent: false }, () => {
-  const fileOperations: FileOperationsFn = (file) => ({
+  type ExtraFileOperations = {
+    getFileData: () => string;
+    getFilePath: () => string;
+    plusOne: (num: number) => number;
+  };
+
+  const fileOperations: FileOperationsFn<ExtraFileOperations> = (file) => ({
     getFileData(): string {
       return file.data;
     },
@@ -40,12 +46,15 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     },
   });
 
-  type ExtraFileOperations = ReturnType<typeof fileOperations>;
   type FileOperations = FileOperationsInterface & ExtraFileOperations;
   type DirType = DirOperationsInterface<FileTreeInterface, ExtraFileOperations>;
 
-  const extraFileOperationsObject = {
-    getFileType: expect.any(Function),
+  type ExtraFileOperationsObject = Record<
+    keyof ExtraFileOperations,
+    ReturnType<typeof expect.any>
+  >;
+
+  const extraFileOperationsObject: ExtraFileOperationsObject = {
     getFileData: expect.any(Function),
     getFilePath: expect.any(Function),
     plusOne: expect.any(Function),
@@ -86,7 +95,7 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     parentDirs: string[];
   }
 
-  // TODO: refactor, there are more files in the file tree
+  // TODO: refactor in a generic way as there are more files in the tree
   function getFilesInfo(): FileInfo[] {
     return [
       {
@@ -210,23 +219,6 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     it('should have extra file operations for created files', () => {
       useCreatedFiles(testName, ({ file }) => {
         expect(file).toEqual(operationsObject);
-      });
-    });
-  });
-
-  describe('getFileType extra operation', () => {
-    const testName = ExtraOperations.GetFileType;
-    describeTest(testName);
-
-    it('should return file type for tree files', () => {
-      useTreeFiles(testName, ({ file }) => {
-        expect(file.getFileType()).toBe('file');
-      });
-    });
-
-    it('should return file type for created files', () => {
-      useCreatedFiles(testName, ({ file }) => {
-        expect(file.getFileType()).toBe('file');
       });
     });
   });
