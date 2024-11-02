@@ -5,12 +5,7 @@ import {
   TREE_SYM,
 } from '../../../src/operations/build-operations.js';
 import { testSetup } from '../../test-setup.js';
-import {
-  dirOperationsObject,
-  fileOperationsObject,
-  tree,
-  type Tree,
-} from '../../constants.js';
+import { operationsTreeObject, tree, type Tree } from '../../constants.js';
 import { Test } from './constants.js';
 
 const { setup: setupSuite, joinPath } = testSetup(
@@ -33,25 +28,8 @@ suite('buildOperations - core properties', { concurrent: false }, () => {
     expect(result).toBeDefined();
   });
 
-  it('should have directory operation methods on result object', () => {
-    // TODO: refactore, there are more files in the file tree
-    expect(result).toEqual({
-      ...dirOperationsObject,
-      file1: fileOperationsObject,
-      file2: fileOperationsObject,
-      dir1: dirOperationsObject,
-      dir2: {
-        ...dirOperationsObject,
-        file1: fileOperationsObject,
-        file2: fileOperationsObject,
-        dir1: dirOperationsObject,
-        dir2: {
-          ...dirOperationsObject,
-          file1: fileOperationsObject,
-          file2: fileOperationsObject,
-        },
-      },
-    });
+  it('should be operations tree object', () => {
+    expect(result).toEqual(operationsTreeObject);
   });
 
   it('should have a symbol property key with file tree value', () => {

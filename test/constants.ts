@@ -1,5 +1,12 @@
 import { expect } from 'vitest';
 import type { FileTreeInterface } from '../src/types/file-tree.types.js';
+import type {
+  DirOperationsInterface,
+  FileOperationsInterface,
+} from '../src/types/operation.types.js';
+
+export const KEEP_TEST_FOLDER: boolean =
+  process.env.KEEP_TEST_FOLDER === 'true';
 
 interface Files {
   file1: string;
@@ -33,24 +40,66 @@ export const tree = {
 
 export type Tree = typeof tree;
 
-export const fileOperationsObject = {
-  $getPath: expect.any(Function),
-  $read: expect.any(Function),
-  $write: expect.any(Function),
-  $clear: expect.any(Function),
-};
+const fileOperationsMethods: (keyof FileOperationsInterface)[] = [
+  '$clear',
+  '$getPath',
+  '$read',
+  '$write',
+];
 
-export const dirOperationsObject = {
-  $getPath: expect.any(Function),
-  $exists: expect.any(Function),
-  $dirCreate: expect.any(Function),
-  $dirDelete: expect.any(Function),
-  $fileClear: expect.any(Function),
-  $fileCreate: expect.any(Function),
-  $fileDelete: expect.any(Function),
-  $fileRead: expect.any(Function),
-  $fileWrite: expect.any(Function),
-};
+const dirOperationsMethods: (keyof DirOperationsInterface<Tree>)[] = [
+  '$dirCreate',
+  '$dirDelete',
+  '$exists',
+  '$fileClear',
+  '$fileCreate',
+  '$fileDelete',
+  '$fileRead',
+  '$fileWrite',
+  '$getPath',
+];
 
-export const KEEP_TEST_FOLDER: boolean =
-  process.env.KEEP_TEST_FOLDER === 'true';
+export const fileOperationsObject = fileOperationsMethods.reduce(
+  (acc, method) => ({ ...acc, [method]: expect.any(Function) }),
+  {},
+);
+
+export const dirOperationsObject = dirOperationsMethods.reduce(
+  (acc, method) => ({ ...acc, [method]: expect.any(Function) }),
+  {},
+);
+
+type FileOperationsObject = typeof fileOperationsObject;
+type DirOperationsObject = typeof dirOperationsObject;
+type OperationsTreeObject = DirOperationsObject &
+  Record<string, FileOperationsObject | DirOperationsObject>;
+
+function buildOperationsTreeObject(): OperationsTreeObject {
+  function traverse(
+    node: FileTreeInterface,
+  ): Record<string, FileOperationsObject | DirOperationsObject> {
+    const result: Record<string, FileOperationsObject | DirOperationsObject> =
+      {};
+
+    Object.entries(node).forEach(([key, value]) => {
+      if (typeof value === 'string') {
+        result[key] = fileOperationsObject;
+        return;
+      }
+
+      result[key] = {
+        ...dirOperationsObject,
+        ...traverse(value),
+      };
+    });
+
+    return result;
+  }
+
+  return {
+    ...dirOperationsObject,
+    ...traverse(tree),
+  };
+}
+
+export const operationsTreeObject = buildOperationsTreeObject();
