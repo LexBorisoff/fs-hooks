@@ -5,8 +5,7 @@ import type {
   OperationsRecord,
   OperationsType,
 } from '../src/types/operation.types.js';
-import { OperationsTypeEnum } from '../src/operations/operations-type.enum.js';
-import { OPERATIONS_TYPE_SYM } from '../src/operations/operation.constants.js';
+import { isDirOperations } from '../src/operations/is-dir-operations.js';
 import type { Tree } from './tree.js';
 
 type GetDescribePathFn = (...args: string[]) => string;
@@ -40,52 +39,50 @@ export function getUseDirs<
   return function useDirs(
     cb: UseDirsCb<ExtraFileOperations, ExtraDirOperations>,
   ): void {
-    type DirOperations = DirOperationsType<
-      FileTreeInterface,
+    type DirOperations<T extends FileTreeInterface> = DirOperationsType<
+      T,
       ExtraFileOperations,
       ExtraDirOperations
     >;
 
-    interface DirType {
-      dir: DirOperations;
+    interface DirType<T extends FileTreeInterface> {
+      dir: DirOperations<T>;
       pathDirs: string[];
       children: string[];
     }
 
-    function getChildren(dir: DirOperations): string[] {
+    function getChildren<T extends FileTreeInterface>(
+      dir: DirOperations<T>,
+    ): string[] {
       return Object.entries(dir)
         .filter(([, value]) => !(value instanceof Function))
         .map(([key]) => key);
     }
 
-    const dirs: DirType[] = [
-      {
-        dir: operations,
-        pathDirs: [],
-        children: getChildren(operations),
-      },
-    ];
+    const operationsDir: DirType<Tree> = {
+      dir: operations,
+      pathDirs: [],
+      children: getChildren(operations),
+    };
 
-    function traverse(node: DirOperations, parentDirs: string[]): void {
-      Object.entries(node).forEach(([key, value]) => {
-        if (typeof value === 'object') {
-          const operationsObjectType: OperationsTypeEnum | undefined =
-            Object.getOwnPropertyDescriptor(value, OPERATIONS_TYPE_SYM)?.value;
+    const dirs: DirType<FileTreeInterface>[] = [operationsDir];
 
-          if (operationsObjectType === OperationsTypeEnum.Dir) {
-            const currentDirs = parentDirs.concat(key);
-            dirs.push({
-              dir: value,
-              pathDirs: currentDirs,
-              children: getChildren(value),
-            });
-            traverse(value, currentDirs);
-          }
+    function traverse<T extends FileTreeInterface>(node: DirType<T>): void {
+      Object.entries(node).forEach(([key, { dir, pathDirs }]) => {
+        if (typeof dir === 'object' && isDirOperations(dir)) {
+          const result: DirType<T> = {
+            dir,
+            pathDirs: pathDirs.concat(key),
+            children: getChildren(dir),
+          };
+
+          dirs.push(result);
+          traverse(result);
         }
       });
     }
 
-    traverse(operations, []);
+    traverse(operationsDir);
 
     const dirName = 'new-dir';
 
