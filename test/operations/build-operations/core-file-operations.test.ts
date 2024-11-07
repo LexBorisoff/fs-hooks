@@ -9,7 +9,8 @@ import type {
 import { buildOperations } from '../../../src/operations/build-operations.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
-import { fileOperationsObject, tree, type Tree } from '../../constants.js';
+import { tree, type Tree } from '../../tree.js';
+import { fileOperationsObject } from '../../operations-objects.js';
 import { fileDataArray, Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.CoreFileOperations, import.meta);

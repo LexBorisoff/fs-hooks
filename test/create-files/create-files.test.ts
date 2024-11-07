@@ -5,7 +5,7 @@ import { testSetup } from '../test-setup.js';
 import type { FileTreeInterface } from '../../src/types/file-tree.types.js';
 import { buildOperations } from '../../src/operations/build-operations.js';
 import { createFiles } from '../../src/create-files/create-files.js';
-import { tree } from '../constants.js';
+import { tree } from '../tree.js';
 import { deleteFolder } from '../utils.js';
 
 const { testPath, setup, joinPath } = testSetup('create-files', import.meta);

@@ -1,11 +1,10 @@
 import { beforeAll, beforeEach, expect, it, suite } from 'vitest';
 import type { OperationsType } from '../../../src/types/operation.types.js';
-import {
-  buildOperations,
-  TREE_SYM,
-} from '../../../src/operations/build-operations.js';
+import { buildOperations } from '../../../src/operations/build-operations.js';
+import { TREE_SYM } from '../../../src/operations/operation.constants.js';
 import { testSetup } from '../../test-setup.js';
-import { operationsTreeObject, tree, type Tree } from '../../constants.js';
+import { tree, type Tree } from '../../tree.js';
+import { operationsTreeObject } from '../../operations-objects.js';
 import { Test } from './constants.js';
 
 const { setup: setupSuite, joinPath } = testSetup(
