@@ -83,15 +83,15 @@ export interface DirOperationsInterface<
 
 export type DirOperationsType<
   ChildTree extends FileTreeInterface,
-  ExtraFileOperations extends OperationsRecord,
-  ExtraDirOperations extends OperationsRecord,
+  ExtraFileOperations extends OperationsRecord = OperationsRecord,
+  ExtraDirOperations extends OperationsRecord = OperationsRecord,
 > = DirOperationsInterface<ChildTree, ExtraFileOperations, ExtraDirOperations> &
   ExtraDirOperations;
 
-type OperationTreeType<
+export type OperationTreeType<
   Tree extends FileTreeInterface,
-  ExtraFileOperations extends OperationsRecord,
-  ExtraDirOperations extends OperationsRecord,
+  ExtraFileOperations extends OperationsRecord = OperationsRecord,
+  ExtraDirOperations extends OperationsRecord = OperationsRecord,
 > = {
   [key in keyof Tree]: Tree[key] extends FileType
     ? FileOperationsInterface & ExtraFileOperations
