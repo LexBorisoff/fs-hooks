@@ -15,8 +15,8 @@ import type {
 } from '../types/operation.types.js';
 import { createDir } from '../utils/create-dir.js';
 import { readFile } from '../utils/read-file.js';
-
-export const TREE_SYM = Symbol('tree');
+import { OPERATIONS_TYPE_SYM, TREE_SYM } from './operation.constants.js';
+import { OperationsTypeEnum } from './operations-type.enum.js';
 
 function buildFileTree<T extends FileTreeInterface>(
   parentPath: string,
@@ -156,8 +156,8 @@ function getDirOperations<
 
 export function buildOperations<
   Tree extends FileTreeInterface,
-  ExtraFileOperations extends OperationsRecord = OperationsRecord,
-  ExtraDirOperations extends OperationsRecord = OperationsRecord,
+  ExtraFileOperations extends OperationsRecord,
+  ExtraDirOperations extends OperationsRecord,
 >(
   parentPath: string,
   tree?: Tree,
@@ -200,6 +200,12 @@ export function buildOperations<
         ...(extraFileOperations?.(file) as ExtraFileOperations),
       };
 
+      Object.defineProperties(operations, {
+        [OPERATIONS_TYPE_SYM]: {
+          value: OperationsTypeEnum.File,
+        },
+      });
+
       result = {
         ...result,
         [key]: operations,
@@ -225,6 +231,12 @@ export function buildOperations<
         ...childTreeOperations,
       };
 
+      Object.defineProperties(operations, {
+        [OPERATIONS_TYPE_SYM]: {
+          value: OperationsTypeEnum.Dir,
+        },
+      });
+
       result = {
         ...result,
         [key]: operations,
@@ -233,7 +245,12 @@ export function buildOperations<
   });
 
   Object.defineProperties(result, {
-    [TREE_SYM]: { value: tree },
+    [TREE_SYM]: {
+      value: tree,
+    },
+    [OPERATIONS_TYPE_SYM]: {
+      value: OperationsTypeEnum.Dir,
+    },
   });
 
   return result;

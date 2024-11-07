@@ -7,7 +7,7 @@ import type {
 } from '../types/operation.types.js';
 import { isDirectory } from '../utils/is-directory.js';
 import { createDir } from '../utils/create-dir.js';
-import { TREE_SYM } from '../operations/build-operations.js';
+import { TREE_SYM } from '../operations/operation.constants.js';
 
 function logErrors(errors: string[]): void {
   errors.forEach((error) => {
