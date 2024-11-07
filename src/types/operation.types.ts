@@ -98,7 +98,7 @@ export type OperationTreeType<
     : Tree[key] extends FileTreeInterface
       ? DirOperationsType<Tree[key], ExtraFileOperations, ExtraDirOperations> &
           OperationTreeType<Tree[key], ExtraFileOperations, ExtraDirOperations>
-      : never;
+      : Fn;
 };
 
 export type OperationsType<
