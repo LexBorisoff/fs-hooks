@@ -15,8 +15,11 @@ import type {
 } from '../types/operation.types.js';
 import { createDir } from '../utils/create-dir.js';
 import { readFile } from '../utils/read-file.js';
-import { OPERATIONS_TYPE_SYM, TREE_VALUE_SYM } from './operation.constants.js';
-import { OperationsTypeEnum } from './operations-type.enum.js';
+import {
+  OPERATIONS_TYPE_SYM,
+  TREE_VALUE_SYM,
+} from './utils/operation.constants.js';
+import { OperationsTypeEnum } from './utils/operations-type.enum.js';
 
 function buildFileTree<T extends FileTreeInterface>(
   parentPath: string,

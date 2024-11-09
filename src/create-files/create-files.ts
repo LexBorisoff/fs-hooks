@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { FileTreeInterface } from '../types/file-tree.types.js';
 import { isDirectory } from '../utils/is-directory.js';
 import { createDir } from '../utils/create-dir.js';
-import { getTreeDir } from '../operations/get-tree-value.js';
+import { getTreeDir } from '../operations/utils/get-tree-value.js';
 import type { DirOperationsType } from '../types/operation.types.js';
 
 function logErrors(errors: string[]): void {
