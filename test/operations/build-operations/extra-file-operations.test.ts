@@ -2,18 +2,19 @@ import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../src/operations/build-operations.js';
 import type {
-  FileTreeInterface,
-  FileType,
-} from '../../../src/types/file-tree.types.js';
-import type {
-  DirOperationsInterface,
-  FileOperationsInterface,
   FileOperationsFn,
-  OperationsType,
+  DirOperationsType,
+  FileOperationsType,
 } from '../../../src/types/operation.types.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
-import { fileOperationsObject, tree, type Tree } from '../../constants.js';
+import { tree, type Tree } from '../../tree.js';
+import {
+  buildOperationsObject,
+  fileOperationsObject,
+} from '../../operations-objects.js';
+import { getFilesInfo } from '../../get-files-info.js';
+import type { FileType } from '../../../src/types/file-tree.types.js';
 import { fileDataArray, Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.ExtraFileOperations, import.meta);
@@ -28,54 +29,42 @@ enum ExtraOperations {
 }
 
 suite('buildOperations - extra file operations', { concurrent: false }, () => {
+  beforeAll(() => {
+    return setup();
+  });
+
   type ExtraFileOperations = {
     getFileData: () => string;
     getFilePath: () => string;
     plusOne: (num: number) => number;
   };
 
+  const methods: (keyof ExtraFileOperations)[] = [
+    'getFileData',
+    'getFilePath',
+    'plusOne',
+  ];
+  const extraFileOperationsObject = buildOperationsObject(methods);
+
   const fileOperations: FileOperationsFn<ExtraFileOperations> = (file) => ({
-    getFileData(): string {
+    getFileData() {
       return file.data;
     },
-    getFilePath(): string {
+    getFilePath() {
       return file.path;
     },
-    plusOne(value: number): number {
+    plusOne(value) {
       return value + 1;
     },
   });
 
-  type FileOperations = FileOperationsInterface & ExtraFileOperations;
-  type DirType = DirOperationsInterface<FileTreeInterface, ExtraFileOperations>;
+  let result: DirOperationsType<Tree, ExtraFileOperations>;
+  let getDescribePath: (...args: string[]) => string;
 
-  type ExtraFileOperationsObject = Record<
-    keyof ExtraFileOperations,
-    ReturnType<typeof expect.any>
-  >;
-
-  const extraFileOperationsObject: ExtraFileOperationsObject = {
-    getFileData: expect.any(Function),
-    getFilePath: expect.any(Function),
-    plusOne: expect.any(Function),
-  };
-
-  let result: OperationsType<Tree, ExtraFileOperations>;
-
-  beforeAll(() => {
-    return setup();
-  });
-
-  type GetDescribePathFn = (...args: string[]) => string;
-
-  function describeTest(testName: string): GetDescribePathFn {
-    function getDescribePath(...args: string[]): string {
-      return joinPath(testName, ...args);
-    }
-
-    const testPath = getDescribePath();
-
+  function describeTest(testName: string): void {
     beforeEach(() => {
+      getDescribePath = (...args: string[]) => joinPath(testName, ...args);
+      const testPath = getDescribePath();
       result = buildOperations(testPath, tree, { fileOperations });
 
       fs.mkdirSync(testPath);
@@ -83,115 +72,61 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
         deleteFolder(testPath);
       };
     });
-
-    return getDescribePath;
   }
 
-  interface FileInfo {
-    file: FileOperations;
+  interface FileMeta {
     fileName: string;
-    treeFile: FileType;
-    dir: DirType;
-    parentDirs: string[];
+    fileData: FileType;
+    pathDirs: string[];
   }
-
-  // TODO: refactor in a generic way as there are more files in the tree
-  function getFilesInfo(): FileInfo[] {
-    return [
-      {
-        file: result.file1,
-        fileName: 'file1',
-        treeFile: tree.file1,
-        dir: result,
-        parentDirs: [],
-      },
-      {
-        file: result.file2,
-        fileName: 'file2',
-        treeFile: tree.file2,
-        dir: result,
-        parentDirs: [],
-      },
-      {
-        file: result.dir2.file1,
-        fileName: 'file1',
-        treeFile: tree.dir2.file1,
-        dir: result.dir2,
-        parentDirs: ['dir2'],
-      },
-      {
-        file: result.dir2.file2,
-        fileName: 'file2',
-        treeFile: tree.dir2.file2,
-        dir: result.dir2,
-        parentDirs: ['dir2'],
-      },
-      {
-        file: result.dir2.dir2.file1,
-        fileName: 'file1',
-        treeFile: tree.dir2.dir2.file1,
-        dir: result.dir2.dir2,
-        parentDirs: ['dir2', 'dir2'],
-      },
-      {
-        file: result.dir2.dir2.file2,
-        fileName: 'file2',
-        treeFile: tree.dir2.dir2.file2,
-        dir: result.dir2.dir2,
-        parentDirs: ['dir2', 'dir2'],
-      },
-    ];
-  }
-
-  interface CbBaseInfo {
-    file: FileOperations;
-    fileName: string;
-    parentDirs: string[];
-  }
+  type UseTreeFilesCb = (
+    file: FileOperationsType<ExtraFileOperations>,
+    meta: FileMeta,
+  ) => void;
 
   /**
    * Test files from the file tree
    */
-  function useTreeFiles(
-    testName: string,
-    cb: (info: CbBaseInfo & { treeFile: FileType }) => void,
-  ): void {
-    getFilesInfo().forEach(({ file, fileName, treeFile, parentDirs }) => {
-      const dirPath = joinPath(testName, ...parentDirs);
+  function useTreeFiles(testName: string, cb: UseTreeFilesCb): void {
+    getFilesInfo(result).forEach(({ file, fileName, treeFile, pathDirs }) => {
+      const dirPath = joinPath(testName, ...pathDirs);
       fs.mkdirSync(dirPath, { recursive: true });
-      cb({ file, fileName, treeFile, parentDirs });
+      cb(file, { fileName, fileData: treeFile, pathDirs });
     });
   }
+
+  type UseCreatedFilesCb = (
+    file: FileOperationsType<ExtraFileOperations>,
+    meta: FileMeta,
+  ) => void;
 
   /**
    * Types of files for testing
    * 1. created with $fileCreate on directories from the file tree
    * 2. created with $dirCreate + $fileCreate combination
    */
-  function useCreatedFiles(
-    testName: string,
-    cb: (info: CbBaseInfo & { fileData: string }) => void,
-  ): void {
+  function useCreatedFiles(testName: string, cb: UseCreatedFilesCb): void {
     const dirName = 'dirCreate';
     const fileName = 'fileCreate';
 
-    getFilesInfo().forEach(({ dir, parentDirs }) => {
-      const dirPath = joinPath(testName, ...parentDirs);
+    getFilesInfo(result).forEach(({ dir, pathDirs }) => {
+      const dirPath = joinPath(testName, ...pathDirs);
       fs.mkdirSync(dirPath, { recursive: true });
 
       fileDataArray.forEach((fileData) => {
         // 1. created with $fileCreate on a directory from the file tree
-        let file = dir.$fileCreate(fileName, fileData);
-        cb({ file, fileName, fileData, parentDirs });
+        cb(dir.$fileCreate(fileName, fileData), {
+          fileName,
+          fileData,
+          pathDirs,
+        });
 
         // 2. created with $dirCreate + $fileCreate combination
         const createdDir = dir.$dirCreate(dirName);
-        file = createdDir.$fileCreate(fileName, fileData);
-        cb({
-          file,
+        cb(createdDir.$fileCreate(fileName, fileData), {
           fileName,
           fileData,
-          parentDirs: parentDirs.concat(dirName),
+          pathDirs: pathDirs.concat(dirName),
         });
       });
     });
@@ -211,13 +146,13 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     });
 
     it('should have extra file operations for tree files', () => {
-      useTreeFiles(testName, ({ file }) => {
+      useTreeFiles(testName, (file) => {
         expect(file).toEqual(operationsObject);
       });
     });
 
     it('should have extra file operations for created files', () => {
-      useCreatedFiles(testName, ({ file }) => {
+      useCreatedFiles(testName, (file) => {
         expect(file).toEqual(operationsObject);
       });
     });
@@ -228,13 +163,13 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     describeTest(testName);
 
     it('should return file data for tree files', () => {
-      useTreeFiles(testName, ({ file, treeFile }) => {
-        expect(file.getFileData()).toBe(treeFile);
+      useTreeFiles(testName, (file, { fileData }) => {
+        expect(file.getFileData()).toBe(fileData);
       });
     });
 
     it('should return file data for created files', () => {
-      useCreatedFiles(testName, ({ file, fileData }) => {
+      useCreatedFiles(testName, (file, { fileData }) => {
         expect(file.getFileData()).toBe(fileData);
       });
     });
@@ -242,18 +177,18 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
 
   describe('getFilePath extra operation', () => {
     const testName = ExtraOperations.GetFilePath;
-    const getDescribePath = describeTest(testName);
+    describeTest(testName);
 
     it('should return file path for tree files', () => {
-      useTreeFiles(testName, ({ file, fileName, parentDirs }) => {
-        const filePath = getDescribePath(...parentDirs, fileName);
+      useTreeFiles(testName, (file, { fileName, pathDirs }) => {
+        const filePath = getDescribePath(...pathDirs, fileName);
         expect(file.getFilePath()).toBe(filePath);
       });
     });
 
     it('should return file path for created files', () => {
-      useCreatedFiles(testName, ({ file, fileName, parentDirs }) => {
-        const filePath = getDescribePath(...parentDirs, fileName);
+      useCreatedFiles(testName, (file, { fileName, pathDirs }) => {
+        const filePath = getDescribePath(...pathDirs, fileName);
         expect(file.getFilePath()).toBe(filePath);
       });
     });
@@ -264,13 +199,13 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     describeTest(testName);
 
     it('should add 1 for tree files', () => {
-      useTreeFiles(testName, ({ file }) => {
+      useTreeFiles(testName, (file) => {
         expect(file.plusOne(1)).toBe(2);
       });
     });
 
     it('should add 1 for created files', () => {
-      useCreatedFiles(testName, ({ file }) => {
+      useCreatedFiles(testName, (file) => {
         expect(file.plusOne(1)).toBe(2);
       });
     });

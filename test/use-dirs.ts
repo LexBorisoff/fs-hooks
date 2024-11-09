@@ -3,10 +3,8 @@ import type { FileTreeInterface } from '../src/types/file-tree.types.js';
 import type {
   DirOperationsType,
   OperationsRecord,
-  OperationsType,
 } from '../src/types/operation.types.js';
-import { isDirOperations } from '../src/operations/is-dir-operations.js';
-import type { Tree } from './tree.js';
+import { getDirsInfo } from './get-dirs-info.js';
 
 type GetDescribePathFn = (...args: string[]) => string;
 type UseDirsCb<
@@ -29,61 +27,17 @@ export type UseDirsFn<
   ExtraDirOperations extends OperationsRecord = OperationsRecord,
 > = (cb: UseDirsCb<ExtraFileOperations, ExtraDirOperations>) => void;
 
+// TODO: test
 export function getUseDirs<
+  Tree extends FileTreeInterface,
   ExtraFileOperations extends OperationsRecord,
   ExtraDirOperations extends OperationsRecord,
 >(
-  operations: OperationsType<Tree, ExtraFileOperations, ExtraDirOperations>,
+  operations: DirOperationsType<Tree, ExtraFileOperations, ExtraDirOperations>,
   getDescribePath: GetDescribePathFn,
 ): UseDirsFn<ExtraFileOperations, ExtraDirOperations> {
-  return function useDirs(
-    cb: UseDirsCb<ExtraFileOperations, ExtraDirOperations>,
-  ): void {
-    type DirOperations<T extends FileTreeInterface> = DirOperationsType<
-      T,
-      ExtraFileOperations,
-      ExtraDirOperations
-    >;
-
-    interface DirType<T extends FileTreeInterface> {
-      dir: DirOperations<T>;
-      pathDirs: string[];
-      children: string[];
-    }
-
-    function getChildren<T extends FileTreeInterface>(
-      dir: DirOperations<T>,
-    ): string[] {
-      return Object.entries(dir)
-        .filter(([, value]) => !(value instanceof Function))
-        .map(([key]) => key);
-    }
-
-    const operationsDir: DirType<Tree> = {
-      dir: operations,
-      pathDirs: [],
-      children: getChildren(operations),
-    };
-
-    const dirs: DirType<FileTreeInterface>[] = [operationsDir];
-
-    function traverse<T extends FileTreeInterface>(node: DirType<T>): void {
-      Object.entries(node).forEach(([key, { dir, pathDirs }]) => {
-        if (typeof dir === 'object' && isDirOperations(dir)) {
-          const result: DirType<T> = {
-            dir,
-            pathDirs: pathDirs.concat(key),
-            children: getChildren(dir),
-          };
-
-          dirs.push(result);
-          traverse(result);
-        }
-      });
-    }
-
-    traverse(operationsDir);
-
+  return function useDirs(cb) {
+    const dirs = getDirsInfo(operations);
     const dirName = 'new-dir';
 
     /**

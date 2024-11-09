@@ -3,8 +3,8 @@ import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../src/operations/build-operations.js';
 import type {
   DirOperationsFn,
+  DirOperationsType,
   OperationsRecord,
-  OperationsType,
 } from '../../../src/types/operation.types.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
@@ -40,7 +40,11 @@ suite(
       plusOne: (num: number) => number;
     };
 
-    let result: OperationsType<Tree, ExtraFileOperations, ExtraDirOperations>;
+    let result: DirOperationsType<
+      Tree,
+      ExtraFileOperations,
+      ExtraDirOperations
+    >;
     let useDirs: UseDirsFn<ExtraFileOperations, ExtraDirOperations>;
     let getDescribePath: (...args: string[]) => string;
 

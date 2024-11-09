@@ -1,6 +1,9 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
-import type { OperationsType } from '../../../src/types/operation.types.js';
+import type {
+  DirOperationsType,
+  OperationsRecord,
+} from '../../../src/types/operation.types.js';
 import { buildOperations } from '../../../src/operations/build-operations.js';
 import { testSetup } from '../../test-setup.js';
 import { deleteFolder } from '../../utils.js';
@@ -35,7 +38,7 @@ suite(
       return setup();
     });
 
-    let result: OperationsType<Tree>;
+    let result: DirOperationsType<Tree, OperationsRecord, OperationsRecord>;
     let useDirs: UseDirsFn;
     let getDescribePath: (...args: string[]) => string;
 
