@@ -5,8 +5,8 @@ import type {
   FileType,
 } from './file-tree.types.js';
 
-export type Fn = (...args: any[]) => any;
-export type OperationsRecord = Record<string, Fn>;
+export type OperationsFn = (...args: any[]) => any;
+export type OperationsRecord = Record<string, OperationsFn>;
 
 export type FileOperationsFn<
   ExtraFileOperations extends OperationsRecord = OperationsRecord,
@@ -14,8 +14,8 @@ export type FileOperationsFn<
 
 export type DirOperationsFn<
   ExtraDirOperations extends OperationsRecord = OperationsRecord,
-> = <ChildTree extends FileTreeInterface>(
-  dir: DirObjectInterface<ChildTree>,
+> = <Tree extends FileTreeInterface>(
+  dir: DirObjectInterface<Tree>,
 ) => ExtraDirOperations;
 
 export interface ExtensionsInterface<
@@ -33,40 +33,38 @@ export interface FileOperationsInterface {
   $clear(): void;
 }
 
-export type FileNamesType<ChildTree extends FileTreeInterface> = {
-  [key in keyof ChildTree]: key extends string
-    ? ChildTree[key] extends FileType
+export type FileOperationsType<
+  ExtraFileOperations extends OperationsRecord = OperationsRecord,
+> = FileOperationsInterface & ExtraFileOperations;
+
+export type FileNamesType<Tree extends FileTreeInterface> = {
+  [key in keyof Tree]: key extends string
+    ? Tree[key] extends FileType
       ? key
       : never
     : never;
 };
 
-export type DirNamesType<ChildTree extends FileTreeInterface> = {
-  [key in keyof ChildTree]: key extends string
-    ? ChildTree[key] extends FileTreeInterface
+export type DirNamesType<Tree extends FileTreeInterface> = {
+  [key in keyof Tree]: key extends string
+    ? Tree[key] extends FileTreeInterface
       ? key
       : never
     : never;
 };
 
 export interface DirOperationsInterface<
-  ChildTree extends FileTreeInterface,
+  Tree extends FileTreeInterface,
   ExtraFileOperations extends OperationsRecord = OperationsRecord,
   ExtraDirOperations extends OperationsRecord = OperationsRecord,
-  F = FileNamesType<ChildTree>,
-  D = DirNamesType<ChildTree>,
+  F = FileNamesType<Tree>,
+  D = DirNamesType<Tree>,
 > {
   $getPath(): string;
   $exists(fileName: F[keyof F] | D[keyof D] | (string & {})): boolean;
   $dirCreate(
     dirName: string,
-  ): DirOperationsInterface<
-    FileTreeInterface,
-    ExtraFileOperations,
-    ExtraDirOperations
-  > &
-    ExtraDirOperations;
-
+  ): DirOperationsType<Tree, ExtraFileOperations, ExtraDirOperations>;
   /**
    * Delete a directory using `recursive` and `force` options
    */
@@ -75,35 +73,40 @@ export interface DirOperationsInterface<
   $fileCreate(
     fileName: string,
     data?: string,
-  ): FileOperationsInterface & ExtraFileOperations;
+  ): FileOperationsType<ExtraFileOperations>;
   $fileWrite(fileName: F[keyof F] | (string & {}), data: string): void;
   $fileRead(fileName: F[keyof F] | (string & {})): string | null;
   $fileDelete(fileName: F[keyof F] | (string & {})): void;
 }
 
-export type DirOperationsType<
-  ChildTree extends FileTreeInterface,
-  ExtraFileOperations extends OperationsRecord = OperationsRecord,
-  ExtraDirOperations extends OperationsRecord = OperationsRecord,
-> = DirOperationsInterface<ChildTree, ExtraFileOperations, ExtraDirOperations> &
-  ExtraDirOperations;
-
-export type OperationTreeType<
+export type TreeOperationsType<
   Tree extends FileTreeInterface,
   ExtraFileOperations extends OperationsRecord = OperationsRecord,
   ExtraDirOperations extends OperationsRecord = OperationsRecord,
 > = {
   [key in keyof Tree]: Tree[key] extends FileType
-    ? FileOperationsInterface & ExtraFileOperations
+    ? FileOperationsType<ExtraFileOperations>
     : Tree[key] extends FileTreeInterface
-      ? DirOperationsType<Tree[key], ExtraFileOperations, ExtraDirOperations> &
-          OperationTreeType<Tree[key], ExtraFileOperations, ExtraDirOperations>
-      : Fn;
+      ? DirOperationsType<Tree[key], ExtraFileOperations, ExtraDirOperations>
+      : never;
 };
 
-export type OperationsType<
+export type DirOperationsType<
   Tree extends FileTreeInterface,
   ExtraFileOperations extends OperationsRecord = OperationsRecord,
   ExtraDirOperations extends OperationsRecord = OperationsRecord,
-> = DirOperationsType<Tree, ExtraFileOperations, ExtraDirOperations> &
-  OperationTreeType<Tree, ExtraFileOperations, ExtraDirOperations>;
+> = DirOperationsInterface<Tree, ExtraFileOperations, ExtraDirOperations> &
+  ExtraDirOperations &
+  TreeOperationsType<Tree, ExtraFileOperations, ExtraDirOperations>;
+
+export type DirOperationsNode<
+  ExtraFileOperations extends OperationsRecord,
+  ExtraDirOperations extends OperationsRecord,
+> =
+  | OperationsFn
+  | FileOperationsType<ExtraFileOperations>
+  | DirOperationsType<
+      FileTreeInterface,
+      ExtraFileOperations,
+      ExtraDirOperations
+    >;

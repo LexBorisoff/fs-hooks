@@ -12,9 +12,9 @@ export interface FileObjectInterface extends PathInterface {
   data: string;
 }
 
-export interface DirObjectInterface<ChildTree extends FileTreeInterface>
+export interface DirObjectInterface<Tree extends FileTreeInterface>
   extends PathInterface {
-  children: FileTreeType<ChildTree>;
+  children: FileTreeType<Tree>;
 }
 
 export type FileTreeType<Tree extends FileTreeInterface> = {
