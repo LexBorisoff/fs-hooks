@@ -1,17 +1,17 @@
 import { vi, beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
-import type { FileTreeInterface } from '../../src/types/file-tree.types.js';
+import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
 import type {
   ExtensionsInterface,
   DirOperationsFn,
   FileOperationsFn,
-} from '../../src/types/operation.types.js';
-import { FileManager } from '../../src/file-manager.js';
-import { buildOperations } from '../../src/operations/build-operations.js';
-import { testSetup } from '../test-setup.js';
-import { tree } from '../constants.js';
-import { anyFunction } from '../utils.js';
+} from '../../../src/types/operation.types.js';
+import { FileManager } from '../../../src/file-manager.js';
+import { buildOperations } from '../../../src/operations/build-operations.js';
+import { testSetup } from '../../test-setup.js';
+import { tree } from '../../tree.js';
+import { anyFunction } from '../../utils.js';
 
-vi.mock('../../src/operations/build-operations.js', { spy: true });
+vi.mock('../../../src/operations/build-operations.js', { spy: true });
 
 const { setup, joinPath } = testSetup('file-manager', import.meta);
 

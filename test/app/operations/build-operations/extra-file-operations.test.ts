@@ -1,20 +1,20 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
-import { buildOperations } from '../../../src/operations/build-operations.js';
+import { buildOperations } from '../../../../src/operations/build-operations.js';
 import type {
   FileOperationsFn,
   DirOperationsType,
   FileOperationsType,
-} from '../../../src/types/operation.types.js';
-import { testSetup } from '../../test-setup.js';
-import { deleteFolder } from '../../utils.js';
-import { tree, type Tree } from '../../tree.js';
+} from '../../../../src/types/operation.types.js';
+import type { FileType } from '../../../../src/types/file-tree.types.js';
+import { testSetup } from '../../../test-setup.js';
+import { deleteFolder } from '../../../utils.js';
+import { tree, type Tree } from '../../../tree.js';
 import {
   buildOperationsObject,
   fileOperationsObject,
-} from '../../operations-objects.js';
-import { getFilesInfo } from '../../get-files-info.js';
-import type { FileType } from '../../../src/types/file-tree.types.js';
+} from '../../../operations-objects.js';
+import { getFilesInfo } from '../../../get-files-info.js';
 import { fileDataArray, Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.ExtraFileOperations, import.meta);
