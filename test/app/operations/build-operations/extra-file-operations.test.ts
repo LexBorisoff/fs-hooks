@@ -29,9 +29,7 @@ enum ExtraOperations {
 }
 
 suite('buildOperations - extra file operations', { concurrent: false }, () => {
-  beforeAll(() => {
-    return setup();
-  });
+  beforeAll(() => setup());
 
   type ExtraFileOperations = {
     getFileData: () => string;

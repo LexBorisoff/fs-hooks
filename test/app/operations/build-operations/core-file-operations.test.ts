@@ -24,9 +24,7 @@ enum CoreOperations {
 }
 
 suite('buildOperations - core file operations', { concurrent: false }, () => {
-  beforeAll(() => {
-    return setup();
-  });
+  beforeAll(() => setup());
 
   let result: DirOperationsType<Tree>;
   let getDescribePath: (...args: string[]) => string;

@@ -29,9 +29,7 @@ suite(
   'buildOperations - extra directory operations',
   { concurrent: false },
   () => {
-    beforeAll(() => {
-      return setup();
-    });
+    beforeAll(() => setup());
 
     type ExtraFileOperations = OperationsRecord;
     type ExtraDirOperations = {

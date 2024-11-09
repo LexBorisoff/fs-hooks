@@ -7,9 +7,7 @@ import { deleteFolder } from '../../utils.js';
 const { testPath, setup, joinPath } = testSetup('create-dir', import.meta);
 
 suite('createDir Suite', { concurrent: false }, () => {
-  beforeAll(() => {
-    return setup();
-  });
+  beforeAll(() => setup());
 
   describe('createDir function', () => {
     afterEach(() => {

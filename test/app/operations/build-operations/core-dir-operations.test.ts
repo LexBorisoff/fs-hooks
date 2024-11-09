@@ -34,9 +34,7 @@ suite(
   'buildOperations - core directory operations',
   { concurrent: false },
   () => {
-    beforeAll(() => {
-      return setup();
-    });
+    beforeAll(() => setup());
 
     let result: DirOperationsType<Tree, OperationsRecord, OperationsRecord>;
     let useDirs: UseDirsFn;

@@ -60,9 +60,7 @@ function getPathArray(
 }
 
 suite('createFiles function', { concurrent: false }, () => {
-  beforeAll(() => {
-    return setup();
-  });
+  beforeAll(() => setup());
 
   const operations = buildOperations(testPath, tree);
   const pathArray = getPathArray(tree, testPath);

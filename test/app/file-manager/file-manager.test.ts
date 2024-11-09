@@ -20,9 +20,7 @@ enum Test {
 }
 
 suite('FileManager class', () => {
-  beforeAll(() => {
-    return setup();
-  });
+  beforeAll(() => setup());
 
   function describeTest(testName: string): (...args: string[]) => string {
     return function getDescribePath(...args) {
@@ -79,6 +77,7 @@ suite('FileManager class', () => {
         const result = fileManager.mount(describePath, tree);
         const operationTree = buildOperations(describePath, tree, extensions);
 
+        // TODO: see if anyFunction is needed
         expect(result).toEqual(anyFunction(operationTree));
       });
     });

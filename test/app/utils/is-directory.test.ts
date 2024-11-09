@@ -6,9 +6,7 @@ import { testSetup } from '../../test-setup.js';
 const { setup, joinPath } = testSetup('is-directory', import.meta);
 
 suite('isDirectory Suite', () => {
-  beforeAll(() => {
-    return setup();
-  });
+  beforeAll(() => setup());
 
   describe('isDirectory function', () => {
     it('should return true for a directory', () => {
