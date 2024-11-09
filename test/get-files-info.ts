@@ -29,7 +29,6 @@ export interface FileInfo<
   pathDirs: string[];
 }
 
-// TODO: test
 export function getFilesInfo<
   Tree extends FileTreeInterface,
   ExtraFileOperations extends OperationsRecord,

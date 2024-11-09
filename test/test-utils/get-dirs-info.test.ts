@@ -3,8 +3,9 @@ import { testSetup } from '../test-setup.js';
 import type { FileTreeInterface } from '../../src/types/file-tree.types.js';
 import { buildOperations } from '../../src/operations/build-operations.js';
 import { getDirsInfo } from '../get-dirs-info.js';
+import { Test } from './constants.js';
 
-const { setup, testPath } = testSetup('getDirsInfo', import.meta);
+const { setup, testPath } = testSetup(Test.GetDirsInfo, import.meta);
 
 const tree = {
   file1: '',
@@ -22,9 +23,8 @@ const tree = {
 suite('getDirsInfo function', () => {
   beforeAll(() => setup());
 
-  it('should be correct', () => {
+  it('should return directories information array', () => {
     const operations = buildOperations(testPath, tree);
-    const result = getDirsInfo(operations);
 
     const dirsInfo = [
       {
@@ -49,6 +49,6 @@ suite('getDirsInfo function', () => {
       },
     ];
 
-    expect(result).toEqual(dirsInfo);
+    expect(getDirsInfo(operations)).toEqual(dirsInfo);
   });
 });
