@@ -7,15 +7,15 @@ import type {
   FileTreeType,
 } from '../types/file-tree.types.js';
 import type {
-  OperationsType,
   ExtensionsInterface,
-  DirOperationsInterface,
-  OperationsRecord,
   FileOperationsInterface,
+  DirOperationsInterface,
+  DirOperationsType,
+  OperationsRecord,
 } from '../types/operation.types.js';
 import { createDir } from '../utils/create-dir.js';
 import { readFile } from '../utils/read-file.js';
-import { OPERATIONS_TYPE_SYM, TREE_SYM } from './operation.constants.js';
+import { OPERATIONS_TYPE_SYM, TREE_VALUE_SYM } from './operation.constants.js';
 import { OperationsTypeEnum } from './operations-type.enum.js';
 
 function buildFileTree<T extends FileTreeInterface>(
@@ -74,31 +74,30 @@ function getFileOperations<F extends FileObjectInterface>(
 }
 
 function getDirOperations<
-  ChildTree extends FileTreeInterface,
+  Tree extends FileTreeInterface,
   ExtraFileOperations extends OperationsRecord,
   ExtraDirOperations extends OperationsRecord,
 >(
-  dir: DirObjectInterface<ChildTree>,
+  dir: DirObjectInterface<FileTreeInterface>,
   extensions: ExtensionsInterface<ExtraFileOperations, ExtraDirOperations>,
-): DirOperationsInterface<ChildTree, ExtraFileOperations, ExtraDirOperations> {
+): DirOperationsInterface<Tree, ExtraFileOperations, ExtraDirOperations> {
   function getPath(fileName: string): string {
     return path.resolve(dir.path, fileName);
   }
 
   const operations: DirOperationsInterface<
-    ChildTree,
+    Tree,
     ExtraFileOperations,
     ExtraDirOperations
   > = {
     $getPath: () => dir.path,
     $exists: (fileName) => fs.existsSync(getPath(fileName)),
     $dirCreate(dirName) {
-      type DirCreateResult = DirOperationsInterface<
-        FileTreeInterface,
+      type DirCreateResult = DirOperationsType<
+        Tree,
         ExtraFileOperations,
         ExtraDirOperations
-      > &
-        ExtraDirOperations;
+      >;
 
       const dirPath = getPath(dirName);
       if (!this.$exists(dirName)) {
@@ -162,7 +161,7 @@ export function buildOperations<
   parentPath: string,
   tree?: Tree,
   extensions: ExtensionsInterface<ExtraFileOperations, ExtraDirOperations> = {},
-): OperationsType<Tree, ExtraFileOperations, ExtraDirOperations> {
+): DirOperationsType<Tree, ExtraFileOperations, ExtraDirOperations> {
   const {
     fileOperations: extraFileOperations,
     dirOperations: extraDirOperations,
@@ -184,7 +183,7 @@ export function buildOperations<
   let result = {
     ...rootOperations,
     ...rootExtraOperations,
-  } as OperationsType<Tree, ExtraFileOperations, ExtraDirOperations>;
+  } as DirOperationsType<Tree, ExtraFileOperations, ExtraDirOperations>;
 
   Object.entries(tree ?? {}).forEach(([key, value]) => {
     const fullPath = path.resolve(parentPath, key);
@@ -197,10 +196,11 @@ export function buildOperations<
 
       const operations = {
         ...getFileOperations(file),
-        ...(extraFileOperations?.(file) as ExtraFileOperations),
+        ...extraFileOperations?.(file),
       };
 
       Object.defineProperties(operations, {
+        [TREE_VALUE_SYM]: { value },
         [OPERATIONS_TYPE_SYM]: {
           value: OperationsTypeEnum.File,
         },
@@ -227,11 +227,12 @@ export function buildOperations<
         ExtraDirOperations
       > = {
         ...getDirOperations(dir, extensions),
-        ...(extraDirOperations?.(dir) as ExtraDirOperations),
+        ...extraDirOperations?.(dir),
         ...childTreeOperations,
       };
 
       Object.defineProperties(operations, {
+        [TREE_VALUE_SYM]: { value },
         [OPERATIONS_TYPE_SYM]: {
           value: OperationsTypeEnum.Dir,
         },
@@ -245,7 +246,7 @@ export function buildOperations<
   });
 
   Object.defineProperties(result, {
-    [TREE_SYM]: {
+    [TREE_VALUE_SYM]: {
       value: tree,
     },
     [OPERATIONS_TYPE_SYM]: {

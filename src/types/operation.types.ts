@@ -99,14 +99,11 @@ export type DirOperationsType<
   ExtraDirOperations &
   TreeOperationsType<Tree, ExtraFileOperations, ExtraDirOperations>;
 
-export type DirOperationsNode<
-  ExtraFileOperations extends OperationsRecord,
-  ExtraDirOperations extends OperationsRecord,
+export type OperationType<
+  Tree extends FileTreeInterface,
+  ExtraFileOperations extends OperationsRecord = OperationsRecord,
+  ExtraDirOperations extends OperationsRecord = OperationsRecord,
 > =
   | OperationsFn
   | FileOperationsType<ExtraFileOperations>
-  | DirOperationsType<
-      FileTreeInterface,
-      ExtraFileOperations,
-      ExtraDirOperations
-    >;
+  | DirOperationsType<Tree, ExtraFileOperations, ExtraDirOperations>;

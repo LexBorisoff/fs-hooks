@@ -1,13 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { FileTreeInterface } from '../types/file-tree.types.js';
-import type {
-  OperationsRecord,
-  OperationsType,
-} from '../types/operation.types.js';
 import { isDirectory } from '../utils/is-directory.js';
 import { createDir } from '../utils/create-dir.js';
-import { TREE_SYM } from '../operations/operation.constants.js';
+import { getTreeDir } from '../operations/get-tree-value.js';
+import type { DirOperationsType } from '../types/operation.types.js';
 
 function logErrors(errors: string[]): void {
   errors.forEach((error) => {
@@ -15,11 +12,9 @@ function logErrors(errors: string[]): void {
   });
 }
 
-export function createFiles<
-  Tree extends FileTreeInterface,
-  FileOperations extends OperationsRecord = OperationsRecord,
-  DirOperations extends OperationsRecord = OperationsRecord,
->(operations: OperationsType<Tree, FileOperations, DirOperations>): void {
+export function createFiles<Tree extends FileTreeInterface>(
+  operations: DirOperationsType<Tree>,
+): void {
   const rootPath = operations.$getPath();
 
   if (fs.existsSync(rootPath) && !isDirectory(rootPath)) {
@@ -34,9 +29,9 @@ export function createFiles<
     );
   }
 
-  function traverse(
+  function traverse<T extends FileTreeInterface>(
     parentPath: string,
-    currentFileTree?: FileTreeInterface,
+    currentFileTree?: T,
   ): void {
     Object.entries(currentFileTree ?? {}).forEach(([key, value]) => {
       const fullPath = path.resolve(parentPath, key);
@@ -72,11 +67,7 @@ export function createFiles<
       createDir(rootPath);
     }
 
-    const fileTree: FileTreeInterface = Object.getOwnPropertyDescriptor(
-      operations,
-      TREE_SYM,
-    )?.value;
-
+    const fileTree = getTreeDir(operations);
     traverse(rootPath, fileTree);
   } catch (error) {
     if (error instanceof Error) {
