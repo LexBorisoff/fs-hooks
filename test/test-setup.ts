@@ -19,7 +19,7 @@ interface TestSetup {
    * unless deleteTestFolder param is set to false
    * or KEEP_TEST_FOLDER env variable is set to true
    */
-  setup: (deleteTestFolder?: boolean) => CleanupFn;
+  setup: (config?: { deleteTestFolder?: boolean }) => CleanupFn;
   /**
    * Joins the provided arg names with the testPath
    */
@@ -32,7 +32,7 @@ export function testSetup(testName: string, meta: ImportMeta): TestSetup {
 
   const result: TestSetup = {
     testPath,
-    setup(deleteTestFolder = true) {
+    setup({ deleteTestFolder } = { deleteTestFolder: true }) {
       if (fs.existsSync(testPath)) {
         deleteFolder(testPath);
       }
