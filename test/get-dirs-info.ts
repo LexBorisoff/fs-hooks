@@ -16,7 +16,6 @@ interface DirInfo<
   children: string[];
 }
 
-// TODO: test
 export function getDirsInfo<
   Tree extends FileTreeInterface,
   ExtraFileOperations extends OperationsRecord,
