@@ -35,7 +35,6 @@ const dirOperationMethods: (keyof DirOperationsInterface<Tree>)[] = [
   '$getPath',
 ];
 
-// TODO: test
 export function buildOperationsObject<T extends object>(
   methodNames: (keyof T)[],
 ): OperationsObjectType<T> {
@@ -48,8 +47,9 @@ export function buildOperationsObject<T extends object>(
 export const fileOperationsObject = buildOperationsObject(fileOperationMethods);
 export const dirOperationsObject = buildOperationsObject(dirOperationMethods);
 
-// TODO: test
-function buildOperationsTreeObject(): OperationsTreeObject {
+export function buildOperationsTreeObject(
+  fileTree: FileTreeInterface,
+): OperationsTreeObject {
   function traverse(
     node: FileTreeInterface,
   ): Record<string, FileOperationsObject | DirOperationsObject> {
@@ -73,8 +73,8 @@ function buildOperationsTreeObject(): OperationsTreeObject {
 
   return {
     ...dirOperationsObject,
-    ...traverse(tree),
+    ...traverse(fileTree),
   };
 }
 
-export const operationsTreeObject = buildOperationsTreeObject();
+export const operationsTreeObject = buildOperationsTreeObject(tree);

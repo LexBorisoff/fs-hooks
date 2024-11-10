@@ -30,6 +30,8 @@ interface DirInfo {
   children: string[];
 }
 
+type DirOperations = DirOperationsType<any, any, any>;
+
 suite('getUseDirs function', () => {
   beforeAll(() => setup());
 
@@ -39,7 +41,7 @@ suite('getUseDirs function', () => {
 
   let operations: DirOperationsType<typeof tree>;
   let useDirs: UseDirsFn;
-  let dirs: ({ dir: DirOperationsType<any> } & DirInfo)[] = [];
+  let dirs: ({ dir: DirOperations } & DirInfo)[] = [];
 
   beforeEach(() => {
     operations = buildOperations(testPath, tree);
@@ -84,7 +86,7 @@ suite('getUseDirs function', () => {
     ];
   });
 
-  function treeDir(index: number): [DirOperationsType<any>, DirInfo] {
+  function treeDir(index: number): [DirOperations, DirInfo] {
     const { dir, children, pathDirs } = dirs[index];
     return [dir, { children, pathDirs }];
   }
