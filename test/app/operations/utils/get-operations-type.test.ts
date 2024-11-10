@@ -6,7 +6,7 @@ import type { FileTreeInterface } from '../../../../src/types/file-tree.types.js
 import { testSetup } from '../../../test-setup.js';
 import { Test } from './constants.js';
 
-const { testPath, setup } = testSetup(Test.GetOperationsType, import.meta);
+const { setup, testPath } = testSetup(Test.GetOperationsType, import.meta);
 
 const tree = {
   file1: '',
