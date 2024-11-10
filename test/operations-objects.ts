@@ -1,9 +1,9 @@
 import { expect } from 'vitest';
+import type { FileTreeInterface } from '../src/types/file-tree.types.js';
 import type {
   DirOperationsInterface,
   FileOperationsInterface,
 } from '../src/types/operation.types.js';
-import type { FileTreeInterface } from '../src/types/file-tree.types.js';
 import { tree, type Tree } from './tree.js';
 
 type OperationsTreeObject = DirOperationsObject &

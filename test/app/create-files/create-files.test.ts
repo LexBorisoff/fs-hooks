@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { afterEach, beforeAll, beforeEach, expect, it, suite } from 'vitest';
-import { testSetup } from '../../test-setup.js';
-import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
-import { buildOperations } from '../../../src/operations/build-operations.js';
 import { createFiles } from '../../../src/create-files/create-files.js';
+import { buildOperations } from '../../../src/operations/build-operations.js';
+import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
+import { testSetup } from '../../test-setup.js';
 import { tree } from '../../tree.js';
 import { deleteFolder } from '../../utils.js';
 

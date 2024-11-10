@@ -1,12 +1,12 @@
 import { beforeAll, describe, expect, it, suite } from 'vitest';
-import { testSetup } from '../test-setup.js';
+import type { FileTreeInterface } from '../../src/types/file-tree.types.js';
 import {
   buildOperationsObject,
   buildOperationsTreeObject,
   dirOperationsObject,
   fileOperationsObject,
 } from '../operations-objects.js';
-import type { FileTreeInterface } from '../../src/types/file-tree.types.js';
+import { testSetup } from '../test-setup.js';
 import { Test } from './constants.js';
 
 const { setup } = testSetup(Test.OperationsObjects, import.meta);

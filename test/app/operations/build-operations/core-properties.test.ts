@@ -2,9 +2,9 @@ import { beforeAll, beforeEach, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../../src/operations/build-operations.js';
 import { TREE_VALUE_SYM } from '../../../../src/operations/utils/operation.constants.js';
 import type { DirOperationsType } from '../../../../src/types/operation.types.js';
+import { operationsTreeObject } from '../../../operations-objects.js';
 import { testSetup } from '../../../test-setup.js';
 import { tree, type Tree } from '../../../tree.js';
-import { operationsTreeObject } from '../../../operations-objects.js';
 import { Test } from './constants.js';
 
 const { setup: setupSuite, joinPath } = testSetup(

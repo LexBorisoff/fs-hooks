@@ -1,15 +1,15 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
+import { buildOperations } from '../../../../src/operations/build-operations.js';
 import type {
   DirOperationsType,
   FileOperationsInterface,
 } from '../../../../src/types/operation.types.js';
-import { buildOperations } from '../../../../src/operations/build-operations.js';
-import { testSetup } from '../../../test-setup.js';
-import { deleteFolder } from '../../../utils.js';
-import { tree, type Tree } from '../../../tree.js';
-import { fileOperationsObject } from '../../../operations-objects.js';
 import { getFilesInfo } from '../../../get-files-info.js';
+import { fileOperationsObject } from '../../../operations-objects.js';
+import { testSetup } from '../../../test-setup.js';
+import { tree, type Tree } from '../../../tree.js';
+import { deleteFolder } from '../../../utils.js';
 import { fileDataArray, Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.CoreFileOperations, import.meta);

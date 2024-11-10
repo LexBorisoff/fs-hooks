@@ -1,6 +1,6 @@
 import fs from 'node:fs';
-import url from 'node:url';
 import path from 'node:path';
+import url from 'node:url';
 import { KEEP_TEST_FOLDER } from './constants.js';
 import { deleteFolder } from './utils.js';
 

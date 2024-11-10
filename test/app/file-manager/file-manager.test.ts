@@ -1,12 +1,12 @@
 import { vi, beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
+import { FileManager } from '../../../src/file-manager.js';
+import { buildOperations } from '../../../src/operations/build-operations.js';
 import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
 import type {
   ExtensionsInterface,
   DirOperationsFn,
   FileOperationsFn,
 } from '../../../src/types/operation.types.js';
-import { FileManager } from '../../../src/file-manager.js';
-import { buildOperations } from '../../../src/operations/build-operations.js';
 import { testSetup } from '../../test-setup.js';
 import { tree } from '../../tree.js';
 import { anyFunction } from '../../utils.js';

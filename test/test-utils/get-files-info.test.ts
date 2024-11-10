@@ -1,8 +1,8 @@
 import { beforeAll, expect, it, suite } from 'vitest';
-import { testSetup } from '../test-setup.js';
-import type { FileTreeInterface } from '../../src/types/file-tree.types.js';
 import { buildOperations } from '../../src/operations/build-operations.js';
+import type { FileTreeInterface } from '../../src/types/file-tree.types.js';
 import { getFilesInfo } from '../get-files-info.js';
+import { testSetup } from '../test-setup.js';
 import { Test } from './constants.js';
 
 const { setup, testPath } = testSetup(Test.GetFilesInfo, import.meta);

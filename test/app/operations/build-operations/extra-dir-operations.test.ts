@@ -6,14 +6,14 @@ import type {
   DirOperationsType,
   OperationsRecord,
 } from '../../../../src/types/operation.types.js';
-import { testSetup } from '../../../test-setup.js';
-import { deleteFolder } from '../../../utils.js';
-import { tree, type Tree } from '../../../tree.js';
-import { getUseDirs, type UseDirsFn } from '../../../use-dirs.js';
 import {
   buildOperationsObject,
   dirOperationsObject,
 } from '../../../operations-objects.js';
+import { testSetup } from '../../../test-setup.js';
+import { tree, type Tree } from '../../../tree.js';
+import { getUseDirs, type UseDirsFn } from '../../../use-dirs.js';
+import { deleteFolder } from '../../../utils.js';
 import { Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.ExtraDirOperations, import.meta);
