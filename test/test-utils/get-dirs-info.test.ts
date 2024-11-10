@@ -1,11 +1,11 @@
-import { beforeAll, expect, it, suite } from 'vitest';
+import { expect, it, suite } from 'vitest';
 import { buildOperations } from '../../src/operations/build-operations.js';
 import type { FileTreeInterface } from '../../src/types/file-tree.types.js';
 import { getDirsInfo } from '../get-dirs-info.js';
 import { testSetup } from '../test-setup.js';
 import { Test } from './constants.js';
 
-const { setup, testPath } = testSetup(Test.GetDirsInfo, import.meta);
+const { testPath } = testSetup(Test.GetDirsInfo, import.meta);
 
 const tree = {
   file1: '',
@@ -21,8 +21,6 @@ const tree = {
 } satisfies FileTreeInterface;
 
 suite('getDirsInfo function', () => {
-  beforeAll(() => setup());
-
   it('should return directories information array', () => {
     const operations = buildOperations(testPath, tree);
 

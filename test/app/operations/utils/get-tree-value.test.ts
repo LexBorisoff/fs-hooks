@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, suite } from 'vitest';
+import { describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../../src/operations/build-operations.js';
 import {
   getTreeDir,
@@ -8,7 +8,7 @@ import type { FileTreeInterface } from '../../../../src/types/file-tree.types.js
 import { testSetup } from '../../../test-setup.js';
 import { Test } from './constants.js';
 
-const { setup, testPath } = testSetup(Test.GetTreeValue, import.meta);
+const { testPath } = testSetup(Test.GetTreeValue, import.meta);
 
 const tree = {
   file1: '',
@@ -27,8 +27,6 @@ const tree = {
 } satisfies FileTreeInterface;
 
 suite('get tree value functions', () => {
-  beforeAll(() => setup());
-
   const operations = buildOperations(testPath, tree);
 
   describe('getTreeFile function', () => {

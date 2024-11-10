@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, suite } from 'vitest';
+import { describe, expect, it, suite } from 'vitest';
 import type { FileTreeInterface } from '../../src/types/file-tree.types.js';
 import {
   buildOperationsObject,
@@ -6,10 +6,6 @@ import {
   dirOperationsObject,
   fileOperationsObject,
 } from '../operations-objects.js';
-import { testSetup } from '../test-setup.js';
-import { Test } from './constants.js';
-
-const { setup } = testSetup(Test.OperationsObjects, import.meta);
 
 interface FileTree {
   file1: any;
@@ -44,8 +40,6 @@ const tree: FileTreeInterface = {
 } satisfies FileTree;
 
 suite('operations objects test utils', () => {
-  beforeAll(() => setup());
-
   describe('buildOperationsObject function', () => {
     it('should build an operations object', () => {
       const value = expect.any(Function);

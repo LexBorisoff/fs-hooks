@@ -1,11 +1,11 @@
-import { beforeAll, expect, it, suite } from 'vitest';
+import { expect, it, suite } from 'vitest';
 import { buildOperations } from '../../src/operations/build-operations.js';
 import type { FileTreeInterface } from '../../src/types/file-tree.types.js';
 import { getFilesInfo } from '../get-files-info.js';
 import { testSetup } from '../test-setup.js';
 import { Test } from './constants.js';
 
-const { setup, testPath } = testSetup(Test.GetFilesInfo, import.meta);
+const { testPath } = testSetup(Test.GetFilesInfo, import.meta);
 
 const tree = {
   file1: 'file 1 data',
@@ -21,8 +21,6 @@ const tree = {
 } satisfies FileTreeInterface;
 
 suite('getFilesInfo function', () => {
-  beforeAll(() => setup());
-
   it('should return files information array', () => {
     const operations = buildOperations(testPath, tree);
     const filesInfo = [
