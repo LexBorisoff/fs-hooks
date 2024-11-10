@@ -3,4 +3,5 @@ export enum Test {
   GetFilesInfo = 'get-files-info',
   UseDirs = 'use-dirs',
   OperationsObjects = 'operations-objects',
+  Utils = 'utils',
 }
