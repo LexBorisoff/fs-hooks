@@ -29,14 +29,14 @@ const FileType = OperationsTypeEnum.File;
 
 suite('getOperationsType function', () => {
   it('should return operations type', () => {
-    const result = buildOperations(testPath, tree);
+    const operations = buildOperations(testPath, tree);
 
-    const { file1, dir1, dir2 } = result;
+    const { file1, dir1, dir2 } = operations;
     const { file2, dir3, dir4 } = dir2;
     const { file3, dir5, dir6 } = dir4;
     const { file4 } = dir6;
 
-    [result, dir1, dir2, dir3, dir4, dir5, dir6].forEach((dir) => {
+    [operations, dir1, dir2, dir3, dir4, dir5, dir6].forEach((dir) => {
       expect(getOperationsType(dir)).toBe(DirType);
     });
 

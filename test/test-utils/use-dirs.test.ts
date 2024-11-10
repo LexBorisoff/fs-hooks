@@ -40,8 +40,8 @@ suite('getUseDirs function', () => {
   }
 
   let operations: DirOperationsType<typeof tree>;
+  let dirs: ({ dir: DirOperations } & DirInfo)[];
   let useDirs: UseDirsFn;
-  let dirs: ({ dir: DirOperations } & DirInfo)[] = [];
 
   beforeEach(() => {
     operations = buildOperations(testPath, tree);

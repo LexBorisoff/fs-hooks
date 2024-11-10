@@ -23,6 +23,7 @@ interface PathTreeFile {
 
 type PathTreeItem = PathTreeFile | PathTreeDir;
 
+// TODO: extract to another file and add a test
 function getPathArray(
   fileTree: FileTreeInterface,
   basePath: string,
@@ -62,10 +63,11 @@ function getPathArray(
 suite('createFiles function', { concurrent: false }, () => {
   beforeAll(() => setup());
 
-  const operations = buildOperations(testPath, tree);
-  const pathArray = getPathArray(tree, testPath);
+  let pathArray: PathTreeItem[];
 
   beforeEach(() => {
+    pathArray = getPathArray(tree, testPath);
+    const operations = buildOperations(testPath, tree);
     createFiles(operations);
   });
 

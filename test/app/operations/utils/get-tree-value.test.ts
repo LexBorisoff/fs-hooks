@@ -1,10 +1,11 @@
-import { describe, expect, it, suite } from 'vitest';
+import { beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../../src/operations/build-operations.js';
 import {
   getTreeDir,
   getTreeFile,
 } from '../../../../src/operations/utils/get-tree-value.js';
 import type { FileTreeInterface } from '../../../../src/types/file-tree.types.js';
+import type { DirOperationsType } from '../../../../src/types/operation.types.js';
 import { testSetup } from '../../../test-setup.js';
 import { Test } from './constants.js';
 
@@ -27,7 +28,11 @@ const tree = {
 } satisfies FileTreeInterface;
 
 suite('get tree value functions', () => {
-  const operations = buildOperations(testPath, tree);
+  let operations: DirOperationsType<typeof tree>;
+
+  beforeEach(() => {
+    operations = buildOperations(testPath, tree);
+  });
 
   describe('getTreeFile function', () => {
     it('should return tree file values', () => {
