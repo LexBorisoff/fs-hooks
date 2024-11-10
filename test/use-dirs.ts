@@ -16,7 +16,7 @@ type UseDirsCb<
     ExtraFileOperations,
     ExtraDirOperations
   >,
-  meta: {
+  info: {
     pathDirs: string[];
     children: string[];
   },
@@ -27,7 +27,8 @@ export type UseDirsFn<
   ExtraDirOperations extends OperationsRecord = OperationsRecord,
 > = (cb: UseDirsCb<ExtraFileOperations, ExtraDirOperations>) => void;
 
-// TODO: test
+export const NEW_DIR_NAME = 'new-dir';
+
 export function getUseDirs<
   Tree extends FileTreeInterface,
   ExtraFileOperations extends OperationsRecord,
@@ -38,7 +39,6 @@ export function getUseDirs<
 ): UseDirsFn<ExtraFileOperations, ExtraDirOperations> {
   return function useDirs(cb) {
     const dirs = getDirsInfo(operations);
-    const dirName = 'new-dir';
 
     /**
      * Types of directories for testing
@@ -50,8 +50,8 @@ export function getUseDirs<
       fs.mkdirSync(dirPath, { recursive: true });
 
       cb(dir, { pathDirs, children });
-      cb(dir.$dirCreate(dirName), {
-        pathDirs: pathDirs.concat(dirName),
+      cb(dir.$dirCreate(NEW_DIR_NAME), {
+        pathDirs: pathDirs.concat(NEW_DIR_NAME),
         children: [],
       });
     });

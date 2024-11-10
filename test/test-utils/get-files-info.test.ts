@@ -8,13 +8,13 @@ import { Test } from './constants.js';
 const { setup, testPath } = testSetup(Test.GetFilesInfo, import.meta);
 
 const tree = {
-  file1: '',
+  file1: 'file 1 data',
   dir1: {
-    file2: '',
+    file2: 'file 2 data',
     dir2: {
-      file3: '',
+      file3: 'file 3 data',
       dir3: {
-        file4: '',
+        file4: 'file 4 data',
       },
     },
   },
