@@ -89,6 +89,10 @@ module.exports = {
           'sibling',
           'index',
         ],
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true,
+        },
       },
     ],
   },
