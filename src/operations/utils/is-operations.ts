@@ -7,7 +7,6 @@ import type {
 import { getOperationsType } from './get-operations-type.js';
 import { OperationsTypeEnum } from './operations-type.enum.js';
 
-// TODO: test
 export function isFileOperations(
   value: unknown,
 ): value is FileOperationsInterface {
@@ -15,7 +14,6 @@ export function isFileOperations(
   return operationsType === OperationsTypeEnum.File;
 }
 
-// TODO: test
 export function isDirOperations<
   T extends FileTreeInterface,
   F extends OperationsRecord,
