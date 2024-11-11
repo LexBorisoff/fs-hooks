@@ -8,8 +8,8 @@ import { getDirsInfo } from './get-dirs-info.js';
 
 type GetDescribePathFn = (...args: string[]) => string;
 type UseDirsCb<
-  ExtraFileOperations extends OperationsRecord,
-  ExtraDirOperations extends OperationsRecord,
+  ExtraFileOperations extends OperationsRecord | undefined,
+  ExtraDirOperations extends OperationsRecord | undefined,
 > = (
   dir: DirOperationsType<
     FileTreeInterface,
@@ -23,18 +23,21 @@ type UseDirsCb<
 ) => void;
 
 export type UseDirsFn<
-  ExtraFileOperations extends OperationsRecord = OperationsRecord,
-  ExtraDirOperations extends OperationsRecord = OperationsRecord,
+  ExtraFileOperations extends OperationsRecord | undefined,
+  ExtraDirOperations extends OperationsRecord | undefined,
 > = (cb: UseDirsCb<ExtraFileOperations, ExtraDirOperations>) => void;
 
 export const NEW_DIR_NAME = 'new-dir';
 
 export function getUseDirs<
-  Tree extends FileTreeInterface,
-  ExtraFileOperations extends OperationsRecord,
-  ExtraDirOperations extends OperationsRecord,
+  ExtraFileOperations extends OperationsRecord | undefined,
+  ExtraDirOperations extends OperationsRecord | undefined,
 >(
-  operations: DirOperationsType<Tree, ExtraFileOperations, ExtraDirOperations>,
+  operations: DirOperationsType<
+    FileTreeInterface,
+    ExtraFileOperations,
+    ExtraDirOperations
+  >,
   getDescribePath: GetDescribePathFn,
 ): UseDirsFn<ExtraFileOperations, ExtraDirOperations> {
   return function useDirs(cb) {
@@ -50,7 +53,13 @@ export function getUseDirs<
       fs.mkdirSync(dirPath, { recursive: true });
 
       cb(dir, { pathDirs, children });
-      cb(dir.$dirCreate(NEW_DIR_NAME), {
+
+      const createdDir = dir.$dirCreate(NEW_DIR_NAME) as DirOperationsType<
+        FileTreeInterface,
+        ExtraFileOperations,
+        ExtraDirOperations
+      >;
+      cb(createdDir, {
         pathDirs: pathDirs.concat(NEW_DIR_NAME),
         children: [],
       });

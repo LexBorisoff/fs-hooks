@@ -3,13 +3,12 @@ import type { FileTreeInterface } from '../src/types/file-tree.types.js';
 import type {
   DirOperationsType,
   OperationsRecord,
-  OperationType,
 } from '../src/types/operation.types.js';
 
 interface DirInfo<
   T extends FileTreeInterface,
-  ExtraFileOperations extends OperationsRecord,
-  ExtraDirOperations extends OperationsRecord,
+  ExtraFileOperations extends OperationsRecord | undefined,
+  ExtraDirOperations extends OperationsRecord | undefined,
 > {
   dir: DirOperationsType<T, ExtraFileOperations, ExtraDirOperations>;
   pathDirs: string[];
@@ -17,26 +16,18 @@ interface DirInfo<
 }
 
 export function getDirsInfo<
-  Tree extends FileTreeInterface,
-  ExtraFileOperations extends OperationsRecord,
-  ExtraDirOperations extends OperationsRecord,
+  ExtraFileOperations extends OperationsRecord | undefined,
+  ExtraDirOperations extends OperationsRecord | undefined,
 >(
-  operations: DirOperationsType<Tree, ExtraFileOperations, ExtraDirOperations>,
+  operations: DirOperationsType<any, ExtraFileOperations, ExtraDirOperations>,
 ): DirInfo<FileTreeInterface, ExtraFileOperations, ExtraDirOperations>[] {
-  type DirNode<T extends FileTreeInterface> = OperationType<
-    T,
-    ExtraFileOperations,
-    ExtraDirOperations
-  >;
   type DirOperations<T extends FileTreeInterface> = DirOperationsType<
     T,
     ExtraFileOperations,
     ExtraDirOperations
   >;
 
-  function getChildren<T extends FileTreeInterface>(
-    dir: DirOperations<T>,
-  ): string[] {
+  function getChildren(dir: DirOperations<any>): string[] {
     return Object.entries(dir)
       .filter(([, value]) => !(value instanceof Function))
       .map(([key]) => key);
@@ -48,14 +39,22 @@ export function getDirsInfo<
     ExtraDirOperations
   >[] = [];
 
-  function traverse<T extends FileTreeInterface>(
-    dir: DirOperations<T>,
-    pathDirs: string[],
-  ): void {
-    dirs.push({ dir, pathDirs, children: getChildren(dir) });
+  function traverse(dir: DirOperations<any>, pathDirs: string[]): void {
+    dirs.push({
+      dir,
+      pathDirs,
+      children: getChildren(dir),
+    });
 
-    Object.entries(dir).forEach(([key, node]: [string, DirNode<T>]) => {
-      if (typeof node === 'object' && isDirOperations(node)) {
+    Object.entries(dir).forEach(([key, node]) => {
+      if (
+        typeof node === 'object' &&
+        isDirOperations<
+          FileTreeInterface,
+          ExtraFileOperations,
+          ExtraDirOperations
+        >(node)
+      ) {
         traverse(node, pathDirs.concat(key));
       }
     });

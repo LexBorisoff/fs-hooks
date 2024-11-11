@@ -12,8 +12,8 @@ export function getTreeFile(operations: FileOperationsType): FileType {
   return Object.getOwnPropertyDescriptor(operations, TREE_VALUE_SYM)?.value;
 }
 
-export function getTreeDir<Tree extends FileTreeInterface>(
-  operations: DirOperationsType<Tree>,
-): Tree {
+export function getTreeDir(
+  operations: DirOperationsType<any>,
+): FileTreeInterface {
   return Object.getOwnPropertyDescriptor(operations, TREE_VALUE_SYM)?.value;
 }

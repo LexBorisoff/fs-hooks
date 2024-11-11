@@ -1,7 +1,10 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../../src/operations/build-operations.js';
-import type { FileType } from '../../../../src/types/file-tree.types.js';
+import type {
+  FileTreeInterface,
+  FileType,
+} from '../../../../src/types/file-tree.types.js';
 import type {
   FileOperationsFn,
   DirOperationsType,
@@ -13,7 +16,7 @@ import {
   fileOperationsObject,
 } from '../../../operations-objects.js';
 import { testSetup } from '../../../test-setup.js';
-import { tree, type Tree } from '../../../tree.js';
+import { tree } from '../../../tree.js';
 import { deleteFolder } from '../../../utils.js';
 import { fileDataArray, Test } from './constants.js';
 
@@ -56,7 +59,11 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     },
   });
 
-  let result: DirOperationsType<Tree, ExtraFileOperations>;
+  let result: DirOperationsType<
+    FileTreeInterface,
+    ExtraFileOperations,
+    undefined
+  >;
   let getDescribePath: (...args: string[]) => string;
 
   function describeTest(testName: string): void {
@@ -130,7 +137,7 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     });
   }
 
-  describe('extra file operations properties', () => {
+  describe('extra file operation properties', () => {
     const testName = ExtraOperations.ObjectProperties;
     describeTest(testName);
 
@@ -156,7 +163,7 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     });
   });
 
-  describe('getFileData extra operation', () => {
+  describe('getFileData extra file operation', () => {
     const testName = ExtraOperations.GetFileData;
     describeTest(testName);
 
@@ -173,7 +180,7 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     });
   });
 
-  describe('getFilePath extra operation', () => {
+  describe('getFilePath extra file operation', () => {
     const testName = ExtraOperations.GetFilePath;
     describeTest(testName);
 
@@ -192,7 +199,7 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     });
   });
 
-  describe('plusOne extra operation', () => {
+  describe('plusOne extra file operation', () => {
     const testName = ExtraOperations.PlusOne;
     describeTest(testName);
 

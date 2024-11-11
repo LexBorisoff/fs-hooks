@@ -77,7 +77,6 @@ suite('FileManager class', () => {
         const result = fileManager.mount(describePath, tree);
         const operationTree = buildOperations(describePath, tree, extensions);
 
-        // TODO: see if anyFunction is needed
         expect(result).toEqual(anyFunction(operationTree));
       });
     });

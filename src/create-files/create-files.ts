@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { FileTreeInterface } from '../types/file-tree.types.js';
-import { isDirectory } from '../utils/is-directory.js';
-import { createDir } from '../utils/create-dir.js';
 import { getTreeDir } from '../operations/utils/get-tree-value.js';
+import type { FileTreeInterface } from '../types/file-tree.types.js';
 import type { DirOperationsType } from '../types/operation.types.js';
+import { createDir } from '../utils/create-dir.js';
+import { isDirectory } from '../utils/is-directory.js';
 
 function logErrors(errors: string[]): void {
   errors.forEach((error) => {
@@ -12,9 +12,7 @@ function logErrors(errors: string[]): void {
   });
 }
 
-export function createFiles<Tree extends FileTreeInterface>(
-  operations: DirOperationsType<Tree>,
-): void {
+export function createFiles(operations: DirOperationsType<any>): void {
   const rootPath = operations.$getPath();
 
   if (fs.existsSync(rootPath) && !isDirectory(rootPath)) {
@@ -29,9 +27,9 @@ export function createFiles<Tree extends FileTreeInterface>(
     );
   }
 
-  function traverse<T extends FileTreeInterface>(
+  function traverse(
     parentPath: string,
-    currentFileTree?: T,
+    currentFileTree?: FileTreeInterface,
   ): void {
     Object.entries(currentFileTree ?? {}).forEach(([key, value]) => {
       const fullPath = path.resolve(parentPath, key);

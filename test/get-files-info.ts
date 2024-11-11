@@ -8,15 +8,14 @@ import type {
   FileType,
 } from '../src/types/file-tree.types.js';
 import type {
-  OperationType,
   DirOperationsType,
   FileOperationsType,
   OperationsRecord,
 } from '../src/types/operation.types.js';
 
 export interface FileInfo<
-  ExtraFileOperations extends OperationsRecord = OperationsRecord,
-  ExtraDirOperations extends OperationsRecord = OperationsRecord,
+  ExtraFileOperations extends OperationsRecord | undefined,
+  ExtraDirOperations extends OperationsRecord | undefined,
 > {
   file: FileOperationsType<ExtraFileOperations>;
   fileName: string;
@@ -30,17 +29,11 @@ export interface FileInfo<
 }
 
 export function getFilesInfo<
-  Tree extends FileTreeInterface,
-  ExtraFileOperations extends OperationsRecord,
-  ExtraDirOperations extends OperationsRecord,
+  ExtraFileOperations extends OperationsRecord | undefined,
+  ExtraDirOperations extends OperationsRecord | undefined,
 >(
-  operations: DirOperationsType<Tree, ExtraFileOperations, ExtraDirOperations>,
+  operations: DirOperationsType<any, ExtraFileOperations, ExtraDirOperations>,
 ): FileInfo<ExtraFileOperations, ExtraDirOperations>[] {
-  type DirNode<T extends FileTreeInterface> = OperationType<
-    T,
-    ExtraFileOperations,
-    ExtraDirOperations
-  >;
   type DirOperations<T extends FileTreeInterface> = DirOperationsType<
     T,
     ExtraFileOperations,
@@ -49,25 +42,27 @@ export function getFilesInfo<
 
   const files: FileInfo<ExtraFileOperations, ExtraDirOperations>[] = [];
 
-  function traverse<T extends FileTreeInterface>(
-    dir: DirOperations<T>,
-    pathDirs: string[],
-  ): void {
-    Object.entries(dir).forEach(([key, node]: [string, DirNode<T>]) => {
+  function traverse(dir: DirOperations<any>, pathDirs: string[]): void {
+    Object.entries(dir).forEach(([key, node]) => {
       if (typeof node === 'object') {
-        if (isFileOperations(node)) {
-          const treeFile = getTreeFile(node);
+        if (isFileOperations<ExtraFileOperations>(node)) {
           files.push({
             file: node,
             fileName: key,
-            treeFile,
+            treeFile: getTreeFile(node),
             dir,
             pathDirs,
           });
           return;
         }
 
-        if (isDirOperations(node)) {
+        if (
+          isDirOperations<
+            FileTreeInterface,
+            ExtraFileOperations,
+            ExtraDirOperations
+          >(node)
+        ) {
           traverse(node, pathDirs.concat(key));
         }
       }

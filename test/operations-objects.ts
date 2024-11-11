@@ -4,7 +4,7 @@ import type {
   DirOperationsInterface,
   FileOperationsInterface,
 } from '../src/types/operation.types.js';
-import { tree, type Tree } from './tree.js';
+import { tree } from './tree.js';
 
 type OperationsTreeObject = DirOperationsObject &
   Record<string, FileOperationsObject | DirOperationsObject>;
@@ -14,16 +14,20 @@ type OperationsObjectType<T extends object> = Record<
   ReturnType<typeof expect.any>
 >;
 type FileOperationsObject = OperationsObjectType<FileOperationsInterface>;
-type DirOperationsObject = OperationsObjectType<DirOperationsInterface<Tree>>;
+type DirOperationsObject = OperationsObjectType<
+  DirOperationsInterface<FileTreeInterface>
+>;
 
-const fileOperationMethods: (keyof FileOperationsInterface)[] = [
+type FileMethod = keyof FileOperationsInterface;
+const fileOperationMethods: FileMethod[] = [
   '$clear',
   '$getPath',
   '$read',
   '$write',
 ];
 
-const dirOperationMethods: (keyof DirOperationsInterface<Tree>)[] = [
+type DirMethod = keyof DirOperationsInterface<FileTreeInterface>;
+const dirOperationMethods: DirMethod[] = [
   '$dirCreate',
   '$dirDelete',
   '$exists',

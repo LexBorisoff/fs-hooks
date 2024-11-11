@@ -30,7 +30,7 @@ interface DirInfo {
   children: string[];
 }
 
-type DirOperations = DirOperationsType<any, any, any>;
+type DirOperations = DirOperationsType<any, undefined, undefined>;
 
 suite('getUseDirs function', () => {
   beforeAll(() => setup());
@@ -41,11 +41,14 @@ suite('getUseDirs function', () => {
 
   let operations: DirOperationsType<typeof tree>;
   let dirs: ({ dir: DirOperations } & DirInfo)[];
-  let useDirs: UseDirsFn;
+  let useDirs: UseDirsFn<undefined, undefined>;
 
   beforeEach(() => {
     operations = buildOperations(testPath, tree);
-    useDirs = getUseDirs(operations, getDescribePath);
+    useDirs = getUseDirs<undefined, undefined>(
+      operations as DirOperations,
+      getDescribePath,
+    );
 
     dirs = [
       {

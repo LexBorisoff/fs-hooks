@@ -1,17 +1,17 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../../src/operations/build-operations.js';
+import type { FileTreeInterface } from '../../../../src/types/file-tree.types.js';
 import type {
   DirOperationsFn,
   DirOperationsType,
-  OperationsRecord,
 } from '../../../../src/types/operation.types.js';
 import {
   buildOperationsObject,
   dirOperationsObject,
 } from '../../../operations-objects.js';
 import { testSetup } from '../../../test-setup.js';
-import { tree, type Tree } from '../../../tree.js';
+import { tree } from '../../../tree.js';
 import { getUseDirs, type UseDirsFn } from '../../../use-dirs.js';
 import { deleteFolder } from '../../../utils.js';
 import { Test } from './constants.js';
@@ -31,20 +31,11 @@ suite(
   () => {
     beforeAll(() => setup());
 
-    type ExtraFileOperations = OperationsRecord;
     type ExtraDirOperations = {
       getDirPath: () => string;
       getDirChildren: () => string[];
       plusOne: (num: number) => number;
     };
-
-    let result: DirOperationsType<
-      Tree,
-      ExtraFileOperations,
-      ExtraDirOperations
-    >;
-    let useDirs: UseDirsFn<ExtraFileOperations, ExtraDirOperations>;
-    let getDescribePath: (...args: string[]) => string;
 
     const methods: (keyof ExtraDirOperations)[] = [
       'getDirPath',
@@ -65,6 +56,14 @@ suite(
         return num + 1;
       },
     });
+
+    let result: DirOperationsType<
+      FileTreeInterface,
+      undefined,
+      ExtraDirOperations
+    >;
+    let useDirs: UseDirsFn<undefined, ExtraDirOperations>;
+    let getDescribePath: (...args: string[]) => string;
 
     function describeSetup(testName: string): void {
       beforeEach(() => {

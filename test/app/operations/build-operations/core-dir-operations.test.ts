@@ -1,16 +1,14 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../../src/operations/build-operations.js';
-import type {
-  DirOperationsType,
-  OperationsRecord,
-} from '../../../../src/types/operation.types.js';
+import type { FileTreeInterface } from '../../../../src/types/file-tree.types.js';
+import type { DirOperationsType } from '../../../../src/types/operation.types.js';
 import {
   dirOperationsObject,
   fileOperationsObject,
 } from '../../../operations-objects.js';
 import { testSetup } from '../../../test-setup.js';
-import { tree, type Tree } from '../../../tree.js';
+import { tree } from '../../../tree.js';
 import { getUseDirs, type UseDirsFn } from '../../../use-dirs.js';
 import { deleteFolder } from '../../../utils.js';
 import { fileDataArray, Test } from './constants.js';
@@ -36,8 +34,8 @@ suite(
   () => {
     beforeAll(() => setup());
 
-    let result: DirOperationsType<Tree, OperationsRecord, OperationsRecord>;
-    let useDirs: UseDirsFn;
+    let result: DirOperationsType<FileTreeInterface>;
+    let useDirs: UseDirsFn<undefined, undefined>;
     let getDescribePath: (...args: string[]) => string;
 
     function describeSetup(testName: string): void {
@@ -45,7 +43,7 @@ suite(
         getDescribePath = (...args) => joinPath(testName, ...args);
         const testPath = getDescribePath();
         result = buildOperations(testPath, tree);
-        useDirs = getUseDirs(result, getDescribePath);
+        useDirs = getUseDirs<undefined, undefined>(result, getDescribePath);
 
         fs.mkdirSync(testPath);
         return (): void => {
@@ -54,7 +52,7 @@ suite(
       });
     }
 
-    describe('directory operations properties', () => {
+    describe('directory core operation properties', () => {
       const testName = CoreOperations.ObjectProperties;
       describeSetup(testName);
 
@@ -69,7 +67,7 @@ suite(
       });
     });
 
-    describe('getPath on directory objects', () => {
+    describe('getPath core directory operation', () => {
       const testName = CoreOperations.GetPath;
       describeSetup(testName);
 
@@ -81,7 +79,7 @@ suite(
       });
     });
 
-    describe('exists on directory objects', () => {
+    describe('exists core directory operation', () => {
       const testName = CoreOperations.Exists;
       describeSetup(testName);
 
@@ -104,7 +102,7 @@ suite(
       });
     });
 
-    describe('dirCreate', () => {
+    describe('dirCreate core directory operation', () => {
       const testName = CoreOperations.DirCreate;
       describeSetup(testName);
 
@@ -124,7 +122,7 @@ suite(
       });
     });
 
-    describe('dirDelete', () => {
+    describe('dirDelete core directory operation', () => {
       const testName = CoreOperations.DirDelete;
       describeSetup(testName);
 
@@ -142,7 +140,7 @@ suite(
       });
     });
 
-    describe('fileCreate', () => {
+    describe('fileCreate core directory operation', () => {
       const testName = CoreOperations.FileCreate;
       describeSetup(testName);
 
@@ -188,7 +186,7 @@ suite(
       });
     });
 
-    describe('fileDelete', () => {
+    describe('fileDelete core directory operation', () => {
       const testName = CoreOperations.FileDelete;
       describeSetup(testName);
 
@@ -209,7 +207,7 @@ suite(
       });
     });
 
-    describe('fileRead', () => {
+    describe('fileRead core directory operation', () => {
       const testName = CoreOperations.FileRead;
       describeSetup(testName);
 
@@ -235,7 +233,7 @@ suite(
       });
     });
 
-    describe('fileWrite', () => {
+    describe('fileWrite core directory operation', () => {
       const testName = CoreOperations.FileWrite;
       describeSetup(testName);
 
@@ -257,7 +255,7 @@ suite(
       });
     });
 
-    describe('fileClear', () => {
+    describe('fileClear core directory operation', () => {
       const testName = CoreOperations.FileClear;
       describeSetup(testName);
 

@@ -1,6 +1,7 @@
-import { expect, it, suite } from 'vitest';
+import { beforeEach, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../src/operations/build-operations.js';
 import type { FileTreeInterface } from '../../src/types/file-tree.types.js';
+import type { DirOperationsType } from '../../src/types/operation.types.js';
 import { getFilesInfo } from '../get-files-info.js';
 import { testSetup } from '../test-setup.js';
 import { Test } from './constants.js';
@@ -21,8 +22,14 @@ const tree = {
 } satisfies FileTreeInterface;
 
 suite('getFilesInfo function', () => {
+  let operations: DirOperationsType<typeof tree>;
+
+  beforeEach(() => {
+    operations = buildOperations(testPath, tree);
+  });
+
   it('should return files information array', () => {
-    const operations = buildOperations(testPath, tree);
+    const files = getFilesInfo(operations);
     const filesInfo = [
       {
         file: operations.file1,
@@ -54,6 +61,6 @@ suite('getFilesInfo function', () => {
       },
     ];
 
-    expect(getFilesInfo(operations)).toEqual(filesInfo);
+    expect(files).toEqual(filesInfo);
   });
 });

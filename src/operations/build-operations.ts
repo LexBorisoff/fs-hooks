@@ -12,6 +12,7 @@ import type {
   DirOperationsInterface,
   DirOperationsType,
   OperationsRecord,
+  FileOperationsType,
 } from '../types/operation.types.js';
 import { createDir } from '../utils/create-dir.js';
 import { readFile } from '../utils/read-file.js';
@@ -21,11 +22,11 @@ import {
 } from './utils/operation.constants.js';
 import { OperationsTypeEnum } from './utils/operations-type.enum.js';
 
-function buildFileTree<T extends FileTreeInterface>(
+function buildFileTree<Tree extends FileTreeInterface>(
   parentPath: string,
-  tree?: T,
-): FileTreeType<T> {
-  let result = {} as FileTreeType<T>;
+  tree?: Tree,
+): FileTreeType<Tree> {
+  let result = {} as FileTreeType<Tree>;
 
   Object.entries(tree ?? {}).forEach(([key, value]) => {
     if (typeof value === 'string') {
@@ -78,8 +79,8 @@ function getFileOperations<F extends FileObjectInterface>(
 
 function getDirOperations<
   Tree extends FileTreeInterface,
-  ExtraFileOperations extends OperationsRecord,
-  ExtraDirOperations extends OperationsRecord,
+  ExtraFileOperations extends OperationsRecord | undefined = undefined,
+  ExtraDirOperations extends OperationsRecord | undefined = undefined,
 >(
   dir: DirObjectInterface<FileTreeInterface>,
   extensions: ExtensionsInterface<ExtraFileOperations, ExtraDirOperations>,
@@ -129,7 +130,7 @@ function getDirOperations<
       }
     },
     $fileCreate(fileName, fileData) {
-      type FileCreateResult = FileOperationsInterface & ExtraFileOperations;
+      type FileCreateResult = FileOperationsType<ExtraFileOperations>;
 
       const data = fileData ?? '';
       this.$fileWrite(fileName, data);
@@ -158,8 +159,8 @@ function getDirOperations<
 
 export function buildOperations<
   Tree extends FileTreeInterface,
-  ExtraFileOperations extends OperationsRecord,
-  ExtraDirOperations extends OperationsRecord,
+  ExtraFileOperations extends OperationsRecord | undefined = undefined,
+  ExtraDirOperations extends OperationsRecord | undefined = undefined,
 >(
   parentPath: string,
   tree?: Tree,
@@ -197,7 +198,7 @@ export function buildOperations<
         path: fullPath,
       };
 
-      const operations = {
+      const operations: FileOperationsType<OperationsRecord | undefined> = {
         ...getFileOperations(file),
         ...extraFileOperations?.(file),
       };
@@ -219,13 +220,13 @@ export function buildOperations<
     if (typeof value === 'object') {
       const childTreeOperations = buildOperations(fullPath, value, extensions);
 
-      const dir: DirObjectInterface<typeof value> = {
+      const dir: DirObjectInterface<FileTreeInterface> = {
         children: buildFileTree(parentPath, value),
         path: fullPath,
       };
 
-      const operations: DirOperationsInterface<
-        typeof value,
+      const operations: DirOperationsType<
+        FileTreeInterface,
         ExtraFileOperations,
         ExtraDirOperations
       > = {
