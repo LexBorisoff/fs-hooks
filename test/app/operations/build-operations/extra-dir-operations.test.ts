@@ -2,10 +2,11 @@ import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../../src/operations/build-operations.js';
 import type { FileTreeInterface } from '../../../../src/types/file-tree.types.js';
-import type {
-  DirOperationsFn,
-  DirOperationsType,
-} from '../../../../src/types/operation.types.js';
+import type { DirOperationsType } from '../../../../src/types/operation.types.js';
+import {
+  dirOperations,
+  type ExtraDirOperations,
+} from '../../../extra-operations.js';
 import {
   buildOperationsObject,
   dirOperationsObject,
@@ -31,12 +32,6 @@ suite(
   () => {
     beforeAll(() => setup());
 
-    type ExtraDirOperations = {
-      getDirPath: () => string;
-      getDirChildren: () => string[];
-      plusOne: (num: number) => number;
-    };
-
     const methods: (keyof ExtraDirOperations)[] = [
       'getDirPath',
       'getDirChildren',
@@ -44,18 +39,6 @@ suite(
     ];
 
     const extraDirOperationsObject = buildOperationsObject(methods);
-
-    const dirOperations: DirOperationsFn<ExtraDirOperations> = (dir) => ({
-      getDirPath() {
-        return dir.path;
-      },
-      getDirChildren() {
-        return Object.keys(dir.children ?? {});
-      },
-      plusOne(num) {
-        return num + 1;
-      },
-    });
 
     let result: DirOperationsType<
       FileTreeInterface,

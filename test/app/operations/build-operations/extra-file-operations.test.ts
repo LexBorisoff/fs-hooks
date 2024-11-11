@@ -6,10 +6,13 @@ import type {
   FileType,
 } from '../../../../src/types/file-tree.types.js';
 import type {
-  FileOperationsFn,
   DirOperationsType,
   FileOperationsType,
 } from '../../../../src/types/operation.types.js';
+import {
+  fileOperations,
+  type ExtraFileOperations,
+} from '../../../extra-operations.js';
 import { getFilesInfo } from '../../../get-files-info.js';
 import {
   buildOperationsObject,
@@ -34,30 +37,12 @@ enum ExtraOperations {
 suite('buildOperations - extra file operations', { concurrent: false }, () => {
   beforeAll(() => setup());
 
-  type ExtraFileOperations = {
-    getFileData: () => string;
-    getFilePath: () => string;
-    plusOne: (num: number) => number;
-  };
-
   const methods: (keyof ExtraFileOperations)[] = [
     'getFileData',
     'getFilePath',
     'plusOne',
   ];
   const extraFileOperationsObject = buildOperationsObject(methods);
-
-  const fileOperations: FileOperationsFn<ExtraFileOperations> = (file) => ({
-    getFileData() {
-      return file.data;
-    },
-    getFilePath() {
-      return file.path;
-    },
-    plusOne(value) {
-      return value + 1;
-    },
-  });
 
   let result: DirOperationsType<
     FileTreeInterface,
