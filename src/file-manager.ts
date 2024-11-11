@@ -4,7 +4,7 @@ import { buildOperations } from './operations/build-operations.js';
 import type { FileTreeInterface } from './types/file-tree.types.js';
 import type {
   DirOperationsType,
-  ExtensionsInterface,
+  ExtraOperationsInterface,
   OperationsRecord,
 } from './types/index.js';
 
@@ -14,15 +14,18 @@ export class FileManager<
   ExtraFileOperations extends OperationsRecord | undefined = undefined,
   ExtraDirOperations extends OperationsRecord | undefined = undefined,
 > {
-  #extensions: ExtensionsInterface<ExtraFileOperations, ExtraDirOperations>;
+  #extraOperations: ExtraOperationsInterface<
+    ExtraFileOperations,
+    ExtraDirOperations
+  >;
 
   constructor(
-    extensions: ExtensionsInterface<
+    extraOperations: ExtraOperationsInterface<
       ExtraFileOperations,
       ExtraDirOperations
     > = {},
   ) {
-    this.#extensions = extensions;
+    this.#extraOperations = extraOperations;
   }
 
   mount<Tree extends FileTreeInterface>(
@@ -38,7 +41,7 @@ export class FileManager<
     const operations = buildOperations(
       rootPathResolved,
       tree,
-      this.#extensions,
+      this.#extraOperations,
     );
 
     return [operations, () => createFiles(operations)];
@@ -52,13 +55,17 @@ export class FileManager<
   }
 
   /**
-   * Identity function that helps create extensions
+   * Identity function that helps create extra operations
    */
   static extend<
-    FileOperations extends OperationsRecord | undefined,
-    DirOperations extends OperationsRecord | undefined,
-    Extensions = ExtensionsInterface<FileOperations, DirOperations>,
-  >(extensions: Extensions): Extensions {
-    return extensions;
+    ExtraFileOperations extends OperationsRecord | undefined,
+    ExtraDirOperations extends OperationsRecord | undefined,
+  >(
+    extraOperations: ExtraOperationsInterface<
+      ExtraFileOperations,
+      ExtraDirOperations
+    >,
+  ): ExtraOperationsInterface<ExtraFileOperations, ExtraDirOperations> {
+    return extraOperations;
   }
 }

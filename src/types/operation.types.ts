@@ -18,12 +18,12 @@ export type DirOperationsFn<
   dir: DirObjectInterface<Tree>,
 ) => ExtraDirOperations;
 
-export interface ExtensionsInterface<
+export interface ExtraOperationsInterface<
   ExtraFileOperations extends OperationsRecord | undefined,
   ExtraDirOperations extends OperationsRecord | undefined,
 > {
-  fileOperations?: FileOperationsFn<ExtraFileOperations>;
-  dirOperations?: DirOperationsFn<ExtraDirOperations>;
+  file?: FileOperationsFn<ExtraFileOperations>;
+  dir?: DirOperationsFn<ExtraDirOperations>;
 }
 
 export interface FileOperationsInterface {

@@ -5,9 +5,14 @@ import { buildOperations } from '../../../src/operations/build-operations.js';
 import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
 import type {
   DirOperationsType,
-  ExtensionsInterface,
+  ExtraOperationsInterface,
 } from '../../../src/types/operation.types.js';
-import { dirOperations, fileOperations } from '../../extra-operations.js';
+import {
+  extraDirOperations,
+  extraFileOperations,
+  type ExtraDirOperations,
+  type ExtraFileOperations,
+} from '../../extra-operations.js';
 import { testSetup } from '../../test-setup.js';
 import { tree } from '../../tree.js';
 import { anyFunction } from '../../utils.js';
@@ -33,12 +38,21 @@ suite('FileManager class', () => {
     });
   }
 
-  function useExtensions(
-    cb: (extensions?: ExtensionsInterface<any, any>) => void,
+  function useExtraOperations(
+    cb: (
+      extraOperations?: ExtraOperationsInterface<
+        ExtraFileOperations | undefined,
+        ExtraDirOperations | undefined
+      >,
+    ) => void,
   ): void {
-    const withFile = { fileOperations };
-    const withDir = { dirOperations };
-    const extraOperations = [
+    const withFile: ExtraOperationsInterface<ExtraFileOperations, undefined> = {
+      file: extraFileOperations,
+    };
+    const withDir: ExtraOperationsInterface<undefined, ExtraDirOperations> = {
+      dir: extraDirOperations,
+    };
+    const extraOperationsArray = [
       undefined,
       {},
       withFile,
@@ -46,8 +60,8 @@ suite('FileManager class', () => {
       { ...withFile, ...withDir },
     ] as const;
 
-    extraOperations.forEach((extensions) => {
-      cb(extensions);
+    extraOperationsArray.forEach((extraOperations) => {
+      cb(extraOperations);
     });
   }
 
@@ -70,10 +84,14 @@ suite('FileManager class', () => {
     it('should return an operations object', () => {
       const describePath = getDescribePath();
 
-      useExtensions((extensions) => {
-        const fileManager = new FileManager(extensions);
+      useExtraOperations((extraOperations) => {
+        const fileManager = new FileManager(extraOperations);
         const [result] = fileManager.mount(describePath, tree);
-        const operationTree = buildOperations(describePath, tree, extensions);
+        const operationTree = buildOperations(
+          describePath,
+          tree,
+          extraOperations,
+        );
 
         expect(result).toEqual(anyFunction(operationTree));
       });
@@ -82,14 +100,14 @@ suite('FileManager class', () => {
     it('should call buildOperations', () => {
       const describePath = getDescribePath();
 
-      useExtensions((extensions) => {
-        const fileManager = new FileManager(extensions);
+      useExtraOperations((extraOperations) => {
+        const fileManager = new FileManager(extraOperations);
         fileManager.mount(describePath, tree);
 
         expect(buildOperations).toHaveBeenCalledWith(
           describePath,
           tree,
-          extensions,
+          extraOperations,
         );
       });
     });
@@ -125,9 +143,9 @@ suite('FileManager class', () => {
   });
 
   describe('extend static method', () => {
-    it('should return an extensions object', () => {
-      const extensions: ExtensionsInterface<undefined, undefined> = {};
-      expect(FileManager.extend(extensions)).toBe(extensions);
+    it('should return an extra operations object', () => {
+      const extraOperations = {};
+      expect(FileManager.extend(extraOperations)).toBe(extraOperations);
     });
   });
 });

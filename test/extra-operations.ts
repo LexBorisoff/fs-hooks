@@ -15,7 +15,9 @@ export type ExtraFileOperations = {
   plusOne: (num: number) => number;
 };
 
-export const dirOperations: DirOperationsFn<ExtraDirOperations> = (dir) => ({
+export const extraDirOperations: DirOperationsFn<ExtraDirOperations> = (
+  dir,
+) => ({
   getDirPath() {
     return dir.path;
   },
@@ -27,7 +29,7 @@ export const dirOperations: DirOperationsFn<ExtraDirOperations> = (dir) => ({
   },
 });
 
-export const fileOperations: FileOperationsFn<ExtraFileOperations> = (
+export const extraFileOperations: FileOperationsFn<ExtraFileOperations> = (
   file,
 ) => ({
   getFileData() {

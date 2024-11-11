@@ -4,7 +4,7 @@ import { buildOperations } from '../../../../src/operations/build-operations.js'
 import type { FileTreeInterface } from '../../../../src/types/file-tree.types.js';
 import type { DirOperationsType } from '../../../../src/types/operation.types.js';
 import {
-  dirOperations,
+  extraDirOperations,
   type ExtraDirOperations,
 } from '../../../extra-operations.js';
 import {
@@ -52,7 +52,7 @@ suite(
       beforeEach(() => {
         getDescribePath = (...args) => joinPath(testName, ...args);
         const testPath = getDescribePath();
-        result = buildOperations(testPath, tree, { dirOperations });
+        result = buildOperations(testPath, tree, { dir: extraDirOperations });
         useDirs = getUseDirs(result, getDescribePath);
 
         fs.mkdirSync(testPath);

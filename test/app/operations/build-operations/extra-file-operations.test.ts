@@ -10,7 +10,7 @@ import type {
   FileOperationsType,
 } from '../../../../src/types/operation.types.js';
 import {
-  fileOperations,
+  extraFileOperations,
   type ExtraFileOperations,
 } from '../../../extra-operations.js';
 import { getFilesInfo } from '../../../get-files-info.js';
@@ -55,7 +55,7 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     beforeEach(() => {
       getDescribePath = (...args: string[]) => joinPath(testName, ...args);
       const testPath = getDescribePath();
-      result = buildOperations(testPath, tree, { fileOperations });
+      result = buildOperations(testPath, tree, { file: extraFileOperations });
 
       fs.mkdirSync(testPath);
       return (): void => {
