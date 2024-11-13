@@ -22,7 +22,7 @@ export const extraDirOperations: DirOperationsFn<ExtraDirOperations> = (
     return dir.path;
   },
   getDirChildren() {
-    return Object.keys(dir.children ?? {});
+    return Object.keys(dir.children);
   },
   plusOne(num) {
     return num + 1;
