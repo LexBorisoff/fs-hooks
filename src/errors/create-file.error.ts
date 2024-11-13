@@ -4,7 +4,8 @@ export class CreateFileError extends Error {
   #type: 'file' | 'dir';
 
   constructor(type: 'file' | 'dir', path: string, reason?: string) {
-    const message = `Cannot create ${type}${reason != null ? `: ${reason}` : ''}`;
+    const fileType = type === 'dir' ? 'directory' : type;
+    const message = `Cannot create ${fileType}${reason != null ? `: ${reason}` : ''}`;
     super(message);
     this.#type = type;
     this.#path = path;
