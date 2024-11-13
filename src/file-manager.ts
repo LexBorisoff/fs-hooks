@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { createFiles } from './create-files/create-files.js';
+import type { CreateFileError } from './errors/create-file.error.js';
 import { buildOperations } from './operations/build-operations.js';
 import type { FileTreeInterface } from './types/file-tree.types.js';
 import type {
@@ -8,7 +9,7 @@ import type {
   OperationsRecord,
 } from './types/index.js';
 
-export type CreateFilesFn = () => void;
+export type CreateFilesFn = () => CreateFileError[];
 
 export class FileManager<
   ExtraFileOperations extends OperationsRecord | undefined = undefined,
