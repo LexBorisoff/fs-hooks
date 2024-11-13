@@ -83,17 +83,31 @@ suite('FileManager class', () => {
 
     it('should return an operations object', () => {
       const describePath = getDescribePath();
+      const relativePath = `./new-dir`;
 
-      useExtraOperations((extraOperations) => {
-        const fileManager = new FileManager(extraOperations);
-        const [result] = fileManager.mount(describePath, tree);
-        const operationTree = buildOperations(
-          describePath,
-          tree,
-          extraOperations,
-        );
+      [describePath, relativePath].forEach((rootPath) => {
+        useExtraOperations((extraOperations) => {
+          const fileManager = new FileManager(extraOperations);
 
-        expect(result).toEqual(anyFunction(operationTree));
+          // defined file tree
+          const [result1] = fileManager.mount(rootPath, tree);
+          const operationTree1 = buildOperations(
+            rootPath,
+            tree,
+            extraOperations,
+          );
+
+          // undefined file tree
+          const [result2] = fileManager.mount(rootPath);
+          const operationTree2 = buildOperations(
+            rootPath,
+            undefined,
+            extraOperations,
+          );
+
+          expect(result1).toEqual(anyFunction(operationTree1));
+          expect(result2).toEqual(anyFunction(operationTree2));
+        });
       });
     });
 
