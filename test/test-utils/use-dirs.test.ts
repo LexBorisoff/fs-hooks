@@ -2,9 +2,13 @@ import { beforeAll, beforeEach, expect, it, suite, vi } from 'vitest';
 import { buildOperations } from '../../src/operations/build-operations.js';
 import type { FileTreeInterface } from '../../src/types/file-tree.types.js';
 import type { DirOperationsType } from '../../src/types/operation.types.js';
-import { anyFunction } from '../any-function.js';
+import { anyFunction } from '../../test-utils/any-function.js';
+import {
+  getUseDirs,
+  NEW_DIR_NAME,
+  type UseDirsFn,
+} from '../../test-utils/use-dirs.js';
 import { testSetup } from '../test-setup.js';
-import { getUseDirs, NEW_DIR_NAME, type UseDirsFn } from '../use-dirs.js';
 import { Test } from './constants.js';
 
 const { setup, joinPath, testPath } = testSetup(Test.UseDirs, import.meta);

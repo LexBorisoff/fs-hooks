@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, expect, it, suite } from 'vitest';
-import { deleteDir } from '../delete-dir.js';
+import { deleteDir } from '../../test-utils/delete-dir.js';
 import { testSetup } from '../test-setup.js';
 import { Test } from './constants.js';
 

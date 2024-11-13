@@ -9,18 +9,18 @@ import type {
   DirOperationsType,
   FileOperationsType,
 } from '../../../../src/types/operation.types.js';
-import { deleteDir } from '../../../delete-dir.js';
+import { deleteDir } from '../../../../test-utils/delete-dir.js';
 import {
   extraFileOperations,
   type ExtraFileOperations,
-} from '../../../extra-operations.js';
-import { getFilesInfo } from '../../../get-files-info.js';
+} from '../../../../test-utils/extra-operations.js';
+import { getFilesInfo } from '../../../../test-utils/get-files-info.js';
 import {
   buildOperationsObject,
   fileOperationsObject,
-} from '../../../operations-objects.js';
+} from '../../../../test-utils/operations-objects.js';
+import { tree } from '../../../../test-utils/tree.js';
 import { testSetup } from '../../../test-setup.js';
-import { tree } from '../../../tree.js';
 import { fileDataArray, Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.ExtraFileOperations, import.meta);

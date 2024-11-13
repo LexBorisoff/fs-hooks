@@ -4,7 +4,7 @@ import {
   getPathArray,
   type PathTreeDir,
   type PathTreeFile,
-} from '../get-path-array.js';
+} from '../../test-utils/get-path-array.js';
 import { testSetup } from '../test-setup.js';
 import { Test } from './constants.js';
 

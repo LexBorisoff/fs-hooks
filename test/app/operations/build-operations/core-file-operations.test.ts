@@ -7,11 +7,11 @@ import type {
   FileOperationsInterface,
   OperationsRecord,
 } from '../../../../src/types/operation.types.js';
-import { deleteDir } from '../../../delete-dir.js';
-import { getFilesInfo } from '../../../get-files-info.js';
-import { fileOperationsObject } from '../../../operations-objects.js';
+import { deleteDir } from '../../../../test-utils/delete-dir.js';
+import { getFilesInfo } from '../../../../test-utils/get-files-info.js';
+import { fileOperationsObject } from '../../../../test-utils/operations-objects.js';
+import { tree } from '../../../../test-utils/tree.js';
 import { testSetup } from '../../../test-setup.js';
-import { tree } from '../../../tree.js';
 import { fileDataArray, Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.CoreFileOperations, import.meta);

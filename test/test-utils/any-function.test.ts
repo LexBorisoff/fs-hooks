@@ -1,5 +1,5 @@
 import { expect, it, suite } from 'vitest';
-import { anyFunction } from '../any-function.js';
+import { anyFunction } from '../../test-utils/any-function.js';
 
 suite('anyFunction function', () => {
   it('should return an object with methods as any function', () => {

@@ -5,7 +5,7 @@ import {
   buildOperationsTreeObject,
   dirOperationsObject,
   fileOperationsObject,
-} from '../operations-objects.js';
+} from '../../test-utils/operations-objects.js';
 
 interface FileTree {
   file1: any;

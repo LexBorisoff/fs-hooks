@@ -7,15 +7,15 @@ import type {
   DirOperationsType,
   ExtraOperationsInterface,
 } from '../../../src/types/operation.types.js';
-import { anyFunction } from '../../any-function.js';
+import { anyFunction } from '../../../test-utils/any-function.js';
 import {
   extraDirOperations,
   extraFileOperations,
   type ExtraDirOperations,
   type ExtraFileOperations,
-} from '../../extra-operations.js';
+} from '../../../test-utils/extra-operations.js';
+import { tree } from '../../../test-utils/tree.js';
 import { testSetup } from '../../test-setup.js';
-import { tree } from '../../tree.js';
 
 vi.mock('../../../src/operations/build-operations.js', { spy: true });
 vi.mock('../../../src/create-files/create-files.js', { spy: true });

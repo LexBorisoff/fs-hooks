@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
-import { KEEP_TEST_FOLDER } from './constants.js';
-import { deleteDir } from './delete-dir.js';
+import { KEEP_TEST_FOLDER } from '../test-utils/constants.js';
+import { deleteDir } from '../test-utils/delete-dir.js';
 
 type CleanupFn = () => void;
 

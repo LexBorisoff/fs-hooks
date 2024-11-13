@@ -17,10 +17,13 @@ import {
 } from '../../../src/operations/utils/is-operations.js';
 import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
 import type { DirOperationsType } from '../../../src/types/operation.types.js';
-import { deleteDir } from '../../delete-dir.js';
-import { getPathArray, type PathTreeFile } from '../../get-path-array.js';
+import { deleteDir } from '../../../test-utils/delete-dir.js';
+import {
+  getPathArray,
+  type PathTreeFile,
+} from '../../../test-utils/get-path-array.js';
+import { tree } from '../../../test-utils/tree.js';
 import { testSetup } from '../../test-setup.js';
-import { tree } from '../../tree.js';
 
 const { setup, joinPath } = testSetup('create-files', import.meta);
 

@@ -3,18 +3,18 @@ import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../../src/operations/build-operations.js';
 import type { FileTreeInterface } from '../../../../src/types/file-tree.types.js';
 import type { DirOperationsType } from '../../../../src/types/operation.types.js';
-import { deleteDir } from '../../../delete-dir.js';
+import { deleteDir } from '../../../../test-utils/delete-dir.js';
 import {
   extraDirOperations,
   type ExtraDirOperations,
-} from '../../../extra-operations.js';
+} from '../../../../test-utils/extra-operations.js';
 import {
   buildOperationsObject,
   dirOperationsObject,
-} from '../../../operations-objects.js';
+} from '../../../../test-utils/operations-objects.js';
+import { tree } from '../../../../test-utils/tree.js';
+import { getUseDirs, type UseDirsFn } from '../../../../test-utils/use-dirs.js';
 import { testSetup } from '../../../test-setup.js';
-import { tree } from '../../../tree.js';
-import { getUseDirs, type UseDirsFn } from '../../../use-dirs.js';
 import { Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.ExtraDirOperations, import.meta);

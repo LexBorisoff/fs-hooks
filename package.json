@@ -25,7 +25,7 @@
     "format": "prettier --write *.{js,cjs,mjs,ts,cts,mts} src/**/*.ts test/**/*.ts",
     "lint": "eslint src/**/*.{js,ts}",
     "lint:fix": "npm run lint -- --fix",
-    "lint:test": "eslint test/**/*.{js,ts}",
+    "lint:test": "eslint test*/**/*.{js,ts}",
     "lint:test:fix": "npm run lint:test -- --fix",
     "test": "vitest run",
     "prebuild": "npm run format && npm run lint:fix && npm test && rm -fr ./dist",
