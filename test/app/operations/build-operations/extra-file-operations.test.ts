@@ -14,6 +14,7 @@ import {
   extraFileOperations,
   type ExtraFileOperations,
 } from '../../../../test-utils/extra-operations.js';
+import { fileDataArray } from '../../../../test-utils/file-data-array.js';
 import { getFilesInfo } from '../../../../test-utils/get-files-info.js';
 import {
   buildOperationsObject,
@@ -21,7 +22,7 @@ import {
 } from '../../../../test-utils/operations-objects.js';
 import { tree } from '../../../../test-utils/tree.js';
 import { testSetup } from '../../../test-setup.js';
-import { fileDataArray, Test } from './constants.js';
+import { Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.ExtraFileOperations, import.meta);
 

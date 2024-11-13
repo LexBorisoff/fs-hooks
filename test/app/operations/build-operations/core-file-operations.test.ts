@@ -8,11 +8,12 @@ import type {
   OperationsRecord,
 } from '../../../../src/types/operation.types.js';
 import { deleteDir } from '../../../../test-utils/delete-dir.js';
+import { fileDataArray } from '../../../../test-utils/file-data-array.js';
 import { getFilesInfo } from '../../../../test-utils/get-files-info.js';
 import { fileOperationsObject } from '../../../../test-utils/operations-objects.js';
 import { tree } from '../../../../test-utils/tree.js';
 import { testSetup } from '../../../test-setup.js';
-import { fileDataArray, Test } from './constants.js';
+import { Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.CoreFileOperations, import.meta);
 

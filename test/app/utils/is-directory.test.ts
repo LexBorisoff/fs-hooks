@@ -2,8 +2,9 @@ import fs from 'node:fs';
 import { expect, suite, describe, it, beforeAll } from 'vitest';
 import { isDirectory } from '../../../src/utils/is-directory.js';
 import { testSetup } from '../../test-setup.js';
+import { Test } from './constants.js';
 
-const { setup, joinPath } = testSetup('is-directory', import.meta);
+const { setup, joinPath } = testSetup(Test.IsDirectory, import.meta);
 
 suite('isDirectory Suite', () => {
   beforeAll(() => setup());

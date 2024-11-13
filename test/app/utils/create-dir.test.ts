@@ -3,8 +3,9 @@ import { expect, beforeAll, suite, describe, it, afterEach } from 'vitest';
 import { createDir } from '../../../src/utils/create-dir.js';
 import { deleteDir } from '../../../test-utils/delete-dir.js';
 import { testSetup } from '../../test-setup.js';
+import { Test } from './constants.js';
 
-const { testPath, setup, joinPath } = testSetup('create-dir', import.meta);
+const { testPath, setup, joinPath } = testSetup(Test.CreateDir, import.meta);
 
 suite('createDir Suite', { concurrent: false }, () => {
   beforeAll(() => setup());

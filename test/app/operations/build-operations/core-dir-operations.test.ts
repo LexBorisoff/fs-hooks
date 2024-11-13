@@ -4,6 +4,7 @@ import { buildOperations } from '../../../../src/operations/build-operations.js'
 import type { FileTreeInterface } from '../../../../src/types/file-tree.types.js';
 import type { DirOperationsType } from '../../../../src/types/operation.types.js';
 import { deleteDir } from '../../../../test-utils/delete-dir.js';
+import { fileDataArray } from '../../../../test-utils/file-data-array.js';
 import {
   dirOperationsObject,
   fileOperationsObject,
@@ -11,7 +12,7 @@ import {
 import { tree } from '../../../../test-utils/tree.js';
 import { getUseDirs, type UseDirsFn } from '../../../../test-utils/use-dirs.js';
 import { testSetup } from '../../../test-setup.js';
-import { fileDataArray, Test } from './constants.js';
+import { Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.CoreDirOperations, import.meta);
 
