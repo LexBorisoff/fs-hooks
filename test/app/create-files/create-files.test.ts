@@ -1,111 +1,178 @@
 import fs from 'node:fs';
-import path from 'node:path';
-import { afterEach, beforeAll, beforeEach, expect, it, suite } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  suite,
+} from 'vitest';
 import { createFiles } from '../../../src/create-files/create-files.js';
+import { CreateFileError } from '../../../src/errors/create-file.error.js';
 import { buildOperations } from '../../../src/operations/build-operations.js';
+import {
+  isDirOperations,
+  isFileOperations,
+} from '../../../src/operations/utils/is-operations.js';
 import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
+import type { DirOperationsType } from '../../../src/types/operation.types.js';
+import { getPathArray, type PathTreeFile } from '../../get-path-array.js';
 import { testSetup } from '../../test-setup.js';
 import { tree } from '../../tree.js';
 import { deleteFolder } from '../../utils.js';
 
-const { testPath, setup, joinPath } = testSetup('create-files', import.meta);
+const { setup, joinPath } = testSetup('create-files', import.meta);
 
-interface PathTreeDir {
-  type: 'dir';
-  path: string;
-}
-
-interface PathTreeFile {
-  type: 'file';
-  data: string;
-  path: string;
-}
-
-type PathTreeItem = PathTreeFile | PathTreeDir;
-
-// TODO: extract to another file and add a test
-function getPathArray(
-  fileTree: FileTreeInterface,
-  basePath: string,
-): PathTreeItem[] {
-  const result: PathTreeItem[] = [];
-
-  function traverse(node: FileTreeInterface, parentPath: string): void {
-    function getPath(key: string): string {
-      return path.resolve(`${parentPath}/${key}`);
-    }
-
-    Object.entries(node).forEach(([key, value]) => {
-      const currentPath = getPath(key);
-
-      if (typeof value === 'string') {
-        result.push({
-          type: 'file',
-          path: currentPath,
-          data: value,
-        });
-        return;
-      }
-
-      result.push({
-        type: 'dir',
-        path: currentPath,
-      });
-
-      traverse(value, currentPath);
-    });
-  }
-
-  traverse(fileTree, basePath);
-  return result;
+enum CreateFilesTest {
+  OperationsObject = 'operations-object',
+  ErrorHandling = 'error-handling',
 }
 
 suite('createFiles function', { concurrent: false }, () => {
-  beforeAll(() => setup());
+  beforeAll(() => setup({ deleteTestFolder: false }));
 
-  let pathArray: PathTreeItem[];
+  let getDescribePath: (...args: string[]) => string;
 
-  beforeEach(() => {
-    pathArray = getPathArray(tree, testPath);
-    const operations = buildOperations(testPath, tree);
-    createFiles(operations);
-  });
+  function describeSetup(testName: string): void {
+    getDescribePath = (...args) => joinPath(testName, ...args);
+  }
 
-  afterEach(() => {
-    const files = fs.readdirSync(testPath);
-    files.forEach((file) => {
-      deleteFolder(joinPath(file));
+  describe('create files based on an operations object', () => {
+    describeSetup(CreateFilesTest.OperationsObject);
+    const describePath = getDescribePath();
+    const pathArray = getPathArray(tree, describePath);
+
+    beforeEach(() => {
+      const operations = buildOperations(describePath, tree);
+      createFiles(operations);
+    });
+
+    afterEach(() => {
+      const files = fs.readdirSync(describePath);
+      files.forEach((file) => {
+        deleteFolder(getDescribePath(file));
+      });
+    });
+
+    it('should create files and directories', () => {
+      pathArray.forEach((item) => {
+        expect(fs.existsSync(item.path)).toBe(true);
+      });
+    });
+
+    it('should be directories', () => {
+      pathArray
+        .filter(({ type }) => type === 'dir')
+        .forEach((dir) => {
+          expect(fs.statSync(dir.path).isDirectory()).toBe(true);
+        });
+    });
+
+    it('should be files', () => {
+      pathArray
+        .filter(({ type }) => type === 'file')
+        .forEach((file) => {
+          expect(fs.statSync(file.path).isFile()).toBe(true);
+        });
+    });
+
+    it('should write correct file data', () => {
+      pathArray
+        .filter((item): item is PathTreeFile => item.type === 'file')
+        .forEach((file) => {
+          const data = fs.readFileSync(file.path, { encoding: 'utf-8' });
+          expect(data).toBe(file.data);
+        });
     });
   });
 
-  it('should create files and directories', () => {
-    pathArray.forEach((item) => {
-      expect(fs.existsSync(item.path)).toBe(true);
+  describe('create files error handling', () => {
+    describeSetup(CreateFilesTest.ErrorHandling);
+    const describePath = getDescribePath();
+    const rootPath = getDescribePath('root-path');
+    let operations: DirOperationsType<FileTreeInterface>;
+
+    beforeEach(() => {
+      operations = buildOperations(rootPath, tree);
+      fs.mkdirSync(describePath, { recursive: true });
     });
-  });
 
-  it('should be directories', () => {
-    pathArray
-      .filter(({ type }) => type === 'dir')
-      .forEach((dir) => {
-        expect(fs.statSync(dir.path).isDirectory()).toBe(true);
+    afterEach(() => {
+      const files = fs.readdirSync(describePath);
+      files.forEach((file) => {
+        deleteFolder(getDescribePath(file));
       });
-  });
+    });
 
-  it('should be files', () => {
-    pathArray
-      .filter(({ type }) => type === 'file')
-      .forEach((file) => {
-        expect(fs.statSync(file.path).isFile()).toBe(true);
-      });
-  });
+    it('should return error when root directory path is a file', () => {
+      fs.writeFileSync(rootPath, '');
 
-  it('should write correct file data', () => {
-    pathArray
-      .filter((item): item is PathTreeFile => item.type === 'file')
-      .forEach((file) => {
-        const data = fs.readFileSync(file.path, { encoding: 'utf-8' });
-        expect(data).toBe(file.data);
+      const errors = createFiles(operations);
+      expect(errors.length).toBe(1);
+      expect(errors.at(0)).toBeInstanceOf(CreateFileError);
+      expect(errors.at(0)?.type).toBe('dir');
+      expect(errors.at(0)?.path).toBe(rootPath);
+    });
+
+    it('should return errors when file paths exist as directories', () => {
+      const filePaths: string[] = [];
+
+      function traverse(dir: DirOperationsType<any>): void {
+        Object.values(dir).forEach((node) => {
+          if (typeof node === 'object') {
+            if (isFileOperations(node)) {
+              const filePath = node.$getPath();
+              filePaths.push(filePath);
+              fs.mkdirSync(filePath, { recursive: true });
+              return;
+            }
+
+            if (isDirOperations(node)) {
+              traverse(node);
+            }
+          }
+        });
+      }
+
+      traverse(operations);
+
+      const errors = createFiles(operations);
+
+      expect(errors.length).toBe(filePaths.length);
+      filePaths.forEach((filePath, i) => {
+        expect(errors.at(i)).toBeInstanceOf(CreateFileError);
+        expect(errors.at(i)?.type).toBe('file');
+        expect(errors.at(i)?.path).toBe(filePath);
       });
+    });
+
+    it('should return errors when directory paths exist as files', () => {
+      const dirPaths: string[] = [];
+
+      function traverse(dir: DirOperationsType<any>): void {
+        console.log(dir.$getPath());
+        fs.mkdirSync(dir.$getPath(), { recursive: true });
+
+        Object.values(dir).forEach((node) => {
+          if (typeof node === 'object' && isDirOperations(node)) {
+            const dirPath = node.$getPath();
+            dirPaths.push(dirPath);
+            fs.writeFileSync(dirPath, '');
+          }
+        });
+      }
+
+      traverse(operations);
+
+      const errors = createFiles(operations);
+
+      expect(errors.length).toBe(dirPaths.length);
+      dirPaths.forEach((dirPath, i) => {
+        expect(errors.at(i)).toBeInstanceOf(CreateFileError);
+        expect(errors.at(i)?.type).toBe('dir');
+        expect(errors.at(i)?.path).toBe(dirPath);
+      });
+    });
   });
 });
