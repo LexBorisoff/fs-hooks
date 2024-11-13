@@ -108,8 +108,8 @@ export type OperationTreeType<
       : never;
 };
 
-export type OperationType<
-  Tree extends FileTreeInterface,
+export type OperationNodeType<
+  Tree extends FileTreeInterface = FileTreeInterface,
   ExtraFileOperations extends OperationsRecord | undefined = undefined,
   ExtraDirOperations extends OperationsRecord | undefined = undefined,
 > =
