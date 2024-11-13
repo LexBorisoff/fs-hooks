@@ -2,7 +2,10 @@ import { beforeAll, beforeEach, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../../src/operations/build-operations.js';
 import type { FileTreeInterface } from '../../../../src/types/file-tree.types.js';
 import type { DirOperationsType } from '../../../../src/types/operation.types.js';
-import { operationsTreeObject } from '../../../../test-utils/operations-objects.js';
+import {
+  dirOperationsObject,
+  operationsTreeObject,
+} from '../../../../test-utils/operations-objects.js';
 import { tree } from '../../../../test-utils/tree.js';
 import { testSetup } from '../../../test-setup.js';
 import { Test } from './constants.js';
@@ -24,5 +27,10 @@ suite('buildOperations - core properties', { concurrent: false }, () => {
 
   it('should be operations tree object', () => {
     expect(result).toEqual(operationsTreeObject);
+  });
+
+  it('should build operations when tree is undefined', () => {
+    const operations = buildOperations(testPath);
+    expect(operations).toEqual(dirOperationsObject);
   });
 });

@@ -135,11 +135,34 @@ suite('buildOperations - core file operations', { concurrent: false }, () => {
       useFiles((file, { fileName, pathDirs }) => {
         const filePath = getDescribePath(...pathDirs, fileName);
         const dirPath = getDescribePath(...pathDirs);
+
+        function validate(fileData: string): void {
+          const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
+          expect(data).toBe(fileData);
+        }
+
         fs.mkdirSync(dirPath, { recursive: true });
         fs.writeFileSync(filePath, '');
 
         fileDataArray.forEach((fileData) => {
           file.$write(fileData);
+          validate(fileData);
+
+          file.$write(() => fileData);
+          validate(fileData);
+        });
+      });
+    });
+
+    it('should write data to the file by accepting a function', () => {
+      useFiles((file, { fileName, pathDirs }) => {
+        const filePath = getDescribePath(...pathDirs, fileName);
+        const dirPath = getDescribePath(...pathDirs);
+        fs.mkdirSync(dirPath, { recursive: true });
+        fs.writeFileSync(filePath, '');
+
+        fileDataArray.forEach((fileData) => {
+          file.$write(() => fileData);
           const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
           expect(data).toBe(fileData);
         });
