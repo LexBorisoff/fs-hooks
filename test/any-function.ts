@@ -1,18 +1,4 @@
-import fs from 'node:fs';
 import { expect } from 'vitest';
-
-/**
- * Deletes the folder at the provided path
- * using `force` and `recursive` flags
- */
-export function deleteFolder(dirPath: string): void {
-  if (fs.existsSync(dirPath)) {
-    fs.rmSync(dirPath, {
-      force: true,
-      recursive: true,
-    });
-  }
-}
 
 /**
  * Expects the provided object's methods to be any function

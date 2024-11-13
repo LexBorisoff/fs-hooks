@@ -3,6 +3,7 @@ import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '../../../../src/operations/build-operations.js';
 import type { FileTreeInterface } from '../../../../src/types/file-tree.types.js';
 import type { DirOperationsType } from '../../../../src/types/operation.types.js';
+import { deleteDir } from '../../../delete-dir.js';
 import {
   dirOperationsObject,
   fileOperationsObject,
@@ -10,7 +11,6 @@ import {
 import { testSetup } from '../../../test-setup.js';
 import { tree } from '../../../tree.js';
 import { getUseDirs, type UseDirsFn } from '../../../use-dirs.js';
-import { deleteFolder } from '../../../utils.js';
 import { fileDataArray, Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.CoreDirOperations, import.meta);
@@ -47,7 +47,7 @@ suite(
 
         fs.mkdirSync(testPath);
         return (): void => {
-          deleteFolder(testPath);
+          deleteDir(testPath);
         };
       });
     }

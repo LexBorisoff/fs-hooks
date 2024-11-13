@@ -7,11 +7,11 @@ import type {
   FileOperationsInterface,
   OperationsRecord,
 } from '../../../../src/types/operation.types.js';
+import { deleteDir } from '../../../delete-dir.js';
 import { getFilesInfo } from '../../../get-files-info.js';
 import { fileOperationsObject } from '../../../operations-objects.js';
 import { testSetup } from '../../../test-setup.js';
 import { tree } from '../../../tree.js';
-import { deleteFolder } from '../../../utils.js';
 import { fileDataArray, Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.CoreFileOperations, import.meta);
@@ -41,7 +41,7 @@ suite('buildOperations - core file operations', { concurrent: false }, () => {
 
       fs.mkdirSync(testPath);
       return (): void => {
-        deleteFolder(testPath);
+        deleteDir(testPath);
       };
     });
   }

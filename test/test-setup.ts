@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
 import { KEEP_TEST_FOLDER } from './constants.js';
-import { deleteFolder } from './utils.js';
+import { deleteDir } from './delete-dir.js';
 
 type CleanupFn = () => void;
 
@@ -34,13 +34,13 @@ export function testSetup(testName: string, meta: ImportMeta): TestSetup {
     testPath,
     setup({ deleteTestFolder } = { deleteTestFolder: true }) {
       if (fs.existsSync(testPath)) {
-        deleteFolder(testPath);
+        deleteDir(testPath);
       }
       fs.mkdirSync(testPath);
 
       return function cleanup() {
         if (deleteTestFolder && !KEEP_TEST_FOLDER) {
-          deleteFolder(testPath);
+          deleteDir(testPath);
         }
       };
     },

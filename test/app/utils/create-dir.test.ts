@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import { expect, beforeAll, suite, describe, it, afterEach } from 'vitest';
 import { createDir } from '../../../src/utils/create-dir.js';
+import { deleteDir } from '../../delete-dir.js';
 import { testSetup } from '../../test-setup.js';
-import { deleteFolder } from '../../utils.js';
 
 const { testPath, setup, joinPath } = testSetup('create-dir', import.meta);
 
@@ -13,7 +13,7 @@ suite('createDir Suite', { concurrent: false }, () => {
     afterEach(() => {
       const files = fs.readdirSync(testPath);
       files.forEach((file) => {
-        deleteFolder(joinPath(file));
+        deleteDir(joinPath(file));
       });
     });
 

@@ -17,10 +17,10 @@ import {
 } from '../../../src/operations/utils/is-operations.js';
 import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
 import type { DirOperationsType } from '../../../src/types/operation.types.js';
+import { deleteDir } from '../../delete-dir.js';
 import { getPathArray, type PathTreeFile } from '../../get-path-array.js';
 import { testSetup } from '../../test-setup.js';
 import { tree } from '../../tree.js';
-import { deleteFolder } from '../../utils.js';
 
 const { setup, joinPath } = testSetup('create-files', import.meta);
 
@@ -51,7 +51,7 @@ suite('createFiles function', { concurrent: false }, () => {
     afterEach(() => {
       const files = fs.readdirSync(describePath);
       files.forEach((file) => {
-        deleteFolder(getDescribePath(file));
+        deleteDir(getDescribePath(file));
       });
     });
 
@@ -101,7 +101,7 @@ suite('createFiles function', { concurrent: false }, () => {
     afterEach(() => {
       const files = fs.readdirSync(describePath);
       files.forEach((file) => {
-        deleteFolder(getDescribePath(file));
+        deleteDir(getDescribePath(file));
       });
     });
 
