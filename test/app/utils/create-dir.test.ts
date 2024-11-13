@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import { expect, beforeAll, suite, describe, it, afterEach } from 'vitest';
-import { createDir } from '../../../src/utils/create-dir.js';
-import { deleteDir } from '../../../test-utils/delete-dir.js';
-import { testSetup } from '../../test-setup.js';
-import { Test } from './constants.js';
+import { createDir } from '@app/utils/create-dir.js';
+import { testSetup } from '@test-setup';
+import { deleteDir } from '@test-utils/delete-dir.js';
+import { Test } from './test.enum.js';
 
 const { testPath, setup, joinPath } = testSetup(Test.CreateDir, import.meta);
 

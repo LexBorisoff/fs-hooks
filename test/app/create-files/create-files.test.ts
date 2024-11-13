@@ -8,22 +8,19 @@ import {
   it,
   suite,
 } from 'vitest';
-import { createFiles } from '../../../src/create-files/create-files.js';
-import { CreateFileError } from '../../../src/errors/create-file.error.js';
-import { buildOperations } from '../../../src/operations/build-operations.js';
+import { createFiles } from '@app/create-files/create-files.js';
+import { CreateFileError } from '@app/errors/create-file.error.js';
+import { buildOperations } from '@app/operations/build-operations.js';
 import {
   isDirOperations,
   isFileOperations,
-} from '../../../src/operations/utils/is-operations.js';
-import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
-import type { DirOperationsType } from '../../../src/types/operation.types.js';
-import { deleteDir } from '../../../test-utils/delete-dir.js';
-import {
-  getPathArray,
-  type PathTreeFile,
-} from '../../../test-utils/get-path-array.js';
-import { tree } from '../../../test-utils/tree.js';
-import { testSetup } from '../../test-setup.js';
+} from '@app/operations/utils/is-operations.js';
+import type { FileTreeInterface } from '@app/types/file-tree.types.js';
+import type { DirOperationsType } from '@app/types/operation.types.js';
+import { testSetup } from '@test-setup';
+import { deleteDir } from '@test-utils/delete-dir.js';
+import { getPathArray, type PathTreeFile } from '@test-utils/get-path-array.js';
+import { tree } from '@test-utils/tree.js';
 
 const { setup, joinPath } = testSetup('create-files', import.meta);
 
@@ -33,7 +30,7 @@ enum CreateFilesTest {
 }
 
 suite('createFiles function', { concurrent: false }, () => {
-  beforeAll(() => setup({ deleteTestFolder: false }));
+  beforeAll(() => setup());
 
   let getDescribePath: (...args: string[]) => string;
 

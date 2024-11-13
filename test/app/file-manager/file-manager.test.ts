@@ -1,24 +1,24 @@
 import { vi, beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
-import { createFiles } from '../../../src/create-files/create-files.js';
-import { FileManager, type CreateFilesFn } from '../../../src/file-manager.js';
-import { buildOperations } from '../../../src/operations/build-operations.js';
-import type { FileTreeInterface } from '../../../src/types/file-tree.types.js';
+import { createFiles } from '@app/create-files/create-files.js';
+import { FileManager, type CreateFilesFn } from '@app/file-manager.js';
+import { buildOperations } from '@app/operations/build-operations.js';
+import type { FileTreeInterface } from '@app/types/file-tree.types.js';
 import type {
   DirOperationsType,
   ExtraOperationsInterface,
-} from '../../../src/types/operation.types.js';
-import { anyFunction } from '../../../test-utils/any-function.js';
+} from '@app/types/operation.types.js';
+import { testSetup } from '@test-setup';
+import { anyFunction } from '@test-utils/any-function.js';
 import {
   extraDirOperations,
   extraFileOperations,
   type ExtraDirOperations,
   type ExtraFileOperations,
-} from '../../../test-utils/extra-operations.js';
-import { tree } from '../../../test-utils/tree.js';
-import { testSetup } from '../../test-setup.js';
+} from '@test-utils/extra-operations.js';
+import { tree } from '@test-utils/tree.js';
 
-vi.mock('../../../src/operations/build-operations.js', { spy: true });
-vi.mock('../../../src/create-files/create-files.js', { spy: true });
+vi.mock('@app/operations/build-operations.js', { spy: true });
+vi.mock('@app/create-files/create-files.js', { spy: true });
 
 const { setup, joinPath } = testSetup('file-manager', import.meta);
 
