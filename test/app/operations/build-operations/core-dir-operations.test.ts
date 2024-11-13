@@ -15,7 +15,7 @@ import { fileDataArray, Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.CoreDirOperations, import.meta);
 
-enum CoreOperations {
+enum CoreDirOperationsTest {
   ObjectProperties = 'object-properties',
   GetPath = 'get-path',
   Exists = 'exists',
@@ -53,8 +53,7 @@ suite(
     }
 
     describe('directory core operation properties', () => {
-      const testName = CoreOperations.ObjectProperties;
-      describeSetup(testName);
+      describeSetup(CoreDirOperationsTest.ObjectProperties);
 
       it('should be defined', () => {
         expect(result).toBeDefined();
@@ -68,8 +67,7 @@ suite(
     });
 
     describe('getPath core directory operation', () => {
-      const testName = CoreOperations.GetPath;
-      describeSetup(testName);
+      describeSetup(CoreDirOperationsTest.GetPath);
 
       it('should return directory path', () => {
         useDirs((dir, { pathDirs }) => {
@@ -80,8 +78,7 @@ suite(
     });
 
     describe('exists core directory operation', () => {
-      const testName = CoreOperations.Exists;
-      describeSetup(testName);
+      describeSetup(CoreDirOperationsTest.Exists);
 
       it('should check if files and directories exist', () => {
         const dirName = 'new-dir';
@@ -103,8 +100,7 @@ suite(
     });
 
     describe('dirCreate core directory operation', () => {
-      const testName = CoreOperations.DirCreate;
-      describeSetup(testName);
+      describeSetup(CoreDirOperationsTest.DirCreate);
 
       it('should create directories', () => {
         const dirName = 'new-dir';
@@ -123,8 +119,7 @@ suite(
     });
 
     describe('dirDelete core directory operation', () => {
-      const testName = CoreOperations.DirDelete;
-      describeSetup(testName);
+      describeSetup(CoreDirOperationsTest.DirDelete);
 
       it('should delete directories', () => {
         const dirName = 'new-dir';
@@ -141,8 +136,7 @@ suite(
     });
 
     describe('fileCreate core directory operation', () => {
-      const testName = CoreOperations.FileCreate;
-      describeSetup(testName);
+      describeSetup(CoreDirOperationsTest.FileCreate);
 
       it('should create files', () => {
         const fileName = 'new-file';
@@ -187,8 +181,7 @@ suite(
     });
 
     describe('fileDelete core directory operation', () => {
-      const testName = CoreOperations.FileDelete;
-      describeSetup(testName);
+      describeSetup(CoreDirOperationsTest.FileDelete);
 
       it('should delete specified files', () => {
         const fileName = 'new-file';
@@ -208,8 +201,7 @@ suite(
     });
 
     describe('fileRead core directory operation', () => {
-      const testName = CoreOperations.FileRead;
-      describeSetup(testName);
+      describeSetup(CoreDirOperationsTest.FileRead);
 
       it('should read files', () => {
         const fileName = 'new-file';
@@ -234,8 +226,7 @@ suite(
     });
 
     describe('fileWrite core directory operation', () => {
-      const testName = CoreOperations.FileWrite;
-      describeSetup(testName);
+      describeSetup(CoreDirOperationsTest.FileWrite);
 
       it('should write to specified files', () => {
         const fileName = 'new-file';
@@ -256,8 +247,7 @@ suite(
     });
 
     describe('fileClear core directory operation', () => {
-      const testName = CoreOperations.FileClear;
-      describeSetup(testName);
+      describeSetup(CoreDirOperationsTest.FileClear);
 
       it('should clear data for specified files', () => {
         const fileName = 'new-file';

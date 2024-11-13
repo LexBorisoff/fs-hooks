@@ -16,7 +16,7 @@ import { fileDataArray, Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.CoreFileOperations, import.meta);
 
-enum CoreOperations {
+enum CoreOperationsTest {
   ObjectProperties = 'object-properties',
   GetPath = 'get-path',
   Exists = 'exists',
@@ -29,10 +29,12 @@ suite('buildOperations - core file operations', { concurrent: false }, () => {
   beforeAll(() => setup());
 
   let result: DirOperationsType<FileTreeInterface>;
+  let testName: string;
   let getDescribePath: (...args: string[]) => string;
 
-  function describeTest(testName: string): void {
+  function describeSetup(test: string): void {
     beforeEach(() => {
+      testName = test;
       getDescribePath = (...args) => joinPath(testName, ...args);
       const testPath = getDescribePath();
       result = buildOperations(testPath, tree);
@@ -50,7 +52,7 @@ suite('buildOperations - core file operations', { concurrent: false }, () => {
   }
   type UseFilesCb = (file: FileOperationsInterface, meta: DirMeta) => void;
 
-  function useFiles(testName: string, cb: UseFilesCb): void {
+  function useFiles(cb: UseFilesCb): void {
     const files = getFilesInfo<undefined, OperationsRecord>(result);
 
     /**
@@ -84,26 +86,24 @@ suite('buildOperations - core file operations', { concurrent: false }, () => {
   }
 
   describe('file core operation properties', () => {
-    const testName = CoreOperations.ObjectProperties;
-    describeTest(testName);
+    describeSetup(CoreOperationsTest.ObjectProperties);
 
     it('should be defined', () => {
       expect(result).toBeDefined();
     });
 
     it('should have core file operations', () => {
-      useFiles(testName, (file) => {
+      useFiles((file) => {
         expect(file).toEqual(fileOperationsObject);
       });
     });
   });
 
   describe('getPath core file operation', () => {
-    const testName = CoreOperations.GetPath;
-    describeTest(testName);
+    describeSetup(CoreOperationsTest.GetPath);
 
     it('should return file path', () => {
-      useFiles(testName, (file, { fileName, pathDirs }) => {
+      useFiles((file, { fileName, pathDirs }) => {
         const filePath = getDescribePath(...pathDirs, fileName);
         expect(file.$getPath()).toBe(filePath);
       });
@@ -111,11 +111,10 @@ suite('buildOperations - core file operations', { concurrent: false }, () => {
   });
 
   describe('read core file operation', () => {
-    const testName = CoreOperations.Read;
-    describeTest(testName);
+    describeSetup(CoreOperationsTest.Read);
 
     it('should read file data', () => {
-      useFiles(testName, (file, { fileName, pathDirs }) => {
+      useFiles((file, { fileName, pathDirs }) => {
         const filePath = getDescribePath(...pathDirs, fileName);
         const dirPath = getDescribePath(...pathDirs);
         fs.mkdirSync(dirPath, { recursive: true });
@@ -129,11 +128,10 @@ suite('buildOperations - core file operations', { concurrent: false }, () => {
   });
 
   describe('write core file operation', () => {
-    const testName = CoreOperations.Write;
-    describeTest(testName);
+    describeSetup(CoreOperationsTest.Write);
 
     it('should write data to the file', () => {
-      useFiles(testName, (file, { fileName, pathDirs }) => {
+      useFiles((file, { fileName, pathDirs }) => {
         const filePath = getDescribePath(...pathDirs, fileName);
         const dirPath = getDescribePath(...pathDirs);
         fs.mkdirSync(dirPath, { recursive: true });
@@ -149,11 +147,10 @@ suite('buildOperations - core file operations', { concurrent: false }, () => {
   });
 
   describe('clear core file operation', () => {
-    const testName = CoreOperations.Clear;
-    describeTest(testName);
+    describeSetup(CoreOperationsTest.Clear);
 
     it('should clear file data', () => {
-      useFiles(testName, (file, { fileName, pathDirs }) => {
+      useFiles((file, { fileName, pathDirs }) => {
         const filePath = getDescribePath(...pathDirs, fileName);
         const dirPath = getDescribePath(...pathDirs);
         fs.mkdirSync(dirPath, { recursive: true });

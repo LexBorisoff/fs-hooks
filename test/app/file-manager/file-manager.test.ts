@@ -22,7 +22,7 @@ vi.mock('../../../src/create-files/create-files.js', { spy: true });
 
 const { setup, joinPath } = testSetup('file-manager', import.meta);
 
-enum Test {
+enum FileManagerTest {
   Operations = 'operations',
   CreateFiles = 'createFiles',
 }
@@ -79,7 +79,7 @@ suite('FileManager class', () => {
   });
 
   describe('operations object', () => {
-    describeSetup(Test.Operations);
+    describeSetup(FileManagerTest.Operations);
 
     it('should return an operations object', () => {
       const describePath = getDescribePath();
@@ -114,7 +114,7 @@ suite('FileManager class', () => {
   });
 
   describe('function to create files', () => {
-    describeSetup(Test.CreateFiles);
+    describeSetup(FileManagerTest.CreateFiles);
 
     let operations: DirOperationsType<typeof tree>;
     let createFilesFn: CreateFilesFn;

@@ -19,7 +19,7 @@ import { Test } from './constants.js';
 
 const { setup, joinPath } = testSetup(Test.ExtraDirOperations, import.meta);
 
-enum ExtraOperations {
+enum ExtraOperationsTest {
   ObjectProperties = 'object-properties',
   GetDirPath = 'get-dir-path',
   GetDirChildren = 'get-dir-children',
@@ -63,7 +63,7 @@ suite(
     }
 
     describe('extra directory operations properties', () => {
-      describeSetup(ExtraOperations.ObjectProperties);
+      describeSetup(ExtraOperationsTest.ObjectProperties);
 
       const operationsObject = {
         ...dirOperationsObject,
@@ -82,7 +82,7 @@ suite(
     });
 
     describe('getDirPath extra operation', () => {
-      describeSetup(ExtraOperations.GetDirPath);
+      describeSetup(ExtraOperationsTest.GetDirPath);
 
       it('should return directory path', () => {
         useDirs((dir, { pathDirs }) => {
@@ -92,7 +92,7 @@ suite(
     });
 
     describe('getDirChildren extra operation', () => {
-      describeSetup(ExtraOperations.GetDirChildren);
+      describeSetup(ExtraOperationsTest.GetDirChildren);
 
       function sort(array: string[]): string[] {
         return array.concat().sort();
@@ -106,7 +106,7 @@ suite(
     });
 
     describe('plusOne extra operation', () => {
-      describeSetup(ExtraOperations.PlusOne);
+      describeSetup(ExtraOperationsTest.PlusOne);
 
       it('should add 1 on directory objects', () => {
         useDirs((dir) => {
