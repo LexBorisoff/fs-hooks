@@ -1,6 +1,6 @@
 import { beforeEach, expect, it, suite } from 'vitest';
-import { CreateFileError } from '../../../src/errors/create-file.error.js';
-import { testSetup } from '../../test-setup.js';
+import { CreateFileError } from '@app/errors/create-file.error.js';
+import { testSetup } from '@test-setup';
 
 const { testPath } = testSetup('create-file-error', import.meta);
 

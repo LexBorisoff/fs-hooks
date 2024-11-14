@@ -1,28 +1,28 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
-import { buildOperations } from '../../../../src/operations/build-operations.js';
+import { buildOperations } from '@app/operations/build-operations.js';
 import type {
   FileTreeInterface,
   FileType,
-} from '../../../../src/types/file-tree.types.js';
+} from '@app/types/file-tree.types.js';
 import type {
   DirOperationsType,
   FileOperationsType,
-} from '../../../../src/types/operation.types.js';
-import { deleteDir } from '../../../../test-utils/delete-dir.js';
+} from '@app/types/operation.types.js';
+import { testSetup } from '@test-setup';
+import { deleteDir } from '@test-utils/delete-dir.js';
 import {
   extraFileOperations,
   type ExtraFileOperations,
-} from '../../../../test-utils/extra-operations.js';
-import { fileDataArray } from '../../../../test-utils/file-data-array.js';
-import { getFilesInfo } from '../../../../test-utils/get-files-info.js';
+} from '@test-utils/extra-operations.js';
+import { fileDataArray } from '@test-utils/file-data-array.js';
+import { getFilesInfo } from '@test-utils/get-files-info.js';
 import {
   buildOperationsObject,
   fileOperationsObject,
-} from '../../../../test-utils/operations-objects.js';
-import { tree } from '../../../../test-utils/tree.js';
-import { testSetup } from '../../../test-setup.js';
-import { Test } from './constants.js';
+} from '@test-utils/operations-objects.js';
+import { tree } from '@test-utils/tree.js';
+import { Test } from './test.enum.js';
 
 const { setup, joinPath } = testSetup(Test.ExtraFileOperations, import.meta);
 

@@ -1,4 +1,11 @@
 {
   "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "paths": {
+      "@app/*": ["./src/*"],
+      "@test-utils/*": ["./test-utils/*"],
+      "@test-setup": ["./test/test-setup.ts"]
+    }
+  },
   "include": ["test", "test-utils", "vitest.config.ts"]
 }

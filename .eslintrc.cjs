@@ -100,6 +100,7 @@ module.exports = {
     'import/resolver': {
       typescript: {
         alwaysTryTypes: true,
+        project: './tsconfig.apps.json',
       },
     },
   },
@@ -110,6 +111,14 @@ module.exports = {
         ecmaVersion: 'latest',
         sourceType: 'module',
         project: './tsconfig.test.json',
+      },
+      settings: {
+        'import/resolver': {
+          typescript: {
+            alwaysTryTypes: true,
+            project: './tsconfig.test.json',
+          },
+        },
       },
     },
   ],
