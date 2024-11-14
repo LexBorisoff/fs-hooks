@@ -21,6 +21,7 @@
     "lint": "eslint {src,test*}/**/*.{js,ts}",
     "lint:fix": "npm run lint -- --fix",
     "test": "vitest run",
+    "test:cov": "vitest run --coverage",
     "prebuild": "npm run format && npm run lint:fix && npm test && rimraf ./dist",
     "tsc": "tsc -p tsconfig.app.json",
     "tsc-alias": "tsc-alias -p tsconfig.app.json",
