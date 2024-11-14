@@ -2,11 +2,11 @@ import { vi, beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { createFiles } from '@app/create-files/create-files.js';
 import { FileManager, type CreateFilesFn } from '@app/file-manager.js';
 import { buildOperations } from '@app/operations/build-operations.js';
-import type { FileTreeInterface } from '@app/types/file-tree.types.js';
 import type {
+  FileTreeInterface,
   DirOperationsType,
   ExtraOperationsInterface,
-} from '@app/types/operation.types.js';
+} from '@app-types';
 import { testSetup } from '@test-setup';
 import { anyFunction } from '@test-utils/any-function.js';
 import {

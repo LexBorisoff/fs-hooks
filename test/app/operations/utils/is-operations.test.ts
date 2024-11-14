@@ -4,11 +4,11 @@ import {
   isDirOperations,
   isFileOperations,
 } from '@app/operations/utils/is-operations.js';
-import type { FileTreeInterface } from '@app/types/file-tree.types.js';
 import type {
+  FileTreeInterface,
   DirOperationsType,
   FileOperationsType,
-} from '@app/types/operation.types.js';
+} from '@app-types';
 import { testSetup } from '@test-setup';
 import { Test } from './test.enum.js';
 

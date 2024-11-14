@@ -1,7 +1,4 @@
-import type {
-  DirOperationsFn,
-  FileOperationsFn,
-} from '@app/types/operation.types.js';
+import type { DirOperationsFn, FileOperationsFn } from '@app-types';
 
 export type ExtraDirOperations = {
   getDirPath: () => string;

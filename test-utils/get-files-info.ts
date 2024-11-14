@@ -6,12 +6,10 @@ import {
 import type {
   FileTreeInterface,
   FileType,
-} from '@app/types/file-tree.types.js';
-import type {
   DirOperationsType,
   FileOperationsType,
   OperationsRecord,
-} from '@app/types/operation.types.js';
+} from '@app-types';
 
 export interface FileInfo<
   ExtraFileOperations extends OperationsRecord | undefined,
