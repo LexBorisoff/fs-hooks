@@ -4,9 +4,9 @@ import { readFile } from '@app/utils/read-file.js';
 import { testSetup } from '@test-setup';
 import { fileDataArray } from '@test-utils/file-data-array.js';
 
-import { Test } from './test.enum.js';
+import { TestEnum } from './test.enum.js';
 
-const { setup, joinPath } = testSetup(Test.ReadFile, import.meta);
+const { setup, joinPath } = testSetup(TestEnum.ReadFile, import.meta);
 
 suite('readFile function', { concurrent: false }, () => {
   beforeAll(() => setup());

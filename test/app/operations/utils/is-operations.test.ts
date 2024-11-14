@@ -10,9 +10,9 @@ import type {
   FileOperationsType,
 } from '@app-types';
 import { testSetup } from '@test-setup';
-import { Test } from './test.enum.js';
+import { TestEnum } from './test.enum.js';
 
-const { testPath } = testSetup(Test.IsOperations, import.meta);
+const { testPath } = testSetup(TestEnum.IsOperations, import.meta);
 
 const tree = {
   file1: '',

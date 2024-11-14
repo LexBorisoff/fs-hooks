@@ -2,9 +2,9 @@ import fs from 'node:fs';
 import { beforeAll, beforeEach, expect, it, suite } from 'vitest';
 import { testSetup } from '@test-setup';
 import { deleteDir } from '@test-utils/delete-dir.js';
-import { Test } from './test.enum.js';
+import { TestEnum } from './test.enum.js';
 
-const { setup, joinPath } = testSetup(Test.DeleteDir, import.meta);
+const { setup, joinPath } = testSetup(TestEnum.DeleteDir, import.meta);
 
 suite('deleteDir function', () => {
   beforeAll(() => setup());

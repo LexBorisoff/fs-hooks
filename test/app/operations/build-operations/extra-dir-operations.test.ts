@@ -14,9 +14,9 @@ import {
 } from '@test-utils/operations-objects.js';
 import { tree } from '@test-utils/tree.js';
 import { getUseDirs, type UseDirsFn } from '@test-utils/use-dirs.js';
-import { Test } from './test.enum.js';
+import { TestEnum } from './test.enum.js';
 
-const { setup, joinPath } = testSetup(Test.ExtraDirOperations, import.meta);
+const { setup, joinPath } = testSetup(TestEnum.ExtraDirOperations, import.meta);
 
 enum ExtraOperationsTest {
   ObjectProperties = 'object-properties',

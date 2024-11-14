@@ -7,9 +7,9 @@ import {
   operationsTreeObject,
 } from '@test-utils/operations-objects.js';
 import { tree } from '@test-utils/tree.js';
-import { Test } from './test.enum.js';
+import { TestEnum } from './test.enum.js';
 
-const { setup, testPath } = testSetup(Test.CoreProperties, import.meta);
+const { setup, testPath } = testSetup(TestEnum.CoreProperties, import.meta);
 
 suite('buildOperations - core properties', { concurrent: false }, () => {
   beforeAll(() => setup());

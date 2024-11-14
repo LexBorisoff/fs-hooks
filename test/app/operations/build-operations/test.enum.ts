@@ -1,4 +1,4 @@
-export enum Test {
+export enum TestEnum {
   CoreProperties = 'core-properties',
   CoreFileOperations = 'core-file-operations',
   CoreDirOperations = 'core-dir-operations',

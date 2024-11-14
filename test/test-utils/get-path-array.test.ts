@@ -6,9 +6,9 @@ import {
   type PathTreeDir,
   type PathTreeFile,
 } from '@test-utils/get-path-array.js';
-import { Test } from './test.enum.js';
+import { TestEnum } from './test.enum.js';
 
-const { testPath, joinPath } = testSetup(Test.GetPathArray, import.meta);
+const { testPath, joinPath } = testSetup(TestEnum.GetPathArray, import.meta);
 
 const tree: FileTreeInterface = {
   file1: '',

@@ -8,9 +8,9 @@ import {
   NEW_DIR_NAME,
   type UseDirsFn,
 } from '@test-utils/use-dirs.js';
-import { Test } from './test.enum.js';
+import { TestEnum } from './test.enum.js';
 
-const { setup, joinPath, testPath } = testSetup(Test.UseDirs, import.meta);
+const { setup, joinPath, testPath } = testSetup(TestEnum.UseDirs, import.meta);
 
 const tree = {
   file1: '',

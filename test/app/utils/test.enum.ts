@@ -1,4 +1,4 @@
-export enum Test {
+export enum TestEnum {
   CreateDir = 'create-dir',
   IsDirectory = 'is-directory',
   ParseData = 'parse-data',

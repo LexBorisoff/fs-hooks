@@ -1,4 +1,4 @@
-export enum Test {
+export enum TestEnum {
   AnyFunction = 'any-function',
   DeleteDir = 'delete-dir',
   GetDirsInfo = 'get-dirs-info',

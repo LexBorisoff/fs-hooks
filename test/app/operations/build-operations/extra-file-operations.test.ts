@@ -20,9 +20,12 @@ import {
   fileOperationsObject,
 } from '@test-utils/operations-objects.js';
 import { tree } from '@test-utils/tree.js';
-import { Test } from './test.enum.js';
+import { TestEnum } from './test.enum.js';
 
-const { setup, joinPath } = testSetup(Test.ExtraFileOperations, import.meta);
+const { setup, joinPath } = testSetup(
+  TestEnum.ExtraFileOperations,
+  import.meta,
+);
 
 enum ExtraOperationsTest {
   ObjectProperties = 'object-properties',
@@ -76,7 +79,7 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
   ) => void;
 
   /**
-   * Test files from the file tree
+   * TestEnum files from the file tree
    */
   function useTreeFiles(cb: UseTreeFilesCb): void {
     getFilesInfo(result).forEach(({ file, fileName, treeFile, pathDirs }) => {

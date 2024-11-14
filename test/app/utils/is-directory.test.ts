@@ -2,9 +2,9 @@ import fs from 'node:fs';
 import { expect, suite, describe, it, beforeAll } from 'vitest';
 import { isDirectory } from '@app/utils/is-directory.js';
 import { testSetup } from '@test-setup';
-import { Test } from './test.enum.js';
+import { TestEnum } from './test.enum.js';
 
-const { setup, joinPath } = testSetup(Test.IsDirectory, import.meta);
+const { setup, joinPath } = testSetup(TestEnum.IsDirectory, import.meta);
 
 suite('isDirectory Suite', () => {
   beforeAll(() => setup());

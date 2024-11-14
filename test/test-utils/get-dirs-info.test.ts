@@ -3,9 +3,9 @@ import { buildOperations } from '@app/operations/build-operations.js';
 import type { FileTreeInterface, DirOperationsType } from '@app-types';
 import { testSetup } from '@test-setup';
 import { getDirsInfo } from '@test-utils/get-dirs-info.js';
-import { Test } from './test.enum.js';
+import { TestEnum } from './test.enum.js';
 
-const { testPath } = testSetup(Test.GetDirsInfo, import.meta);
+const { testPath } = testSetup(TestEnum.GetDirsInfo, import.meta);
 
 const tree = {
   file1: '',

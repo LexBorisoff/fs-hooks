@@ -4,9 +4,9 @@ import { getOperationsType } from '@app/operations/utils/get-operations-type.js'
 import { OperationsTypeEnum } from '@app/operations/utils/operations-type.enum.js';
 import type { FileTreeInterface } from '@app-types';
 import { testSetup } from '@test-setup';
-import { Test } from './test.enum.js';
+import { TestEnum } from './test.enum.js';
 
-const { testPath } = testSetup(Test.GetOperationsType, import.meta);
+const { testPath } = testSetup(TestEnum.GetOperationsType, import.meta);
 
 const tree = {
   file1: '',
