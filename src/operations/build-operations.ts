@@ -5,21 +5,16 @@ import type {
   FileObjectInterface,
   FileTreeInterface,
   FileTreeType,
-} from '../types/file-tree.types.js';
-import type {
   ExtraOperationsInterface,
   FileOperationsInterface,
   DirOperationsInterface,
   DirOperationsType,
   OperationsRecord,
   FileOperationsType,
-} from '../types/operation.types.js';
-import { createDir } from '../utils/create-dir.js';
-import { readFile } from '../utils/read-file.js';
-import {
-  OPERATIONS_TYPE_SYM,
-  TREE_VALUE_SYM,
-} from './utils/operation.constants.js';
+} from '@app-types';
+import { createDir } from '@utils/create-dir.js';
+import { readFile } from '@utils/read-file.js';
+import { OPERATIONS_TYPE_SYM, TREE_VALUE_SYM } from './utils/constants.js';
 import { OperationsTypeEnum } from './utils/operations-type.enum.js';
 
 function buildFileTree<Tree extends FileTreeInterface>(
