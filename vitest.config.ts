@@ -1,11 +1,11 @@
 import tsconfigPaths from 'vite-tsconfig-paths';
-import { defineConfig, coverageConfigDefaults } from 'vitest/config';
+import { coverageConfigDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     coverage: {
-      exclude: ['**/types/*', ...coverageConfigDefaults.exclude],
+      exclude: ['**/*types.ts', ...coverageConfigDefaults.exclude],
     },
   },
 });

@@ -12,7 +12,14 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@app-types": ["./src/types/types.ts"],
+      "@create-files/*": ["./src/create-files/*"],
+      "@errors/*": ["./src/errors/*"],
+      "@operations/*": ["./src/operations/*"],
+      "@utils/*": ["./src/utils/*"]
+    }
   },
   "include": ["src"]
 }

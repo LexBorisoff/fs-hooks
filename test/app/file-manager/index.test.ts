@@ -1,9 +1,15 @@
-import { expect, it, suite } from 'vitest';
+import { expect, test } from 'vitest';
 import { FileManager } from '@app/file-manager.js';
 import * as index from '@app/index.js';
 
-suite('file manager index file', () => {
-  it('should export file manager', () => {
-    expect(index.FileManager).toBe(FileManager);
+test('file manager index file', () => {
+  const values = [FileManager];
+
+  values.forEach((value) => {
+    expect(Object.values(index).includes(value)).toBe(true);
+  });
+
+  Object.values(index).forEach((value) => {
+    expect(values.includes(value)).toBe(true);
   });
 });

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
-import { CreateFileErrorReason } from '../errors/create-file-error.enums.js';
-import { CreateFileError } from '../errors/create-file.error.js';
+import { CreateFileErrorReason } from '@errors/create-file-error.enums.js';
+import { CreateFileError } from '@errors/create-file.error.js';
 import { isDirectory } from './is-directory.js';
 
 /**

@@ -1,9 +1,9 @@
-import type { FileTreeInterface } from '../../types/file-tree.types.js';
 import type {
   DirOperationsType,
   FileOperationsType,
+  FileTreeInterface,
   OperationsRecord,
-} from '../../types/operation.types.js';
+} from '@app-types';
 import { getOperationsType } from './get-operations-type.js';
 import { OperationsTypeEnum } from './operations-type.enum.js';
 

@@ -1,17 +1,15 @@
-import { getTreeFile } from '../src/operations/utils/get-tree-value.js';
+import { getTreeFile } from '@app/operations/utils/get-tree-value.js';
 import {
   isDirOperations,
   isFileOperations,
-} from '../src/operations/utils/is-operations.js';
+} from '@app/operations/utils/is-operations.js';
 import type {
   FileTreeInterface,
   FileType,
-} from '../src/types/file-tree.types.js';
-import type {
   DirOperationsType,
   FileOperationsType,
   OperationsRecord,
-} from '../src/types/operation.types.js';
+} from '@app-types';
 
 export interface FileInfo<
   ExtraFileOperations extends OperationsRecord | undefined,

@@ -3,9 +3,12 @@ import { expect, beforeAll, suite, describe, it, afterEach } from 'vitest';
 import { createDir } from '@app/utils/create-dir.js';
 import { testSetup } from '@test-setup';
 import { deleteDir } from '@test-utils/delete-dir.js';
-import { Test } from './test.enum.js';
+import { TestEnum } from './test.enum.js';
 
-const { testPath, setup, joinPath } = testSetup(Test.CreateDir, import.meta);
+const { testPath, setup, joinPath } = testSetup(
+  TestEnum.CreateDir,
+  import.meta,
+);
 
 suite('createDir Suite', { concurrent: false }, () => {
   beforeAll(() => setup());

@@ -1,13 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { CreateFileErrorReason } from '../errors/create-file-error.enums.js';
-import { CreateFileError } from '../errors/create-file.error.js';
-import { getTreeDir } from '../operations/utils/get-tree-value.js';
-
-import type { FileTreeInterface } from '../types/file-tree.types.js';
-import type { DirOperationsType } from '../types/operation.types.js';
-import { createDir } from '../utils/create-dir.js';
-import { isDirectory } from '../utils/is-directory.js';
+import type { FileTreeInterface, DirOperationsType } from '@app-types';
+import { CreateFileErrorReason } from '@errors/create-file-error.enums.js';
+import { CreateFileError } from '@errors/create-file.error.js';
+import { getTreeDir } from '@operations/utils/get-tree-value.js';
+import { createDir } from '@utils/create-dir.js';
+import { isDirectory } from '@utils/is-directory.js';
 
 export function createFiles(
   operations: DirOperationsType<any>,

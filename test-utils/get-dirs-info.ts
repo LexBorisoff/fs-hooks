@@ -1,9 +1,9 @@
-import { isDirOperations } from '../src/operations/utils/is-operations.js';
-import type { FileTreeInterface } from '../src/types/file-tree.types.js';
+import { isDirOperations } from '@app/operations/utils/is-operations.js';
 import type {
+  FileTreeInterface,
   DirOperationsType,
   OperationsRecord,
-} from '../src/types/operation.types.js';
+} from '@app-types';
 
 interface DirInfo<
   T extends FileTreeInterface,

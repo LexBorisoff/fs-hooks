@@ -1,21 +1,21 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '@app/operations/build-operations.js';
-import type { FileTreeInterface } from '@app/types/file-tree.types.js';
 import type {
+  FileTreeInterface,
   DirOperationsType,
   FileOperationsInterface,
   OperationsRecord,
-} from '@app/types/operation.types.js';
+} from '@app-types';
 import { testSetup } from '@test-setup';
 import { deleteDir } from '@test-utils/delete-dir.js';
 import { fileDataArray } from '@test-utils/file-data-array.js';
 import { getFilesInfo } from '@test-utils/get-files-info.js';
 import { fileOperationsObject } from '@test-utils/operations-objects.js';
 import { tree } from '@test-utils/tree.js';
-import { Test } from './test.enum.js';
+import { TestEnum } from './test.enum.js';
 
-const { setup, joinPath } = testSetup(Test.CoreFileOperations, import.meta);
+const { setup, joinPath } = testSetup(TestEnum.CoreFileOperations, import.meta);
 
 enum CoreOperationsTest {
   ObjectProperties = 'object-properties',
@@ -57,7 +57,7 @@ suite('buildOperations - core file operations', { concurrent: false }, () => {
     const files = getFilesInfo<undefined, OperationsRecord>(result);
 
     /**
-     * Test files from the file tree
+     * TestEnum files from the file tree
      */
     files.forEach(({ file, fileName, pathDirs }) => {
       const dirPath = joinPath(testName, ...pathDirs);
