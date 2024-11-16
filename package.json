@@ -36,11 +36,11 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lexjs-dev/core.git"
+    "url": "git+https://github.com/lexjs-dev/file-manager.git"
   },
-  "homepage": "https://github.com/lexjs-dev/core/tree/main#readme",
+  "homepage": "https://github.com/lexjs-dev/file-manager/tree/main#readme",
   "bugs": {
-    "url": "https://github.com/lexjs-dev/core/issues"
+    "url": "https://github.com/lexjs-dev/file-manager/issues"
   },
   "devDependencies": {
     "@types/node": "^22.3.0",
