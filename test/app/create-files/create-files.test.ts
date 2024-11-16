@@ -15,7 +15,8 @@ import {
   isDirOperations,
   isFileOperations,
 } from '@app/operations/utils/is-operations.js';
-import type { FileTreeInterface, DirOperationsType } from '@app-types';
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
+import type { DirOperationsType } from '@app-types/operation.types.js';
 import { testSetup } from '@test-setup';
 import { deleteDir } from '@test-utils/delete-dir.js';
 import { getPathArray, type PathTreeFile } from '@test-utils/get-path-array.js';

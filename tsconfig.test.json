@@ -2,7 +2,7 @@
   "extends": "./tsconfig.app.json",
   "compilerOptions": {
     "paths": {
-      "@app-types": ["./src/types/types.ts"],
+      "@app-types/*": ["./src/types/*"],
       "@app/*": ["./src/*"],
       "@test-utils/*": ["./test-utils/*"],
       "@test-setup": ["./test/test-setup.ts"]

@@ -1,5 +1,5 @@
 import { expect, it, suite } from 'vitest';
-import type { FileTreeInterface } from '@app-types';
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 import { testSetup } from '@test-setup';
 import {
   getPathArray,

@@ -2,7 +2,7 @@ import { expect, it, suite } from 'vitest';
 import { buildOperations } from '@app/operations/build-operations.js';
 import { getOperationsType } from '@app/operations/utils/get-operations-type.js';
 import { OperationsTypeEnum } from '@app/operations/utils/operations-type.enum.js';
-import type { FileTreeInterface } from '@app-types';
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 import { testSetup } from '@test-setup';
 import { TestEnum } from './test.enum.js';
 

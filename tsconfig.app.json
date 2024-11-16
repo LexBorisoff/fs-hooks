@@ -14,7 +14,7 @@
     "strict": true,
     "skipLibCheck": true,
     "paths": {
-      "@app-types": ["./src/types/types.ts"],
+      "@app-types/*": ["./src/types/*"],
       "@create-files/*": ["./src/create-files/*"],
       "@errors/*": ["./src/errors/*"],
       "@operations/*": ["./src/operations/*"],

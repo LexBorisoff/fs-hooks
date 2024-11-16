@@ -5,13 +5,15 @@ import type {
   FileObjectInterface,
   FileTreeInterface,
   FileTreeType,
-  ExtraOperationsInterface,
-  FileOperationsInterface,
+} from '@app-types/file-tree.types.js';
+import type {
   DirOperationsInterface,
   DirOperationsType,
-  OperationsRecord,
+  ExtraOperationsInterface,
+  FileOperationsInterface,
   FileOperationsType,
-} from '@app-types';
+  OperationsRecord,
+} from '@app-types/operation.types.js';
 import { createDir } from '@utils/create-dir.js';
 import { readFile } from '@utils/read-file.js';
 import { OPERATIONS_TYPE_SYM, TREE_VALUE_SYM } from './utils/constants.js';
