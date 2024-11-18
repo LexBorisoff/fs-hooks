@@ -4,8 +4,9 @@ import type { OperationsTypeEnum } from './operations-type.enum.js';
 export function getOperationsType(
   value: unknown,
 ): OperationsTypeEnum | undefined {
-  return (
-    typeof value === 'object' &&
-    Object.getOwnPropertyDescriptor(value, OPERATIONS_TYPE_SYM)?.value
-  );
+  if (typeof value !== 'object' || value === null) {
+    return undefined;
+  }
+
+  return Object.getOwnPropertyDescriptor(value, OPERATIONS_TYPE_SYM)?.value;
 }

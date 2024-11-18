@@ -44,4 +44,11 @@ suite('getOperationsType function', () => {
       expect(getOperationsType(file)).toBe(FileType);
     });
   });
+
+  it('should return undefined if value is not object or is null', () => {
+    const values = [undefined, null, 1, 'a', true, Symbol()];
+    values.forEach((value) => {
+      expect(getOperationsType(value)).toBe(undefined);
+    });
+  });
 });
