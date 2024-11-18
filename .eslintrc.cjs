@@ -106,7 +106,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['test/**/*.ts', 'test-utils/**/*.ts', 'vitest.config.ts'],
+      files: ['test*/**/*.ts', 'vitest.config.ts'],
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',

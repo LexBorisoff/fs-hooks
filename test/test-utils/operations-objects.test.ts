@@ -1,5 +1,5 @@
 import { describe, expect, it, suite } from 'vitest';
-import type { FileTreeInterface } from '@app-types';
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 import {
   buildOperationsObject,
   buildOperationsTreeObject,

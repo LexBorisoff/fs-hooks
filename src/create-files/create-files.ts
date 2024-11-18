@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { FileTreeInterface, DirOperationsType } from '@app-types';
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
+import type { DirOperationsType } from '@app-types/operation.types.js';
 import { CreateFileErrorReason } from '@errors/create-file-error.enums.js';
 import { CreateFileError } from '@errors/create-file.error.js';
 import { getTreeDir } from '@operations/utils/get-tree-value.js';

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { FileTreeInterface } from '@app-types';
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 
 export interface PathTreeDir {
   type: 'dir';
@@ -37,12 +37,14 @@ export function getPathArray(
         return;
       }
 
-      result.push({
-        type: 'dir',
-        path: currentPath,
-      });
+      if (typeof value === 'object') {
+        result.push({
+          type: 'dir',
+          path: currentPath,
+        });
 
-      traverse(value, currentPath);
+        traverse(value, currentPath);
+      }
     });
   }
 

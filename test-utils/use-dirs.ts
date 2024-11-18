@@ -1,9 +1,9 @@
 import fs from 'node:fs';
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 import type {
-  FileTreeInterface,
   DirOperationsType,
   OperationsRecord,
-} from '@app-types';
+} from '@app-types/operation.types.js';
 import { getDirsInfo } from './get-dirs-info.js';
 
 type GetDescribePathFn = (...args: string[]) => string;

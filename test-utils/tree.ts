@@ -1,4 +1,4 @@
-import type { FileTreeInterface } from '@app-types';
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 
 const files = {
   file1: '',

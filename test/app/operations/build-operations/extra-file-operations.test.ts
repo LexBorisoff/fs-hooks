@@ -4,9 +4,11 @@ import { buildOperations } from '@app/operations/build-operations.js';
 import type {
   FileTreeInterface,
   FileType,
+} from '@app-types/file-tree.types.js';
+import type {
   DirOperationsType,
   FileOperationsType,
-} from '@app-types';
+} from '@app-types/operation.types.js';
 import { testSetup } from '@test-setup';
 import { deleteDir } from '@test-utils/delete-dir.js';
 import {

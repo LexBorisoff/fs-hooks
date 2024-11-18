@@ -1,13 +1,10 @@
 import { expect } from 'vitest';
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 import type {
-  FileTreeInterface,
   DirOperationsInterface,
   FileOperationsInterface,
-} from '@app-types';
+} from '@app-types/operation.types.js';
 import { tree } from './tree.js';
-
-type OperationsTreeObject = DirOperationsObject &
-  Record<string, FileOperationsObject | DirOperationsObject>;
 
 type OperationsObjectType<T extends object> = Record<
   keyof T,
@@ -51,9 +48,7 @@ export function buildOperationsObject<T extends object>(
 export const fileOperationsObject = buildOperationsObject(fileOperationMethods);
 export const dirOperationsObject = buildOperationsObject(dirOperationMethods);
 
-export function buildOperationsTreeObject(
-  fileTree: FileTreeInterface,
-): OperationsTreeObject {
+export function buildOperationsTreeObject(fileTree: FileTreeInterface): object {
   function traverse(
     node: FileTreeInterface,
   ): Record<string, FileOperationsObject | DirOperationsObject> {
@@ -66,10 +61,12 @@ export function buildOperationsTreeObject(
         return;
       }
 
-      result[key] = {
-        ...dirOperationsObject,
-        ...traverse(value),
-      };
+      if (typeof value === 'object') {
+        result[key] = {
+          ...dirOperationsObject,
+          ...traverse(value),
+        };
+      }
     });
 
     return result;

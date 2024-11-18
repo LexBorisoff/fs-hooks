@@ -1,12 +1,12 @@
 import fs from 'node:fs';
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 import { buildOperations } from '@app/operations/build-operations.js';
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 import type {
-  FileTreeInterface,
   DirOperationsType,
   FileOperationsInterface,
   OperationsRecord,
-} from '@app-types';
+} from '@app-types/operation.types.js';
 import { testSetup } from '@test-setup';
 import { deleteDir } from '@test-utils/delete-dir.js';
 import { fileDataArray } from '@test-utils/file-data-array.js';

@@ -5,8 +5,8 @@ import type {
   FileType,
 } from './file-tree.types.js';
 
-export type OperationsFn = (...args: any[]) => any;
-export type OperationsRecord = Record<string, OperationsFn>;
+export type OperationFn = (...args: any[]) => any;
+export type OperationsRecord = Record<string, OperationFn>;
 
 export type FileOperationsFn<
   ExtraFileOperations extends OperationsRecord | undefined,
@@ -108,11 +108,11 @@ export type OperationTreeType<
       : never;
 };
 
-export type OperationNodeType<
+export type OperationsNodeType<
   Tree extends FileTreeInterface = FileTreeInterface,
   ExtraFileOperations extends OperationsRecord | undefined = undefined,
   ExtraDirOperations extends OperationsRecord | undefined = undefined,
 > =
-  | OperationsFn
+  | OperationFn
   | FileOperationsType<ExtraFileOperations>
   | DirOperationsType<Tree, ExtraFileOperations, ExtraDirOperations>;

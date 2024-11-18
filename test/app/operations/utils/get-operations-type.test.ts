@@ -2,7 +2,7 @@ import { expect, it, suite } from 'vitest';
 import { buildOperations } from '@app/operations/build-operations.js';
 import { getOperationsType } from '@app/operations/utils/get-operations-type.js';
 import { OperationsTypeEnum } from '@app/operations/utils/operations-type.enum.js';
-import type { FileTreeInterface } from '@app-types';
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 import { testSetup } from '@test-setup';
 import { TestEnum } from './test.enum.js';
 
@@ -42,6 +42,13 @@ suite('getOperationsType function', () => {
 
     [file1, file2, file3, file4].forEach((file) => {
       expect(getOperationsType(file)).toBe(FileType);
+    });
+  });
+
+  it('should return undefined if value is not object or is null', () => {
+    const values = [undefined, null, 1, 'a', true, Symbol()];
+    values.forEach((value) => {
+      expect(getOperationsType(value)).toBe(undefined);
     });
   });
 });
