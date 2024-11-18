@@ -15,8 +15,8 @@ export interface PathTreeFile {
 export type PathTreeItem = PathTreeFile | PathTreeDir;
 
 export function getPathArray(
-  fileTree: FileTreeInterface,
   basePath: string,
+  fileTree: FileTreeInterface,
 ): PathTreeItem[] {
   const result: PathTreeItem[] = [];
 

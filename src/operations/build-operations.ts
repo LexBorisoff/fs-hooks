@@ -108,10 +108,10 @@ function getDirOperations<
         createDir(dirPath);
       }
 
-      const newDir = {
+      const newDir: DirObjectInterface<FileTreeInterface> = {
         path: dirPath,
         children: {},
-      } satisfies DirObjectInterface<FileTreeInterface>;
+      };
 
       return {
         ...getDirOperations(newDir, extraOperations),

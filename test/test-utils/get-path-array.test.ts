@@ -33,7 +33,7 @@ function pathTreeFile(path: string): PathTreeFile {
 
 suite('createPathArray function', () => {
   it('should return path array', () => {
-    const result = getPathArray(tree, testPath);
+    const result = getPathArray(testPath, tree);
 
     const pathArray = [
       pathTreeFile(joinPath('file1')),

@@ -41,7 +41,7 @@ suite('createFiles function', { concurrent: false }, () => {
   describe('create files based on an operations object', () => {
     describeSetup(CreateFilesTest.OperationsObject);
     const describePath = getDescribePath();
-    const pathArray = getPathArray(tree, describePath);
+    const pathArray = getPathArray(describePath, tree);
 
     beforeEach(() => {
       const operations = buildOperations(describePath, tree);
