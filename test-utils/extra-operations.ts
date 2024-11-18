@@ -10,8 +10,8 @@ export type ExtraDirOperations = {
 };
 
 export type ExtraFileOperations = {
-  getFileData: () => string;
   getFilePath: () => string;
+  getFileData: () => string;
   plusOne: (num: number) => number;
 };
 
@@ -32,11 +32,11 @@ export const extraDirOperations: DirOperationsFn<ExtraDirOperations> = (
 export const extraFileOperations: FileOperationsFn<ExtraFileOperations> = (
   file,
 ) => ({
-  getFileData() {
-    return file.data;
-  },
   getFilePath() {
     return file.path;
+  },
+  getFileData() {
+    return file.data;
   },
   plusOne(value) {
     return value + 1;

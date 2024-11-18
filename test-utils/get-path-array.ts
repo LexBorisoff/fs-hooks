@@ -37,12 +37,14 @@ export function getPathArray(
         return;
       }
 
-      result.push({
-        type: 'dir',
-        path: currentPath,
-      });
+      if (typeof value === 'object') {
+        result.push({
+          type: 'dir',
+          path: currentPath,
+        });
 
-      traverse(value, currentPath);
+        traverse(value, currentPath);
+      }
     });
   }
 

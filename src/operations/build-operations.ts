@@ -169,10 +169,10 @@ export function buildOperations<
     ExtraDirOperations
   > = {},
 ): DirOperationsType<Tree, ExtraFileOperations, ExtraDirOperations> {
-  const rootDir = {
+  const rootDir: DirObjectInterface<Tree> = {
     children: buildFileTree(parentPath, tree),
     path: parentPath,
-  } satisfies DirObjectInterface<Tree>;
+  };
 
   const rootOperations: DirOperationsInterface<
     Tree,
