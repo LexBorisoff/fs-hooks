@@ -16,7 +16,7 @@ suite('anyFunction function', () => {
       prop10: [],
     };
 
-    const result: any = anyFunction(obj);
+    const result = anyFunction(obj);
     expect(result).toEqual(obj);
   });
 });

@@ -86,7 +86,8 @@ suite(
 
       it('should return directory path', () => {
         useDirs((dir, { pathDirs }) => {
-          expect(dir.getDirPath()).toBe(getDescribePath(...pathDirs));
+          const dirPath = getDescribePath(...pathDirs);
+          expect(dir.getDirPath()).toBe(dirPath);
         });
       });
     });

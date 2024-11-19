@@ -78,7 +78,7 @@ suite('FileManager class', () => {
     });
   });
 
-  describe('operations object', () => {
+  describe('operations object returned from the mount method', () => {
     describeSetup(FileManagerTest.Operations);
 
     it('should return an operations object', () => {
@@ -127,7 +127,7 @@ suite('FileManager class', () => {
     });
   });
 
-  describe('function to create files', () => {
+  describe('create files function returned from the mount method', () => {
     describeSetup(FileManagerTest.CreateFiles);
 
     let operations: DirOperationsType<typeof tree>;
@@ -149,14 +149,14 @@ suite('FileManager class', () => {
     });
   });
 
-  describe('tree static method', () => {
+  describe('static tree method on the file manager class', () => {
     it('should return a tree object', () => {
       const testTree: FileTreeInterface = {};
       expect(FileManager.tree(testTree)).toBe(testTree);
     });
   });
 
-  describe('extend static method', () => {
+  describe('static extend method on the file manager class', () => {
     it('should return an extra operations object', () => {
       const extraOperations = {};
       expect(FileManager.extend(extraOperations)).toBe(extraOperations);

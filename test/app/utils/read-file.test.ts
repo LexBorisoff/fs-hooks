@@ -9,14 +9,15 @@ const { setup, joinPath } = testSetup(TestEnum.ReadFile, import.meta);
 
 suite('readFile function', { concurrent: false }, () => {
   beforeAll(() => setup());
+
   let filePath: string;
 
   beforeEach(() => {
     const dirName = 'new-dir';
     const dirPath = joinPath(dirName);
-    fs.mkdirSync(dirPath);
     filePath = joinPath(dirName, 'new-file');
 
+    fs.mkdirSync(dirPath);
     return () => {
       fs.rmSync(dirPath, {
         force: true,

@@ -16,7 +16,7 @@ interface TestSetup {
    * in the test file's directory
    *
    * @returns a cleanup function that deletes the test folder,
-   * unless deleteTestFolder param is set to false
+   * unless deleteTestFolder option is set to false
    * or KEEP_TEST_FOLDER env variable is set to true
    */
   setup: (config?: { deleteTestFolder?: boolean }) => CleanupFn;

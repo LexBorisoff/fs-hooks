@@ -5,7 +5,7 @@ import type {
   OperationsRecord,
 } from '@app-types/operation.types.js';
 
-interface DirInfo<
+export interface DirInfo<
   T extends FileTreeInterface,
   ExtraFileOperations extends OperationsRecord | undefined,
   ExtraDirOperations extends OperationsRecord | undefined,

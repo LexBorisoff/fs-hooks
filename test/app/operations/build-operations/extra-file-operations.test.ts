@@ -16,7 +16,7 @@ import {
   type ExtraFileOperations,
 } from '@test-utils/extra-operations.js';
 import { fileDataArray } from '@test-utils/file-data-array.js';
-import { getFilesInfo } from '@test-utils/get-files-info.js';
+import { getFilesInfo, type FileInfo } from '@test-utils/get-files-info.js';
 import {
   buildOperationsObject,
   fileOperationsObject,
@@ -33,8 +33,6 @@ enum ExtraOperationsTest {
   ObjectProperties = 'object-properties',
   GetFilePath = 'get-file-path',
   GetFileData = 'get-file-data',
-  GetFileType = 'get-file-type',
-  GetFileSkip = 'get-file-skip',
   PlusOne = 'plus-one',
 }
 
@@ -42,8 +40,8 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
   beforeAll(() => setup());
 
   const methods: (keyof ExtraFileOperations)[] = [
-    'getFileData',
     'getFilePath',
+    'getFileData',
     'plusOne',
   ];
   const extraFileOperationsObject = buildOperationsObject(methods);
@@ -53,6 +51,7 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     ExtraFileOperations,
     undefined
   >;
+  let files: FileInfo<ExtraFileOperations, undefined>[];
   let testName: string;
   let getDescribePath: (...args: string[]) => string;
 
@@ -62,6 +61,7 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
       getDescribePath = (...args: string[]) => joinPath(testName, ...args);
       const testPath = getDescribePath();
       result = buildOperations(testPath, tree, { file: extraFileOperations });
+      files = getFilesInfo<ExtraFileOperations, undefined>(result);
 
       fs.mkdirSync(testPath);
       return (): void => {
@@ -81,10 +81,10 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
   ) => void;
 
   /**
-   * TestEnum files from the file tree
+   * Test files from the file tree
    */
   function useTreeFiles(cb: UseTreeFilesCb): void {
-    getFilesInfo(result).forEach(({ file, fileName, treeFile, pathDirs }) => {
+    files.forEach(({ file, fileName, treeFile, pathDirs }) => {
       const dirPath = joinPath(testName, ...pathDirs);
       fs.mkdirSync(dirPath, { recursive: true });
       cb(file, { fileName, fileData: treeFile, pathDirs });
@@ -105,7 +105,7 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     const dirName = 'dirCreate';
     const fileName = 'fileCreate';
 
-    getFilesInfo(result).forEach(({ dir, pathDirs }) => {
+    files.forEach(({ dir, pathDirs }) => {
       const dirPath = joinPath(testName, ...pathDirs);
       fs.mkdirSync(dirPath, { recursive: true });
 
@@ -153,22 +153,6 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
     });
   });
 
-  describe('getFileData extra file operation', () => {
-    describeSetup(ExtraOperationsTest.GetFileData);
-
-    it('should return file data for tree files', () => {
-      useTreeFiles((file, { fileData }) => {
-        expect(file.getFileData()).toBe(fileData);
-      });
-    });
-
-    it('should return file data for created files', () => {
-      useCreatedFiles((file, { fileData }) => {
-        expect(file.getFileData()).toBe(fileData);
-      });
-    });
-  });
-
   describe('getFilePath extra file operation', () => {
     describeSetup(ExtraOperationsTest.GetFilePath);
 
@@ -183,6 +167,22 @@ suite('buildOperations - extra file operations', { concurrent: false }, () => {
       useCreatedFiles((file, { fileName, pathDirs }) => {
         const filePath = getDescribePath(...pathDirs, fileName);
         expect(file.getFilePath()).toBe(filePath);
+      });
+    });
+  });
+
+  describe('getFileData extra file operation', () => {
+    describeSetup(ExtraOperationsTest.GetFileData);
+
+    it('should return file data for tree files', () => {
+      useTreeFiles((file, { fileData }) => {
+        expect(file.getFileData()).toBe(fileData);
+      });
+    });
+
+    it('should return file data for created files', () => {
+      useCreatedFiles((file, { fileData }) => {
+        expect(file.getFileData()).toBe(fileData);
       });
     });
   });

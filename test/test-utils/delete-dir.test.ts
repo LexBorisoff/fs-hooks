@@ -16,10 +16,12 @@ suite('deleteDir function', () => {
     fs.mkdirSync(dirPath);
 
     return () => {
-      fs.rmSync(dirPath, {
-        force: true,
-        recursive: true,
-      });
+      if (fs.existsSync(dirPath)) {
+        fs.rmSync(dirPath, {
+          force: true,
+          recursive: true,
+        });
+      }
     };
   });
 
@@ -35,13 +37,13 @@ suite('deleteDir function', () => {
     fs.writeFileSync(file1, '');
     fs.mkdirSync(dir1);
 
-    [dirPath, file1, dir1].forEach((p) => {
-      expect(fs.existsSync(p)).toBe(true);
+    [dirPath, file1, dir1].forEach((testPath) => {
+      expect(fs.existsSync(testPath)).toBe(true);
     });
 
     deleteDir(dirPath);
-    [dirPath, file1, dir1].forEach((p) => {
-      expect(fs.existsSync(p)).toBe(false);
+    [dirPath, file1, dir1].forEach((testPath) => {
+      expect(fs.existsSync(testPath)).toBe(false);
     });
   });
 
@@ -57,13 +59,13 @@ suite('deleteDir function', () => {
     fs.writeFileSync(file1, '');
     fs.writeFileSync(file2, '');
 
-    [dirPath, dir1, dir2, file1, file2].forEach((p) => {
-      expect(fs.existsSync(p)).toBe(true);
+    [dirPath, dir1, dir2, file1, file2].forEach((testPath) => {
+      expect(fs.existsSync(testPath)).toBe(true);
     });
 
     deleteDir(dirPath);
-    [dirPath, dir1, dir2, file1, file2].forEach((p) => {
-      expect(fs.existsSync(p)).toBe(false);
+    [dirPath, dir1, dir2, file1, file2].forEach((testPath) => {
+      expect(fs.existsSync(testPath)).toBe(false);
     });
   });
 });

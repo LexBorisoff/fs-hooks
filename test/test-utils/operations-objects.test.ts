@@ -7,7 +7,7 @@ import {
   fileOperationsObject,
 } from '@test-utils/operations-objects.js';
 
-interface FileTree {
+interface TreeInterface {
   file1: any;
   dir1: any;
   dir2: {
@@ -37,7 +37,7 @@ const tree: FileTreeInterface = {
       },
     },
   },
-} satisfies FileTree;
+} satisfies TreeInterface;
 
 suite('operations objects test utils', () => {
   describe('buildOperationsObject function', () => {
@@ -56,7 +56,7 @@ suite('operations objects test utils', () => {
   });
 
   describe('buildOperationsTreeObject function', () => {
-    const operations: FileTree = {
+    const operations: TreeInterface = {
       ...dirOperationsObject,
       file1: fileOperationsObject,
       dir1: dirOperationsObject,

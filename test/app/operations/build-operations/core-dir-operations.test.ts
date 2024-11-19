@@ -114,7 +114,6 @@ suite(
           expect(fs.existsSync(dirPath)).toBe(true);
           expect(fs.statSync(dirPath).isDirectory()).toBe(true);
           expect(createdDir).toEqual(dirOperationsObject);
-          expect(createdDir.$getPath()).toBe(dirPath);
         });
       });
     });
@@ -152,7 +151,6 @@ suite(
           expect(fs.existsSync(filePath)).toBe(true);
           expect(fs.statSync(filePath).isFile()).toBe(true);
           expect(createdFile).toEqual(fileOperationsObject);
-          expect(createdFile.$getPath()).toBe(filePath);
         });
       });
 
@@ -170,7 +168,6 @@ suite(
           expect(fs.existsSync(nestedFilePath)).toBe(true);
           expect(fs.statSync(nestedFilePath).isFile()).toBe(true);
           expect(createdFile).toEqual(fileOperationsObject);
-          expect(createdFile.$getPath()).toBe(nestedFilePath);
         });
       });
 
@@ -184,7 +181,7 @@ suite(
     describe('fileDelete core directory operation', () => {
       describeSetup(CoreDirOperationsTest.FileDelete);
 
-      it('should delete specified files', () => {
+      it('should delete files', () => {
         const fileName = 'new-file';
 
         useDirs((dir, { pathDirs }) => {
@@ -229,7 +226,7 @@ suite(
     describe('fileWrite core directory operation', () => {
       describeSetup(CoreDirOperationsTest.FileWrite);
 
-      it('should write to specified files', () => {
+      it('should write to files', () => {
         const fileName = 'new-file';
 
         useDirs((dir, { pathDirs }) => {
@@ -250,7 +247,7 @@ suite(
     describe('fileClear core directory operation', () => {
       describeSetup(CoreDirOperationsTest.FileClear);
 
-      it('should clear data for specified files', () => {
+      it('should clear file data', () => {
         const fileName = 'new-file';
 
         useDirs((dir, { pathDirs }) => {

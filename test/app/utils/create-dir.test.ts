@@ -10,7 +10,7 @@ const { testPath, setup, joinPath } = testSetup(
   import.meta,
 );
 
-suite('createDir Suite', { concurrent: false }, () => {
+suite('createDir function', { concurrent: false }, () => {
   beforeAll(() => setup());
 
   describe('createDir function', () => {

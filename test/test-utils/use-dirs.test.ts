@@ -4,6 +4,7 @@ import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 import type { DirOperationsType } from '@app-types/operation.types.js';
 import { testSetup } from '@test-setup';
 import { anyFunction } from '@test-utils/any-function.js';
+import type { DirInfo } from '@test-utils/get-dirs-info.js';
 import {
   getUseDirs,
   NEW_DIR_NAME,
@@ -29,12 +30,9 @@ const tree = {
   },
 } satisfies FileTreeInterface;
 
-interface DirInfo {
-  pathDirs: string[];
-  children: string[];
-}
-
-type DirOperations = DirOperationsType<any, undefined, undefined>;
+type DirInfoType = DirInfo<any, undefined, undefined>;
+type DirMeta = Pick<DirInfoType, 'children' | 'pathDirs'>;
+type DirOperations = DirInfoType['dir'];
 
 suite('getUseDirs function', () => {
   beforeAll(() => setup());
@@ -44,7 +42,7 @@ suite('getUseDirs function', () => {
   }
 
   let operations: DirOperationsType<typeof tree>;
-  let dirs: ({ dir: DirOperations } & DirInfo)[];
+  let dirs: DirInfo<any, undefined, undefined>[];
   let useDirs: UseDirsFn<undefined, undefined>;
 
   beforeEach(() => {
@@ -93,18 +91,18 @@ suite('getUseDirs function', () => {
     ];
   });
 
-  function treeDir(index: number): [DirOperations, DirInfo] {
+  function treeDirParams(index: number): [DirOperations, DirMeta] {
     const { dir, children, pathDirs } = dirs[index];
     return [dir, { children, pathDirs }];
   }
 
-  function createdDir(index: number): [object, DirInfo] {
-    const [dir, { pathDirs }] = treeDir(index);
-    const info = {
+  function createdDirParams(index: number): [object, DirMeta] {
+    const [dir, { pathDirs }] = treeDirParams(index);
+    const meta: DirMeta = {
       children: [],
       pathDirs: pathDirs.concat(NEW_DIR_NAME),
     };
-    return [anyFunction(dir.$dirCreate(NEW_DIR_NAME)), info];
+    return [anyFunction(dir.$dirCreate(NEW_DIR_NAME)), meta];
   }
 
   it('should be a function', () => {
@@ -121,8 +119,8 @@ suite('getUseDirs function', () => {
 
     let callNum = 1;
     Array.from({ length: numOfDirs }).forEach((_, i) => {
-      expect(cb).toHaveBeenNthCalledWith(callNum++, ...treeDir(i));
-      expect(cb).toHaveBeenNthCalledWith(callNum++, ...createdDir(i));
+      expect(cb).toHaveBeenNthCalledWith(callNum++, ...treeDirParams(i));
+      expect(cb).toHaveBeenNthCalledWith(callNum++, ...createdDirParams(i));
     });
   });
 });
