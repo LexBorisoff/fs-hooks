@@ -12,22 +12,20 @@
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    },
-    "./utils": {
-      "types": "./dist/types/utils/index.d.ts",
-      "import": "./dist/utils/index.js",
-      "default": "./dist/utils/index.js"
+      "import": "./dist/app/index.js",
+      "default": "./dist/app/index.js"
     }
   },
   "scripts": {
-    "format": "prettier --write *.{js,cjs,mjs,ts,cts,mts} src/**/*.ts",
-    "lint": "eslint src/**/*.{js,ts}",
+    "format": "prettier --write *.{js,cjs,mjs,ts,cts,mts} {src,test*}/**/*.ts",
+    "lint": "eslint {src,test*}/**/*.{js,ts}",
     "lint:fix": "npm run lint -- --fix",
-    "prebuild": "npm run format && npm run lint:fix && rm -fr ./dist",
-    "build": "tsc --project ./tsconfig.json",
-    "build:watch": "tsc --project ./tsconfig.json --watch",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
+    "prebuild": "npm run format && npm run lint:fix && npm test && rimraf ./dist",
+    "tsc": "tsc -p tsconfig.app.json",
+    "tsc-alias": "tsc-alias -p tsconfig.app.json",
+    "build": "npm run tsc && npm run tsc-alias",
     "prepack": "npm run build"
   },
   "files": [
@@ -38,22 +36,27 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lexjs-dev/core.git"
+    "url": "git+https://github.com/lexjs-dev/file-manager.git"
   },
-  "homepage": "https://github.com/lexjs-dev/core/tree/main#readme",
+  "homepage": "https://github.com/lexjs-dev/file-manager/tree/main#readme",
   "bugs": {
-    "url": "https://github.com/lexjs-dev/core/issues"
+    "url": "https://github.com/lexjs-dev/file-manager/issues"
   },
   "devDependencies": {
     "@types/node": "^22.3.0",
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
+    "@vitest/coverage-v8": "^2.1.4",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-prettier": "^5.2.1",
     "prettier": "^3.3.3",
-    "typescript": "^5.5.4"
+    "rimraf": "^6.0.1",
+    "tsc-alias": "^1.8.10",
+    "typescript": "^5.5.4",
+    "vite-tsconfig-paths": "^5.1.2",
+    "vitest": "^2.1.1"
   }
 }

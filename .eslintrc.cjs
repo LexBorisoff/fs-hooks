@@ -16,7 +16,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
-    project: './tsconfig.json',
+    project: './tsconfig.app.json',
   },
   ignorePatterns: ['.eslintrc.cjs'],
   rules: {
@@ -37,7 +37,12 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/explicit-function-return-type': 'error',
+    '@typescript-eslint/explicit-function-return-type': [
+      'error',
+      {
+        allowExpressions: true,
+      },
+    ],
     'require-await': 'off',
     '@typescript-eslint/require-await': 'error',
     'no-unused-vars': 'off',
@@ -84,6 +89,10 @@ module.exports = {
           'sibling',
           'index',
         ],
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true,
+        },
       },
     ],
   },
@@ -91,7 +100,26 @@ module.exports = {
     'import/resolver': {
       typescript: {
         alwaysTryTypes: true,
+        project: './tsconfig.app.json',
       },
     },
   },
+  overrides: [
+    {
+      files: ['test*/**/*.ts', 'vitest.config.ts'],
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        project: './tsconfig.test.json',
+      },
+      settings: {
+        'import/resolver': {
+          typescript: {
+            alwaysTryTypes: true,
+            project: './tsconfig.test.json',
+          },
+        },
+      },
+    },
+  ],
 };
