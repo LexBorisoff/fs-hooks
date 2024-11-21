@@ -43,19 +43,21 @@
     "url": "https://github.com/lexjs-dev/file-manager/issues"
   },
   "devDependencies": {
+    "@eslint/compat": "^1.2.3",
+    "@eslint/js": "^9.15.0",
     "@types/node": "^22.3.0",
-    "@typescript-eslint/eslint-plugin": "^8.3.0",
-    "@typescript-eslint/parser": "^8.3.0",
     "@vitest/coverage-v8": "^2.1.4",
-    "eslint": "^8.57.0",
+    "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
-    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.12.0",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
     "tsc-alias": "^1.8.10",
     "typescript": "^5.5.4",
+    "typescript-eslint": "^8.15.0",
     "vite-tsconfig-paths": "^5.1.2",
     "vitest": "^2.1.1"
   }
