@@ -1,13 +1,15 @@
 import path from 'node:path';
+
+import { createFiles } from '@create-files/create-files.js';
+import { buildOperations } from '@operations/build-operations.js';
+
 import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 import type {
   DirOperationsType,
   ExtraOperationsInterface,
   OperationsRecord,
 } from '@app-types/operation.types.js';
-import { createFiles } from '@create-files/create-files.js';
 import type { CreateFileError } from '@errors/create-file.error.js';
-import { buildOperations } from '@operations/build-operations.js';
 
 export type CreateFilesFn = () => CreateFileError[];
 

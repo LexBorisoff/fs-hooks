@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+
 import {
   afterEach,
   beforeAll,
@@ -8,6 +9,7 @@ import {
   it,
   suite,
 } from 'vitest';
+
 import { createFiles } from '@app/create-files/create-files.js';
 import { CreateFileError } from '@app/errors/create-file.error.js';
 import { buildOperations } from '@app/operations/build-operations.js';
@@ -15,12 +17,13 @@ import {
   isDirOperations,
   isFileOperations,
 } from '@app/operations/utils/is-operations.js';
-import type { FileTreeInterface } from '@app-types/file-tree.types.js';
-import type { DirOperationsType } from '@app-types/operation.types.js';
 import { testSetup } from '@test-setup';
 import { deleteDir } from '@test-utils/delete-dir.js';
 import { getPathArray, type PathTreeFile } from '@test-utils/get-path-array.js';
 import { tree } from '@test-utils/tree.js';
+
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
+import type { DirOperationsType } from '@app-types/operation.types.js';
 
 const { setup, joinPath } = testSetup('create-files', import.meta);
 
@@ -151,7 +154,6 @@ suite('createFiles function', { concurrent: false }, () => {
       const dirPaths: string[] = [];
 
       function traverse(dir: DirOperationsType<any>): void {
-        console.log(dir.$getPath());
         fs.mkdirSync(dir.$getPath(), { recursive: true });
 
         Object.values(dir).forEach((node) => {

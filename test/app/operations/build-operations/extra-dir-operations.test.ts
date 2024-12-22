@@ -1,8 +1,8 @@
 import fs from 'node:fs';
+
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
+
 import { buildOperations } from '@app/operations/build-operations.js';
-import type { FileTreeInterface } from '@app-types/file-tree.types.js';
-import type { DirOperationsType } from '@app-types/operation.types.js';
 import { testSetup } from '@test-setup';
 import { deleteDir } from '@test-utils/delete-dir.js';
 import {
@@ -15,7 +15,11 @@ import {
 } from '@test-utils/operations-objects.js';
 import { tree } from '@test-utils/tree.js';
 import { getUseDirs, type UseDirsFn } from '@test-utils/use-dirs.js';
+
 import { TestEnum } from './test.enum.js';
+
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
+import type { DirOperationsType } from '@app-types/operation.types.js';
 
 const { setup, joinPath } = testSetup(TestEnum.ExtraDirOperations, import.meta);
 

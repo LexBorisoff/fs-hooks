@@ -1,7 +1,10 @@
 import fs from 'node:fs';
+
 import { expect, suite, describe, it, beforeAll } from 'vitest';
+
 import { isDirectory } from '@app/utils/is-directory.js';
 import { testSetup } from '@test-setup';
+
 import { TestEnum } from './test.enum.js';
 
 const { setup, joinPath } = testSetup(TestEnum.IsDirectory, import.meta);

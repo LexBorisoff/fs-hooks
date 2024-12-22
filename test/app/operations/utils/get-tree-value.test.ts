@@ -1,13 +1,16 @@
 import { beforeEach, describe, expect, it, suite } from 'vitest';
+
 import { buildOperations } from '@app/operations/build-operations.js';
 import {
   getTreeDir,
   getTreeFile,
 } from '@app/operations/utils/get-tree-value.js';
+import { testSetup } from '@test-setup';
+
+import { TestEnum } from './test.enum.js';
+
 import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 import type { DirOperationsType } from '@app-types/operation.types.js';
-import { testSetup } from '@test-setup';
-import { TestEnum } from './test.enum.js';
 
 const { testPath } = testSetup(TestEnum.GetTreeValue, import.meta);
 

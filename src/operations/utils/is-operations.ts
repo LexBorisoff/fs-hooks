@@ -1,11 +1,12 @@
+import { getOperationsType } from './get-operations-type.js';
+import { OperationsTypeEnum } from './operations-type.enum.js';
+
 import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 import type {
   DirOperationsType,
   FileOperationsType,
   OperationsRecord,
 } from '@app-types/operation.types.js';
-import { getOperationsType } from './get-operations-type.js';
-import { OperationsTypeEnum } from './operations-type.enum.js';
 
 export function isFileOperations<
   ExtraFileOperations extends OperationsRecord | undefined,

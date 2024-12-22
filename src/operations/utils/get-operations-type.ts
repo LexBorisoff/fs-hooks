@@ -1,4 +1,5 @@
 import { OPERATIONS_TYPE_SYM } from './constants.js';
+
 import type { OperationsTypeEnum } from './operations-type.enum.js';
 
 export function getOperationsType(
