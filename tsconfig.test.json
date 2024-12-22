@@ -4,7 +4,7 @@
     "paths": {
       "@app-types/*": ["./src/types/*"],
       "@app/*": ["./src/*"],
-      "@test-utils/*": ["./test-utils/*"],
+      "@test-utils/*": ["./test/test-utils/*"],
       "@test-setup": ["./test/test-setup.ts"]
     }
   },
