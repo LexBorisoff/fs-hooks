@@ -1,21 +1,10 @@
+import lexjs from '@lexjs/eslint-plugin';
+import { useIgnoreFile } from '@lexjs/eslint-plugin/utils';
 import globals from 'globals';
 import * as tseslint from 'typescript-eslint';
-import { ignoreFile } from './eslint/ignore-files.js';
-import {
-  recommendedConfig,
-  recommendedConfigTypescript,
-} from './eslint/recommended.config.js';
-
-const lexjs = {
-  ignoreFile,
-  configs: {
-    recommended: recommendedConfig,
-    typescript: recommendedConfigTypescript,
-  },
-};
 
 export default tseslint.config(
-  lexjs.ignoreFile('.gitignore', import.meta),
+  useIgnoreFile('.gitignore', import.meta),
   lexjs.configs.recommended,
   lexjs.configs.typescript,
   {
@@ -24,12 +13,12 @@ export default tseslint.config(
       parserOptions: {
         sourceType: 'module',
         projectService: {
-          allowDefaultProject: ['*.js', 'eslint/*'],
+          allowDefaultProject: ['*.js'],
         },
       },
       globals: {
         ...globals.node,
-        ...globals.es2016,
+        ...globals.es2020,
       },
     },
   },

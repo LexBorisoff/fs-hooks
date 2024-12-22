@@ -1,10 +1,12 @@
 import { expect } from 'vitest';
+
+import { tree } from './tree.js';
+
 import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 import type {
   DirOperationsInterface,
   FileOperationsInterface,
 } from '@app-types/operation.types.js';
-import { tree } from './tree.js';
 
 type OperationsObjectType<T extends object> = Record<
   keyof T,

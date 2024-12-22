@@ -1,11 +1,13 @@
 import { describe, expect, it, suite } from 'vitest';
-import type { FileTreeInterface } from '@app-types/file-tree.types.js';
+
 import {
   buildOperationsObject,
   buildOperationsTreeObject,
   dirOperationsObject,
   fileOperationsObject,
 } from '@test-utils/operations-objects.js';
+
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 
 interface TreeInterface {
   file1: any;

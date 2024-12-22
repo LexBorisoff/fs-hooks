@@ -1,3 +1,5 @@
+import { TREE_VALUE_SYM } from './constants.js';
+
 import type {
   FileTreeInterface,
   FileType,
@@ -6,7 +8,6 @@ import type {
   DirOperationsType,
   FileOperationsType,
 } from '@app-types/operation.types.js';
-import { TREE_VALUE_SYM } from './constants.js';
 
 export function getTreeFile(operations: FileOperationsType): FileType {
   return Object.getOwnPropertyDescriptor(operations, TREE_VALUE_SYM)?.value;

@@ -1,7 +1,10 @@
 import fs from 'node:fs';
+
 import { beforeAll, beforeEach, expect, it, suite } from 'vitest';
+
 import { testSetup } from '@test-setup';
 import { deleteDir } from '@test-utils/delete-dir.js';
+
 import { TestEnum } from './test.enum.js';
 
 const { setup, joinPath } = testSetup(TestEnum.DeleteDir, import.meta);

@@ -1,10 +1,6 @@
 {
-  "name": "@lexjs/file-manager",
-  "version": "0.0.1-beta.1",
-  "publishConfig": {
-    "access": "public",
-    "tag": "beta"
-  },
+  "name": "fs-hooks",
+  "version": "0.0.0",
   "description": "",
   "type": "module",
   "main": "./dist/index.js",
@@ -36,22 +32,17 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lexjs-dev/file-manager.git"
+    "url": "git+https://github.com/LexBorisoff/fs-hooks.git"
   },
-  "homepage": "https://github.com/lexjs-dev/file-manager/tree/main#readme",
+  "homepage": "https://github.com/LexBorisoff/fs-hooks/tree/main#readme",
   "bugs": {
-    "url": "https://github.com/lexjs-dev/file-manager/issues"
+    "url": "https://github.com/LexBorisoff/fs-hooks/issues"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.2.3",
-    "@eslint/js": "^9.15.0",
+    "@lexjs/eslint-plugin": "^1.0.0",
     "@types/node": "^22.3.0",
     "@vitest/coverage-v8": "^2.1.4",
     "eslint": "^9.15.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.6.3",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.12.0",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",

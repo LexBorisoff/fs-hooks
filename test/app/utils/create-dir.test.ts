@@ -1,8 +1,11 @@
 import fs from 'node:fs';
+
 import { expect, beforeAll, suite, describe, it, afterEach } from 'vitest';
+
 import { createDir } from '@app/utils/create-dir.js';
 import { testSetup } from '@test-setup';
 import { deleteDir } from '@test-utils/delete-dir.js';
+
 import { TestEnum } from './test.enum.js';
 
 const { testPath, setup, joinPath } = testSetup(

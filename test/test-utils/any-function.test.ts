@@ -1,4 +1,5 @@
 import { expect, it, suite } from 'vitest';
+
 import { anyFunction } from '@test-utils/any-function.js';
 
 suite('anyFunction function', () => {

@@ -1,4 +1,5 @@
 import path from 'node:path';
+
 import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 
 export interface PathTreeDir {

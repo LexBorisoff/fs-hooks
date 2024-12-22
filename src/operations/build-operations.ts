@@ -1,5 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
+
+import { createDir } from '@utils/create-dir.js';
+import { readFile } from '@utils/read-file.js';
+
+import { OPERATIONS_TYPE_SYM, TREE_VALUE_SYM } from './utils/constants.js';
+import { OperationsTypeEnum } from './utils/operations-type.enum.js';
+
 import type {
   DirObjectInterface,
   FileObjectInterface,
@@ -14,10 +21,6 @@ import type {
   FileOperationsType,
   OperationsRecord,
 } from '@app-types/operation.types.js';
-import { createDir } from '@utils/create-dir.js';
-import { readFile } from '@utils/read-file.js';
-import { OPERATIONS_TYPE_SYM, TREE_VALUE_SYM } from './utils/constants.js';
-import { OperationsTypeEnum } from './utils/operations-type.enum.js';
 
 function buildFileTree<Tree extends FileTreeInterface>(
   parentPath: string,

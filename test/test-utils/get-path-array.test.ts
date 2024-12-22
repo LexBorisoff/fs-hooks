@@ -1,12 +1,15 @@
 import { expect, it, suite } from 'vitest';
-import type { FileTreeInterface } from '@app-types/file-tree.types.js';
+
 import { testSetup } from '@test-setup';
 import {
   getPathArray,
   type PathTreeDir,
   type PathTreeFile,
 } from '@test-utils/get-path-array.js';
+
 import { TestEnum } from './test.enum.js';
+
+import type { FileTreeInterface } from '@app-types/file-tree.types.js';
 
 const { testPath, joinPath } = testSetup(TestEnum.GetPathArray, import.meta);
 

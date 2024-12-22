@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+
 import { FileManager } from '@app/file-manager.js';
 import * as index from '@app/index.js';
 

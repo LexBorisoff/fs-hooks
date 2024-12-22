@@ -1,4 +1,5 @@
 import { expect, it, suite } from 'vitest';
+
 import { parseData } from '@app/utils/parse-data.js';
 
 suite('parseData function', () => {
