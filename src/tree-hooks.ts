@@ -1,4 +1,4 @@
-import { buildObjectTree } from './build-object-tree.js';
+import { buildObjectTree } from './object-tree/build-object-tree.js';
 
 import type {
   DirHooksFn,

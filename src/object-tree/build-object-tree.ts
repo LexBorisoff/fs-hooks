@@ -5,7 +5,7 @@ import type {
   FileObjectInterface,
   TreeInterface,
   TreeType,
-} from './types/tree.types.js';
+} from '../types/tree.types.js';
 
 export function buildObjectTree<Tree extends TreeInterface>(
   rootPath: string,
