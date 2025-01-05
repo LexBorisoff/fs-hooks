@@ -3,15 +3,14 @@ import { buildObjectTree } from './object-tree/build-object-tree.js';
 import type {
   DirHooksFn,
   FileHooksFn,
-  HooksFn,
   HooksRecord,
-} from './types/hook.types.js';
+} from '@app-types/hook.types.js';
 import type {
   DirObjectInterface,
   FileObjectInterface,
   FileType,
   TreeInterface,
-} from './types/tree.types.js';
+} from '@app-types/tree.types.js';
 
 interface HooksInterface<
   FileHooks extends HooksRecord,
@@ -21,40 +20,47 @@ interface HooksInterface<
   dir?: DirHooksFn<DirHooks>;
 }
 
-export class TreeHooks<
+export type HooksFn<
+  Tree extends TreeInterface,
   FileHooks extends HooksRecord,
   DirHooks extends HooksRecord,
-> {
-  #hooks: HooksInterface<FileHooks, DirHooks>;
+> = <Target extends FileType | TreeInterface>(
+  cb: (tree: Tree) => Target,
+) => Target extends FileType
+  ? FileHooks
+  : Target extends TreeInterface
+    ? DirHooks
+    : undefined;
 
-  constructor(hooks: HooksInterface<FileHooks, DirHooks> = {}) {
-    this.#hooks = hooks;
+export class TreeHooks<Tree extends TreeInterface> {
+  #tree: Tree;
+
+  #rootPath: string;
+
+  constructor(rootPath: string, tree: Tree) {
+    this.#rootPath = rootPath;
+    this.#tree = tree;
   }
 
-  get #fileHooks(): FileHooksFn<FileHooks> | undefined {
-    return this.#hooks.file;
-  }
+  useHooks<FileHooks extends HooksRecord, DirHooks extends HooksRecord>({
+    file,
+    dir,
+  }: HooksInterface<FileHooks, DirHooks> = {}): HooksFn<
+    Tree,
+    FileHooks,
+    DirHooks
+  > {
+    type Hooks = HooksFn<Tree, FileHooks, DirHooks>;
+    type HooksCb = Parameters<Hooks>[0];
+    type HooksResult = ReturnType<Hooks> | undefined;
+    type Target = FileType | TreeInterface;
+    type TargetObject = FileObjectInterface | DirObjectInterface<TreeInterface>;
 
-  get #dirHooks(): DirHooksFn<DirHooks> | undefined {
-    return this.#hooks.dir;
-  }
-
-  mountTree<Tree extends TreeInterface>(
-    rootPath: string,
-    tree: Tree,
-  ): HooksFn<Tree, FileHooks, DirHooks> {
-    type HooksFnType = HooksFn<Tree, FileHooks, DirHooks>;
-    type HooksCb = Parameters<HooksFnType>[0];
-    type HooksResult = ReturnType<HooksFnType>;
-    type TargetObject =
-      | FileObjectInterface
-      | DirObjectInterface<TreeInterface>
-      | undefined;
-
-    const objectTree = buildObjectTree(rootPath, tree);
+    const objectTree = buildObjectTree(this.#rootPath, this.#tree);
+    const tree = this.#tree;
 
     function getTarget(cb: HooksCb): {
-      target: FileType | TreeInterface;
+      target: Target;
       targetObject: TargetObject;
     } {
       let targetObject: TargetObject = objectTree;
@@ -84,29 +90,34 @@ export class TreeHooks<
       }
 
       const proxyTree = createProxyTree(tree, objectTree);
-      const target = cb?.(proxyTree) ?? tree;
+      const target = cb(proxyTree);
 
       return { target, targetObject };
     }
 
-    const fileHooks = this.#fileHooks;
-    const dirHooks = this.#dirHooks;
-
     function hooks(cb: HooksCb): HooksResult {
       const { target, targetObject } = getTarget(cb);
 
-      if (typeof target === 'string' && targetObject?.type === 'file') {
-        return fileHooks?.(targetObject) as HooksResult;
+      if (typeof target === 'string' && targetObject.type === 'file') {
+        return file?.({
+          type: 'file',
+          data: target,
+          path: targetObject.path,
+        });
       }
 
-      if (typeof target === 'object' && targetObject?.type === 'dir') {
-        return dirHooks?.(targetObject) as HooksResult;
+      if (typeof target === 'object' && targetObject.type === 'dir') {
+        return dir?.({
+          type: 'dir',
+          children: targetObject.children,
+          path: targetObject.path,
+        });
       }
 
-      throw new Error('invalid target');
+      return undefined;
     }
 
-    return hooks as HooksFnType;
+    return hooks as Hooks;
   }
 
   static fileHooks<
