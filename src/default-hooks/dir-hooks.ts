@@ -4,11 +4,11 @@ import path from 'node:path';
 import { createDir } from '@utils/create-dir.js';
 import { readFile } from '@utils/read-file.js';
 
-import { TreeHooks } from '../tree-hooks.js';
+import { FsHooks } from '../fs-hooks.js';
 
 import { fileHooks } from './file-hooks.js';
 
-export const dirHooks = TreeHooks.dirHooks((targetDir) => {
+export const dirHooks = FsHooks.dirHooks((targetDir) => {
   function getPath(name: string): string {
     return path.resolve(targetDir.path, name);
   }

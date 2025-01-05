@@ -2,9 +2,9 @@ import fs from 'node:fs';
 
 import { readFile } from '@utils/read-file.js';
 
-import { TreeHooks } from '../tree-hooks.js';
+import { FsHooks } from '../fs-hooks.js';
 
-export const fileHooks = TreeHooks.fileHooks((targetFile) => ({
+export const fileHooks = FsHooks.fileHooks((targetFile) => ({
   getPath(): string {
     return targetFile.path;
   },

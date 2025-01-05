@@ -32,7 +32,7 @@ export type HooksFn<
     ? DirHooks
     : undefined;
 
-export class TreeHooks<Tree extends TreeInterface> {
+export class FsHooks<Tree extends TreeInterface> {
   #tree: Tree;
 
   #rootPath: string;

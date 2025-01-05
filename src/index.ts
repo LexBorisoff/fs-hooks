@@ -1,2 +1,2 @@
-export * from './tree-hooks.js';
+export * from './fs-hooks.js';
 export type * from './types/index.js';
