@@ -42,6 +42,14 @@ export class FsHooks<Tree extends TreeInterface> {
     this.#tree = tree;
   }
 
+  get tree(): Tree {
+    return this.#tree;
+  }
+
+  get rootPath(): string {
+    return this.#rootPath;
+  }
+
   useHooks<FileHooks extends HooksRecord, DirHooks extends HooksRecord>({
     file,
     dir,

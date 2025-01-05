@@ -3,24 +3,19 @@ import path from 'node:path';
 
 import { CreateFileErrorReason } from '@errors/create-file-error.enums.js';
 import { CreateFileError } from '@errors/create-file.error.js';
-import { getTreeDir } from '@operations/utils/get-tree-value.js';
 import { createDir } from '@utils/create-dir.js';
 import { isDirectory } from '@utils/is-directory.js';
 
-import type { FileTreeInterface } from '@app-types/file-tree.types.js';
-import type { DirOperationsType } from '@app-types/operation.types.js';
+import type { FsHooks } from '../fs-hooks.js';
+import type { TreeInterface } from '@app-types/tree.types.js';
 
 export function createFiles(
-  operations: DirOperationsType<any>,
+  fsHooks: FsHooks<TreeInterface>,
 ): CreateFileError[] {
   const errors: CreateFileError[] = [];
-  const rootPath = operations.$getPath();
 
-  function traverse(
-    parentPath: string,
-    currentFileTree: FileTreeInterface,
-  ): void {
-    Object.entries(currentFileTree).forEach(([key, value]) => {
+  function traverse(parentPath: string, currentTree: TreeInterface): void {
+    Object.entries(currentTree).forEach(([key, value]) => {
       const fullPath = path.resolve(parentPath, key);
 
       try {
@@ -54,13 +49,15 @@ export function createFiles(
   }
 
   try {
-    createDir(rootPath);
+    const { rootPath, tree } = fsHooks;
 
-    const fileTree = getTreeDir(operations);
-    traverse(rootPath, fileTree);
+    createDir(rootPath);
+    traverse(rootPath, tree);
   } catch (error) {
     if (error instanceof CreateFileError) {
       errors.push(error);
+    } else {
+      throw error;
     }
   }
 
