@@ -8,9 +8,7 @@ import { createDir } from '@utils/create-dir.js';
 import type { FsHooks } from '../fs-hooks.js';
 import type { TreeInterface } from '@app-types/tree.types.js';
 
-export function createFiles(
-  fsHooks: FsHooks<TreeInterface>,
-): CreateFileError[] {
+export function createTree(fsHooks: FsHooks<TreeInterface>): CreateFileError[] {
   const errors: CreateFileError[] = [];
 
   function traverse(parentPath: string, currentTree: TreeInterface): void {

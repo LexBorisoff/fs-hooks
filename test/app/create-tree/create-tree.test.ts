@@ -11,7 +11,7 @@ import {
   suite,
 } from 'vitest';
 
-import { createFiles } from '@app/create-files/create-files.js';
+import { createTree } from '@app/create-tree/create-tree.js';
 import { CreateFileError } from '@app/errors/create-file.error.js';
 import { FsHooks } from '@app/fs-hooks.js';
 import { testSetup } from '@test-setup';
@@ -28,7 +28,7 @@ enum CreateFilesTest {
   ErrorHandling = 'error-handling',
 }
 
-suite('createFiles function', { concurrent: false }, () => {
+suite('createTree function', { concurrent: false }, () => {
   beforeAll(() => setup());
 
   let getDescribePath: (...args: string[]) => string;
@@ -44,7 +44,7 @@ suite('createFiles function', { concurrent: false }, () => {
 
     beforeEach(() => {
       const fsHooks = new FsHooks(describePath, tree);
-      createFiles(fsHooks);
+      createTree(fsHooks);
     });
 
     afterEach(() => {
@@ -108,7 +108,7 @@ suite('createFiles function', { concurrent: false }, () => {
     it('should return error when root directory path is a file', () => {
       fs.writeFileSync(rootPath, '');
 
-      const errors = createFiles(fsHooks);
+      const errors = createTree(fsHooks);
       expect(errors.length).toBe(1);
       expect(errors.at(0)).toBeInstanceOf(CreateFileError);
       expect(errors.at(0)?.type).toBe('dir');
@@ -136,7 +136,7 @@ suite('createFiles function', { concurrent: false }, () => {
 
       traverse(fsHooks.tree, fsHooks.rootPath);
 
-      const errors = createFiles(fsHooks);
+      const errors = createTree(fsHooks);
 
       expect(errors.length).toBe(filePaths.length);
       filePaths.forEach((filePath, i) => {
@@ -163,7 +163,7 @@ suite('createFiles function', { concurrent: false }, () => {
 
       traverse(fsHooks.tree, fsHooks.rootPath);
 
-      const errors = createFiles(fsHooks);
+      const errors = createTree(fsHooks);
 
       expect(errors.length).toBe(dirPaths.length);
       dirPaths.forEach((dirPath, i) => {
