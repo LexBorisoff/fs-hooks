@@ -1,4 +1,4 @@
-import type { FileTreeInterface } from '@app-types/file-tree.types.js';
+import type { TreeInterface } from '@app-types/tree.types.js';
 
 const files = {
   file1: '',
@@ -7,7 +7,7 @@ const files = {
   file4: 'Line 1\nLine 2\nLine 3',
 } as const;
 
-export const tree: FileTreeInterface = {
+export const tree: TreeInterface = {
   ...files,
   dir1: {},
   dir2: {

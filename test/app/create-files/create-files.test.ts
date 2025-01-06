@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import path from 'node:path';
 
 import {
   afterEach,
@@ -12,23 +13,18 @@ import {
 
 import { createFiles } from '@app/create-files/create-files.js';
 import { CreateFileError } from '@app/errors/create-file.error.js';
-import { buildOperations } from '@app/operations/build-operations.js';
-import {
-  isDirOperations,
-  isFileOperations,
-} from '@app/operations/utils/is-operations.js';
+import { FsHooks } from '@app/fs-hooks.js';
 import { testSetup } from '@test-setup';
 import { deleteDir } from '@test-utils/delete-dir.js';
 import { getPathArray, type PathTreeFile } from '@test-utils/get-path-array.js';
 import { tree } from '@test-utils/tree.js';
 
-import type { FileTreeInterface } from '@app-types/file-tree.types.js';
-import type { DirOperationsType } from '@app-types/operation.types.js';
+import type { TreeInterface } from '@app-types/tree.types.js';
 
 const { setup, joinPath } = testSetup('create-files', import.meta);
 
 enum CreateFilesTest {
-  OperationsObject = 'operations-object',
+  FsHooksObject = 'fs-hooks-object',
   ErrorHandling = 'error-handling',
 }
 
@@ -42,19 +38,20 @@ suite('createFiles function', { concurrent: false }, () => {
   }
 
   describe('create files based on an operations object', () => {
-    describeSetup(CreateFilesTest.OperationsObject);
+    describeSetup(CreateFilesTest.FsHooksObject);
     const describePath = getDescribePath();
     const pathArray = getPathArray(describePath, tree);
 
     beforeEach(() => {
-      const operations = buildOperations(describePath, tree);
-      createFiles(operations);
+      const fsHooks = new FsHooks(describePath, tree);
+      createFiles(fsHooks);
     });
 
     afterEach(() => {
       const files = fs.readdirSync(describePath);
       files.forEach((file) => {
-        deleteDir(getDescribePath(file));
+        const currentPath = getDescribePath(file);
+        deleteDir(currentPath);
       });
     });
 
@@ -94,10 +91,10 @@ suite('createFiles function', { concurrent: false }, () => {
     describeSetup(CreateFilesTest.ErrorHandling);
     const describePath = getDescribePath();
     const rootPath = getDescribePath('root-path');
-    let operations: DirOperationsType<FileTreeInterface>;
+    let fsHooks: FsHooks<TreeInterface>;
 
     beforeEach(() => {
-      operations = buildOperations(rootPath, tree);
+      fsHooks = new FsHooks(rootPath, tree);
       fs.mkdirSync(describePath, { recursive: true });
     });
 
@@ -111,7 +108,7 @@ suite('createFiles function', { concurrent: false }, () => {
     it('should return error when root directory path is a file', () => {
       fs.writeFileSync(rootPath, '');
 
-      const errors = createFiles(operations);
+      const errors = createFiles(fsHooks);
       expect(errors.length).toBe(1);
       expect(errors.at(0)).toBeInstanceOf(CreateFileError);
       expect(errors.at(0)?.type).toBe('dir');
@@ -121,26 +118,25 @@ suite('createFiles function', { concurrent: false }, () => {
     it('should return errors when file paths exist as directories', () => {
       const filePaths: string[] = [];
 
-      function traverse(dir: DirOperationsType<any>): void {
-        Object.values(dir).forEach((node) => {
-          if (typeof node === 'object') {
-            if (isFileOperations(node)) {
-              const filePath = node.$getPath();
-              filePaths.push(filePath);
-              fs.mkdirSync(filePath, { recursive: true });
-              return;
-            }
+      function traverse(dir: TreeInterface, dirPath: string): void {
+        Object.entries(dir).forEach(([key, value]) => {
+          const currentPath = path.resolve(dirPath, key);
 
-            if (isDirOperations(node)) {
-              traverse(node);
-            }
+          if (typeof value === 'string') {
+            filePaths.push(currentPath);
+            fs.mkdirSync(currentPath, { recursive: true });
+            return;
+          }
+
+          if (typeof value === 'object') {
+            traverse(value, currentPath);
           }
         });
       }
 
-      traverse(operations);
+      traverse(fsHooks.tree, fsHooks.rootPath);
 
-      const errors = createFiles(operations);
+      const errors = createFiles(fsHooks);
 
       expect(errors.length).toBe(filePaths.length);
       filePaths.forEach((filePath, i) => {
@@ -153,21 +149,21 @@ suite('createFiles function', { concurrent: false }, () => {
     it('should return errors when directory paths exist as files', () => {
       const dirPaths: string[] = [];
 
-      function traverse(dir: DirOperationsType<any>): void {
-        fs.mkdirSync(dir.$getPath(), { recursive: true });
+      function traverse(dir: TreeInterface, dirPath: string): void {
+        fs.mkdirSync(dirPath, { recursive: true });
 
-        Object.values(dir).forEach((node) => {
-          if (typeof node === 'object' && isDirOperations(node)) {
-            const dirPath = node.$getPath();
-            dirPaths.push(dirPath);
-            fs.writeFileSync(dirPath, '');
+        Object.entries(dir).forEach(([key, value]) => {
+          if (typeof value === 'object') {
+            const currentPath = path.resolve(dirPath, key);
+            dirPaths.push(currentPath);
+            fs.writeFileSync(currentPath, '');
           }
         });
       }
 
-      traverse(operations);
+      traverse(fsHooks.tree, fsHooks.rootPath);
 
-      const errors = createFiles(operations);
+      const errors = createFiles(fsHooks);
 
       expect(errors.length).toBe(dirPaths.length);
       dirPaths.forEach((dirPath, i) => {
