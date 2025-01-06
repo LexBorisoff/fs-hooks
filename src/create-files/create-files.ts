@@ -4,7 +4,6 @@ import path from 'node:path';
 import { CreateFileErrorReason } from '@errors/create-file-error.enums.js';
 import { CreateFileError } from '@errors/create-file.error.js';
 import { createDir } from '@utils/create-dir.js';
-import { isDirectory } from '@utils/is-directory.js';
 
 import type { FsHooks } from '../fs-hooks.js';
 import type { TreeInterface } from '@app-types/tree.types.js';
@@ -20,7 +19,7 @@ export function createFiles(
 
       try {
         if (typeof value === 'string') {
-          if (fs.existsSync(fullPath) && isDirectory(fullPath)) {
+          if (fs.existsSync(fullPath) && fs.statSync(fullPath).isDirectory()) {
             errors.push(
               new CreateFileError(
                 'file',
