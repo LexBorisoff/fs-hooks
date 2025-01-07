@@ -7,7 +7,7 @@ const files = {
   file4: 'Line 1\nLine 2\nLine 3',
 } as const;
 
-export const tree: TreeInterface = {
+export const tree = {
   ...files,
   dir1: {},
   dir2: {
@@ -19,4 +19,4 @@ export const tree: TreeInterface = {
       dir2: {},
     },
   },
-};
+} satisfies TreeInterface;

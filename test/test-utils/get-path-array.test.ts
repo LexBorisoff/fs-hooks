@@ -9,11 +9,11 @@ import {
 
 import { TestEnum } from './test.enum.js';
 
-import type { FileTreeInterface } from '@app-types/file-tree.types.js';
+import type { TreeInterface } from '@app-types/tree.types.js';
 
 const { testPath, joinPath } = testSetup(TestEnum.GetPathArray, import.meta);
 
-const tree: FileTreeInterface = {
+const tree: TreeInterface = {
   file1: '',
   dir1: {
     file2: '',

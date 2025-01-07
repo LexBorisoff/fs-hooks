@@ -1,70 +1,60 @@
 import fs from 'node:fs';
 
-import { getDirsInfo } from './get-dirs-info.js';
+import { dirHooks } from '@core-hooks/dir-hooks.js';
 
-import type { FileTreeInterface } from '@app-types/file-tree.types.js';
-import type {
-  DirOperationsType,
-  OperationsRecord,
-} from '@app-types/operation.types.js';
+import { getDirsInfo, type DirInfo } from './get-dirs-info.js';
 
-type GetDescribePathFn = (...args: string[]) => string;
-type UseDirsCb<
-  ExtraFileOperations extends OperationsRecord | undefined,
-  ExtraDirOperations extends OperationsRecord | undefined,
-> = (
-  dir: DirOperationsType<
-    FileTreeInterface,
-    ExtraFileOperations,
-    ExtraDirOperations
-  >,
-  info: {
-    pathDirs: string[];
-    children: string[];
-  },
-) => void;
+import type { DirHooks } from './hooks-objects.js';
+import type { FsHooks } from '@app/fs-hooks.js';
+import type { TreeInterface } from '@app-types/tree.types.js';
 
-export type UseDirsFn<
-  ExtraFileOperations extends OperationsRecord | undefined,
-  ExtraDirOperations extends OperationsRecord | undefined,
-> = (cb: UseDirsCb<ExtraFileOperations, ExtraDirOperations>) => void;
+type UseDirsCb = (hooks: DirHooks, dir: DirInfo) => void;
 
-export const NEW_DIR_NAME = 'new-dir';
+export type UseDirsFn = (cb: UseDirsCb) => void;
 
-export function getUseDirs<
-  ExtraFileOperations extends OperationsRecord | undefined,
-  ExtraDirOperations extends OperationsRecord | undefined,
->(
-  operations: DirOperationsType<
-    FileTreeInterface,
-    ExtraFileOperations,
-    ExtraDirOperations
-  >,
-  getDescribePath: GetDescribePathFn,
-): UseDirsFn<ExtraFileOperations, ExtraDirOperations> {
+export function getUseDirs(fsHooks: FsHooks<TreeInterface>): UseDirsFn {
+  const dirs = getDirsInfo(fsHooks);
+  const hooks = fsHooks.useHooks({ dir: dirHooks });
+
+  /**
+   * Types of directories for testing
+   * 1. from the tree
+   * 2. created with dirCreate hook
+   */
   return function useDirs(cb) {
-    const dirs = getDirsInfo(operations);
+    dirs.forEach((dirInfo) => {
+      const { pathDirs } = dirInfo;
+      const hooksDir = hooks((root) => {
+        let currentDir: TreeInterface = root;
 
-    /**
-     * Types of directories for testing
-     * 1. from the file tree
-     * 2. created with $dirCreate
-     */
-    dirs.forEach(({ dir, pathDirs, children }) => {
-      const dirPath = getDescribePath(...pathDirs);
-      fs.mkdirSync(dirPath, { recursive: true });
+        pathDirs.forEach((dirName) => {
+          if (
+            Object.keys(currentDir).includes(dirName) &&
+            typeof currentDir[dirName] === 'object'
+          ) {
+            currentDir = currentDir[dirName];
+          }
+        });
 
-      cb(dir, { pathDirs, children });
-
-      const createdDir = dir.$dirCreate(NEW_DIR_NAME) as DirOperationsType<
-        FileTreeInterface,
-        ExtraFileOperations,
-        ExtraDirOperations
-      >;
-      cb(createdDir, {
-        pathDirs: pathDirs.concat(NEW_DIR_NAME),
-        children: [],
+        return currentDir;
       });
+
+      cb(hooksDir, dirInfo);
+
+      const dirName = 'new-dir';
+      const createdDir = hooksDir.dirCreate(dirName, true);
+
+      if (createdDir) {
+        cb(createdDir, {
+          pathDirs: pathDirs.concat(dirName),
+          children: [],
+        });
+
+        fs.rmSync(createdDir.getPath(), {
+          force: true,
+          recursive: true,
+        });
+      }
     });
   };
 }
