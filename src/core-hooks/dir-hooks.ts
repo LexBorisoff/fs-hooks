@@ -24,14 +24,14 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
     exists(fileName: string): boolean {
       return exists(fileName);
     },
-    dirCreate(dirName: string) {
+    dirCreate(dirName: string, recursive = false) {
       const dirPath = getPath(dirName);
 
       if (exists(dirName)) {
         return false;
       }
 
-      createDir(dirPath);
+      createDir(dirPath, recursive);
 
       return dirHooks({
         type: 'dir',
