@@ -28,6 +28,9 @@ export function getUseFiles(fsHooks: FsHooks<TreeInterface>): UseFilesFn {
 
       fs.mkdirSync(dirPath, { recursive: true });
 
+      /**
+       * Test files from the tree
+       */
       const hooksFile = hooks((root) => {
         let currentDir: TreeInterface = root;
 
@@ -45,6 +48,9 @@ export function getUseFiles(fsHooks: FsHooks<TreeInterface>): UseFilesFn {
 
       cb(hooksFile, fileInfo);
 
+      /**
+       * Test files created with fileCreate on tree directories
+       */
       const hooksDir = hooks((root) => {
         let currentDir: TreeInterface = root;
 
@@ -62,22 +68,26 @@ export function getUseFiles(fsHooks: FsHooks<TreeInterface>): UseFilesFn {
 
       const newDirName = 'dir-create';
       const newFileName = 'file-create';
+      const fileData = 'new file data';
 
-      const createdFile1 = hooksDir.fileCreate(newFileName);
+      const createdFile1 = hooksDir.fileCreate(newFileName, fileData);
       if (createdFile1) {
         cb(createdFile1, {
-          fileData: '',
+          fileData,
           fileName: newFileName,
           pathDirs,
         });
       }
 
+      /**
+       * Test files created with dirCreate + fileCreate combination
+       */
       const createdDir = hooksDir.dirCreate(newDirName, true);
       if (createdDir) {
-        const createdFile2 = createdDir.fileCreate(newFileName);
+        const createdFile2 = createdDir.fileCreate(newFileName, fileData);
         if (createdFile2) {
           cb(createdFile2, {
-            fileData: '',
+            fileData,
             fileName: newFileName,
             pathDirs: pathDirs.concat(newDirName),
           });
