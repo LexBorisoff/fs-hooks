@@ -97,21 +97,34 @@ suite('core directory hooks', { concurrent: false }, () => {
     it('should create directories', () => {
       const dirName = 'new-dir';
 
-      useDirs((_, { pathDirs }) => {
-        const dirPath = getDescribePath(...pathDirs);
-        if (!fs.existsSync(dirPath)) {
-          fs.mkdirSync(dirPath);
-        }
-      });
-
       useDirs((hooks, { pathDirs }) => {
+        const treeDirPath = getDescribePath(...pathDirs);
         const newDirPath = getDescribePath(...pathDirs, dirName);
         expect(fs.existsSync(newDirPath)).toBe(false);
+
+        if (!fs.existsSync(treeDirPath)) {
+          fs.mkdirSync(treeDirPath);
+        }
 
         const createdDir = hooks.dirCreate(dirName);
         expect(fs.existsSync(newDirPath)).toBe(true);
         expect(fs.statSync(newDirPath).isDirectory()).toBe(true);
         expect(createdDir).toEqual(dirHooksObject);
+      });
+    });
+
+    it('should return false when creating existing directories', () => {
+      const dirName = 'new-dir';
+
+      useDirs((hooks, { pathDirs }) => {
+        const newDirPath = getDescribePath(...pathDirs, dirName);
+
+        if (!fs.existsSync(newDirPath)) {
+          fs.mkdirSync(newDirPath, { recursive: true });
+        }
+
+        const result = hooks.dirCreate(dirName);
+        expect(result).toBe(false);
       });
     });
 
@@ -161,12 +174,13 @@ suite('core directory hooks', { concurrent: false }, () => {
       const fileName = 'new-file';
 
       useDirs((hooks, { pathDirs }) => {
-        const filePath = getDescribePath(...pathDirs, fileName);
         const dirPath = getDescribePath(...pathDirs);
-        fs.mkdirSync(dirPath, { recursive: true });
+        const filePath = getDescribePath(...pathDirs, fileName);
         expect(fs.existsSync(filePath)).toBe(false);
 
+        fs.mkdirSync(dirPath, { recursive: true });
         const createdFile = hooks.fileCreate(fileName);
+
         expect(fs.existsSync(filePath)).toBe(true);
         expect(fs.statSync(filePath).isFile()).toBe(true);
         expect(createdFile).toEqual(fileHooksObject);
@@ -180,10 +194,11 @@ suite('core directory hooks', { concurrent: false }, () => {
       useDirs((hooks, { pathDirs }) => {
         const nestedFilePath = getDescribePath(...pathDirs, nestedFile);
         const nestedDirPath = getDescribePath(...pathDirs, ...nestedDirs);
-        fs.mkdirSync(nestedDirPath, { recursive: true });
         expect(fs.existsSync(nestedFilePath)).toBe(false);
 
+        fs.mkdirSync(nestedDirPath, { recursive: true });
         const createdFile = hooks.fileCreate(nestedFile);
+
         expect(fs.existsSync(nestedFilePath)).toBe(true);
         expect(fs.statSync(nestedFilePath).isFile()).toBe(true);
         expect(createdFile).toEqual(fileHooksObject);

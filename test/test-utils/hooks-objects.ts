@@ -1,12 +1,11 @@
 import { expect } from 'vitest';
 
-import type { dirHooks } from '@app/core-hooks/dir-hooks.js';
 import type {
   DirHooksFn,
   FileHooksFn,
   HooksRecord,
 } from '@app-types/hook.types.js';
-import type { fileHooks } from '@core-hooks/file-hooks.js';
+import type { coreHooks } from '@core-hooks/core-hooks.js';
 
 type OperationsObjectType<T extends object> = Record<
   keyof T,
@@ -28,17 +27,19 @@ type FileHooksType<Fn extends FileHooksFn<HooksRecord>> =
 type DirHooksType<Fn extends DirHooksFn<HooksRecord>> =
   Fn extends DirHooksFn<infer H> ? H : HooksRecord;
 
-export type FileHooks = FileHooksType<typeof fileHooks>;
-export type DirHooks = DirHooksType<typeof dirHooks>;
+export type CoreHooks = {
+  file: FileHooksType<typeof coreHooks.file>;
+  dir: DirHooksType<typeof coreHooks.dir>;
+};
 
-const fileHookMethods: (keyof FileHooks)[] = [
+const fileHookMethods: (keyof CoreHooks['file'])[] = [
   'clear',
   'getPath',
   'read',
   'write',
 ];
 
-const dirHookMethods: (keyof DirHooks)[] = [
+const dirHookMethods: (keyof CoreHooks['dir'])[] = [
   'dirCreate',
   'dirDelete',
   'exists',

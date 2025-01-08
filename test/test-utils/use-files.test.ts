@@ -3,8 +3,7 @@ import fs from 'node:fs';
 import { beforeAll, beforeEach, expect, it, suite, vi } from 'vitest';
 
 import { FsHooks } from '@app/fs-hooks.js';
-import { dirHooks } from '@core-hooks/dir-hooks.js';
-import { fileHooks } from '@core-hooks/file-hooks.js';
+import { coreHooks } from '@core-hooks/core-hooks.js';
 import { testSetup } from '@test-setup';
 
 import { anyFunction } from './any-function.js';
@@ -18,7 +17,7 @@ import {
 } from './use-files.js';
 
 import type { FileInfo } from './get-files-info.js';
-import type { DirHooks, FileHooks } from './hooks-objects.js';
+import type { CoreHooks } from './hooks-objects.js';
 import type { TreeInterface } from '@app-types/tree.types.js';
 
 const { setup, testPath } = testSetup(TestEnum.UseFiles, import.meta);
@@ -39,8 +38,8 @@ const tree = {
 } satisfies TreeInterface;
 
 interface FileInterface extends FileInfo {
-  fileHooks: FileHooks;
-  dirHooks: DirHooks;
+  fileHooks: CoreHooks['file'];
+  dirHooks: CoreHooks['dir'];
 }
 
 suite('getUseFiles function', () => {
@@ -53,10 +52,7 @@ suite('getUseFiles function', () => {
   beforeEach(() => {
     fsHooks = new FsHooks(testPath, tree);
     useFiles = getUseFiles(fsHooks);
-    const hooks = fsHooks.useHooks({
-      file: fileHooks,
-      dir: dirHooks,
-    });
+    const hooks = fsHooks.useHooks(coreHooks);
 
     files = [
       {
@@ -110,20 +106,20 @@ suite('getUseFiles function', () => {
 
   it('should call the callback', () => {
     function treeFileParams(index: number): [object, FileInfo] {
-      const { fileHooks: hooks, fileData, fileName, pathDirs } = files[index];
+      const { fileHooks, fileData, fileName, pathDirs } = files[index];
       const info: FileInfo = {
         fileName,
         fileData,
         pathDirs,
       };
-      return [anyFunction(hooks), info];
+      return [anyFunction(fileHooks), info];
     }
 
     /**
      * File created with fileCreate on tree directires
      */
     function createdFileParams1(index: number): [object, FileInfo] | [] {
-      const { dirHooks: hooks, pathDirs } = files[index];
+      const { dirHooks, pathDirs } = files[index];
       const info: FileInfo = {
         fileData: NEW_FILE_DATA,
         fileName: NEW_FILE_NAME,
@@ -131,11 +127,11 @@ suite('getUseFiles function', () => {
       };
 
       // create the tree directory
-      const treeDir = hooks.getPath();
+      const treeDir = dirHooks.getPath();
       fs.mkdirSync(treeDir, { recursive: true });
 
       // create the new file
-      const createdFile = hooks.fileCreate(NEW_FILE_NAME, NEW_FILE_DATA);
+      const createdFile = dirHooks.fileCreate(NEW_FILE_NAME, NEW_FILE_DATA);
 
       // delete the tree directory
       fs.rmSync(treeDir, {
@@ -150,7 +146,7 @@ suite('getUseFiles function', () => {
      * File created with dirCreated + fileCreate combination
      */
     function createdFileParams2(index: number): [object, FileInfo] | [] {
-      const { dirHooks: hooks, pathDirs } = files[index];
+      const { dirHooks, pathDirs } = files[index];
       const info: FileInfo = {
         fileData: NEW_FILE_DATA,
         fileName: NEW_FILE_NAME,
@@ -158,11 +154,11 @@ suite('getUseFiles function', () => {
       };
 
       // create the tree directory
-      const treeDir = hooks.getPath();
+      const treeDir = dirHooks.getPath();
       fs.mkdirSync(treeDir, { recursive: true });
 
       // create the new directory
-      const createdDir = hooks.dirCreate(NEW_DIR_NAME);
+      const createdDir = dirHooks.dirCreate(NEW_DIR_NAME);
 
       if (createdDir) {
         // create the new file
