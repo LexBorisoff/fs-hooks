@@ -1,5 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 
+import { HooksError } from '@app/errors/hooks.error.js';
 import { FsHooks } from '@app/fs-hooks.js';
 import { coreHooks } from '@core-hooks/core-hooks.js';
 import { testSetup } from '@test-setup';
@@ -35,8 +36,7 @@ suite('FsHooks - core properties', { concurrent: false }, () => {
 
     it('should return undefined when target is invalid', () => {
       const hooks = fsHooks.useHooks(coreHooks);
-      const result = hooks(() => '');
-      expect(result).toBe(undefined);
+      expect(() => hooks(() => '')).toThrow(HooksError);
     });
   });
 });

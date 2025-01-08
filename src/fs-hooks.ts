@@ -1,3 +1,5 @@
+import { HooksError } from '@errors/hooks.error.js';
+
 import { buildObjectTree } from './object-tree/build-object-tree.js';
 
 import type {
@@ -24,13 +26,13 @@ export type HooksFn<
   Tree extends TreeInterface,
   FileHooks extends HooksRecord,
   DirHooks extends HooksRecord,
-> = <Target extends FileType | TreeInterface>(
-  cb: (tree: Tree) => Target,
-) => Target extends FileType
+> = <TreeTarget extends FileType | TreeInterface>(
+  cb: (tree: Tree) => TreeTarget,
+) => TreeTarget extends FileType
   ? FileHooks
-  : Target extends TreeInterface
+  : TreeTarget extends TreeInterface
     ? DirHooks
-    : undefined;
+    : never;
 
 export class FsHooks<Tree extends TreeInterface> {
   #tree: Tree;
@@ -61,14 +63,14 @@ export class FsHooks<Tree extends TreeInterface> {
     type Hooks = HooksFn<Tree, FileHooks, DirHooks>;
     type HooksCb = Parameters<Hooks>[0];
     type HooksResult = ReturnType<Hooks> | undefined;
-    type Target = FileType | TreeInterface;
+    type TreeTarget = FileType | TreeInterface;
     type TargetObject = FileObjectInterface | DirObjectInterface<TreeInterface>;
 
     const objectTree = buildObjectTree(this.#rootPath, this.#tree);
     const tree = this.#tree;
 
     function getTarget(cb: HooksCb): {
-      target: Target;
+      target: TreeTarget;
       targetObject: TargetObject;
     } {
       let targetObject: TargetObject = objectTree;
@@ -122,7 +124,7 @@ export class FsHooks<Tree extends TreeInterface> {
         });
       }
 
-      return undefined;
+      throw new HooksError('Invalid tree target');
     }
 
     return hooks as Hooks;
