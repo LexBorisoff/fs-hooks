@@ -12,6 +12,8 @@ type UseDirsCb = (hooks: DirHooks, dir: DirInfo) => void;
 
 export type UseDirsFn = (cb: UseDirsCb) => void;
 
+export const NEW_DIR_NAME = 'new-dir';
+
 export function getUseDirs(fsHooks: FsHooks<TreeInterface>): UseDirsFn {
   const dirs = getDirsInfo(fsHooks);
   const hooks = fsHooks.useHooks({ dir: dirHooks });
@@ -19,11 +21,15 @@ export function getUseDirs(fsHooks: FsHooks<TreeInterface>): UseDirsFn {
   /**
    * Types of directories for testing
    * 1. from the tree
-   * 2. created with dirCreate hook
+   * 2. created with dirCreate on tree directories
    */
   return function useDirs(cb) {
     dirs.forEach((dirInfo) => {
       const { pathDirs } = dirInfo;
+
+      /**
+       * Test directory from the tree
+       */
       const hooksDir = hooks((root) => {
         let currentDir: TreeInterface = root;
 
@@ -41,12 +47,14 @@ export function getUseDirs(fsHooks: FsHooks<TreeInterface>): UseDirsFn {
 
       cb(hooksDir, dirInfo);
 
-      const dirName = 'new-dir';
-      const createdDir = hooksDir.dirCreate(dirName, true);
+      /**
+       * Test directory created with dirCreate on a tree directory
+       */
+      const createdDir = hooksDir.dirCreate(NEW_DIR_NAME, true);
 
       if (createdDir) {
         cb(createdDir, {
-          pathDirs: pathDirs.concat(dirName),
+          pathDirs: pathDirs.concat(NEW_DIR_NAME),
           children: [],
         });
 
