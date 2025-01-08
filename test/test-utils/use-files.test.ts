@@ -17,7 +17,7 @@ import {
 } from './use-files.js';
 
 import type { FileInfo } from './get-files-info.js';
-import type { CoreHooks } from './hooks-objects.js';
+import type { CoreHooks } from '@app-types/core-hooks.types.js';
 import type { TreeInterface } from '@app-types/tree.types.js';
 
 const { setup, testPath } = testSetup(TestEnum.UseFiles, import.meta);

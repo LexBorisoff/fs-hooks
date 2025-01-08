@@ -4,9 +4,9 @@ import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 
 import { FsHooks } from '@app/fs-hooks.js';
 import { testSetup } from '@test-setup';
+import { coreHooksObject } from '@test-utils/core-hooks-object.js';
 import { deleteDir } from '@test-utils/delete-dir.js';
 import { fileDataArray } from '@test-utils/file-data-array.js';
-import { dirHooksObject, fileHooksObject } from '@test-utils/hooks-objects.js';
 import { tree } from '@test-utils/tree.js';
 import { getUseDirs, type UseDirsFn } from '@test-utils/use-dirs.js';
 
@@ -53,7 +53,7 @@ suite('core directory hooks', { concurrent: false }, () => {
 
     it('should have core directory hooks', () => {
       useDirs((hooks) => {
-        expect(hooks).toEqual(dirHooksObject);
+        expect(hooks).toEqual(coreHooksObject.dir);
       });
     });
   });
@@ -109,7 +109,7 @@ suite('core directory hooks', { concurrent: false }, () => {
         const createdDir = hooks.dirCreate(dirName);
         expect(fs.existsSync(newDirPath)).toBe(true);
         expect(fs.statSync(newDirPath).isDirectory()).toBe(true);
-        expect(createdDir).toEqual(dirHooksObject);
+        expect(createdDir).toEqual(coreHooksObject.dir);
       });
     });
 
@@ -145,7 +145,7 @@ suite('core directory hooks', { concurrent: false }, () => {
         const createdDir = hooks.dirCreate(dirName, true);
         expect(fs.existsSync(newDirPath)).toBe(true);
         expect(fs.statSync(newDirPath).isDirectory()).toBe(true);
-        expect(createdDir).toEqual(dirHooksObject);
+        expect(createdDir).toEqual(coreHooksObject.dir);
       });
     });
   });
@@ -183,7 +183,7 @@ suite('core directory hooks', { concurrent: false }, () => {
 
         expect(fs.existsSync(filePath)).toBe(true);
         expect(fs.statSync(filePath).isFile()).toBe(true);
-        expect(createdFile).toEqual(fileHooksObject);
+        expect(createdFile).toEqual(coreHooksObject.file);
       });
     });
 
@@ -201,7 +201,7 @@ suite('core directory hooks', { concurrent: false }, () => {
 
         expect(fs.existsSync(nestedFilePath)).toBe(true);
         expect(fs.statSync(nestedFilePath).isFile()).toBe(true);
-        expect(createdFile).toEqual(fileHooksObject);
+        expect(createdFile).toEqual(coreHooksObject.file);
       });
     });
 

@@ -4,9 +4,9 @@ import { beforeAll, beforeEach, describe, expect, it, suite } from 'vitest';
 
 import { FsHooks } from '@app/fs-hooks.js';
 import { testSetup } from '@test-setup';
+import { coreHooksObject } from '@test-utils/core-hooks-object.js';
 import { deleteDir } from '@test-utils/delete-dir.js';
 import { fileDataArray } from '@test-utils/file-data-array.js';
-import { fileHooksObject } from '@test-utils/hooks-objects.js';
 import { tree } from '@test-utils/tree.js';
 import { getUseFiles, type UseFilesFn } from '@test-utils/use-files.js';
 
@@ -51,7 +51,7 @@ suite('core file hooks', { concurrent: false }, () => {
 
     it('should have core file hooks', () => {
       useFiles((file) => {
-        expect(file).toEqual(fileHooksObject);
+        expect(file).toEqual(coreHooksObject.file);
       });
     });
   });

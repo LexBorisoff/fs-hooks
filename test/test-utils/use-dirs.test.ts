@@ -12,7 +12,7 @@ import {
 
 import { TestEnum } from './test.enum.js';
 
-import type { CoreHooks } from './hooks-objects.js';
+import type { CoreHooks } from '@app-types/core-hooks.types.js';
 import type { TreeInterface } from '@app-types/tree.types.js';
 import type { DirInfo } from '@test-utils/get-dirs-info.js';
 
