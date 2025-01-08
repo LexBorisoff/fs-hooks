@@ -9,15 +9,15 @@ import type {
 
 export function buildObjectTree<Tree extends TreeInterface>(
   rootPath: string,
-  tree?: Tree,
+  tree: Tree,
 ): DirObjectInterface<Tree> {
   function traverseChildren<Children extends TreeInterface>(
     parentPath: string,
-    children?: Children,
+    children: Children,
   ): TreeType<Children> {
     let result = {} as TreeType<Children>;
 
-    Object.entries(children ?? {}).forEach(([key, value]) => {
+    Object.entries(children).forEach(([key, value]) => {
       if (typeof value === 'string') {
         const file: FileObjectInterface = {
           type: 'file',

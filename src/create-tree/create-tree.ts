@@ -40,6 +40,8 @@ export function createTree(fsHooks: FsHooks<TreeInterface>): CreateFileError[] {
       } catch (error) {
         if (error instanceof CreateFileError) {
           errors.push(error);
+        } else {
+          throw error;
         }
       }
     });

@@ -187,6 +187,21 @@ suite('core directory hooks', { concurrent: false }, () => {
       });
     });
 
+    it('should return false when creating existing files', () => {
+      const fileName = 'new-file';
+
+      useDirs((hooks, { pathDirs }) => {
+        const dirPath = getDescribePath(...pathDirs);
+        const filePath = getDescribePath(...pathDirs, fileName);
+
+        fs.mkdirSync(dirPath, { recursive: true });
+        fs.writeFileSync(filePath, '');
+
+        const createdFile = hooks.fileCreate(fileName);
+        expect(createdFile).toBe(false);
+      });
+    });
+
     it('should create a nested file in an existing folder', () => {
       const nestedDirs = ['nested-dir1', 'nested-dir2'];
       const nestedFile = nestedDirs.join('/') + '/new-file';

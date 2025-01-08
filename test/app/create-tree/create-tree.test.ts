@@ -9,11 +9,13 @@ import {
   expect,
   it,
   suite,
+  vi,
 } from 'vitest';
 
 import { createTree } from '@app/create-tree/create-tree.js';
 import { CreateFileError } from '@app/errors/create-file.error.js';
 import { FsHooks } from '@app/fs-hooks.js';
+import * as createDir from '@app/utils/create-dir.js';
 import { testSetup } from '@test-setup';
 import { deleteDir } from '@test-utils/delete-dir.js';
 import { getPathArray, type PathTreeFile } from '@test-utils/get-path-array.js';
@@ -37,7 +39,7 @@ suite('createTree function', { concurrent: false }, () => {
     getDescribePath = (...args) => joinPath(testName, ...args);
   }
 
-  describe('create files based on an operations object', () => {
+  describe('create files based on an FsHooks object', () => {
     describeSetup(CreateFilesTest.FsHooksObject);
     const describePath = getDescribePath();
     const pathArray = getPathArray(describePath, tree);
@@ -115,6 +117,33 @@ suite('createTree function', { concurrent: false }, () => {
       expect(errors.at(0)?.path).toBe(rootPath);
     });
 
+    it('should return errors when directory paths exist as files', () => {
+      const dirPaths: string[] = [];
+
+      function traverse(dir: TreeInterface, dirPath: string): void {
+        fs.mkdirSync(dirPath, { recursive: true });
+
+        Object.entries(dir).forEach(([key, value]) => {
+          if (typeof value === 'object') {
+            const currentPath = path.resolve(dirPath, key);
+            dirPaths.push(currentPath);
+            fs.writeFileSync(currentPath, '');
+          }
+        });
+      }
+
+      traverse(fsHooks.tree, fsHooks.rootPath);
+
+      const errors = createTree(fsHooks);
+
+      expect(errors.length).toBe(dirPaths.length);
+      dirPaths.forEach((dirPath, i) => {
+        expect(errors.at(i)).toBeInstanceOf(CreateFileError);
+        expect(errors.at(i)?.type).toBe('dir');
+        expect(errors.at(i)?.path).toBe(dirPath);
+      });
+    });
+
     it('should return errors when file paths exist as directories', () => {
       const filePaths: string[] = [];
 
@@ -146,31 +175,25 @@ suite('createTree function', { concurrent: false }, () => {
       });
     });
 
-    it('should return errors when directory paths exist as files', () => {
-      const dirPaths: string[] = [];
+    it('should throw when createDir throws an unknown error', () => {
+      const originalFn = createDir.createDir;
+      const error = new Error('unknown error');
 
-      function traverse(dir: TreeInterface, dirPath: string): void {
-        fs.mkdirSync(dirPath, { recursive: true });
-
-        Object.entries(dir).forEach(([key, value]) => {
-          if (typeof value === 'object') {
-            const currentPath = path.resolve(dirPath, key);
-            dirPaths.push(currentPath);
-            fs.writeFileSync(currentPath, '');
-          }
-        });
-      }
-
-      traverse(fsHooks.tree, fsHooks.rootPath);
-
-      const errors = createTree(fsHooks);
-
-      expect(errors.length).toBe(dirPaths.length);
-      dirPaths.forEach((dirPath, i) => {
-        expect(errors.at(i)).toBeInstanceOf(CreateFileError);
-        expect(errors.at(i)?.type).toBe('dir');
-        expect(errors.at(i)?.path).toBe(dirPath);
+      // throw on the first call to createDir
+      vi.spyOn(createDir, 'createDir').mockImplementationOnce(() => {
+        throw error;
       });
+
+      expect(() => createTree(fsHooks)).toThrow(error);
+
+      // throw on the second call to createDir
+      vi.spyOn(createDir, 'createDir')
+        .mockImplementationOnce(originalFn)
+        .mockImplementationOnce(() => {
+          throw error;
+        });
+
+      expect(() => createTree(fsHooks)).toThrow(error);
     });
   });
 });
