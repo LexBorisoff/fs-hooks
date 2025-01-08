@@ -1,26 +1,26 @@
 import { beforeEach, expect, it, suite } from 'vitest';
 
-import { CreateFileError } from '@app/errors/create-file.error.js';
+import { CreateTreeError } from '@app/errors/create-tree.error.js';
 import { testSetup } from '@test-setup';
 
 const { testPath } = testSetup('create-file-error', import.meta);
 
-suite('CreateFileError class', () => {
-  let fileError1: CreateFileError;
-  let fileError2: CreateFileError;
-  let fileError3: CreateFileError;
-  let dirError1: CreateFileError;
-  let dirError2: CreateFileError;
-  let dirError3: CreateFileError;
+suite('CreateTreeError class', () => {
+  let fileError1: CreateTreeError;
+  let fileError2: CreateTreeError;
+  let fileError3: CreateTreeError;
+  let dirError1: CreateTreeError;
+  let dirError2: CreateTreeError;
+  let dirError3: CreateTreeError;
 
   const testReason = 'testing';
   let fileReason: string;
   let dirReason: string;
 
   beforeEach(() => {
-    fileError1 = new CreateFileError('file', testPath);
-    fileError2 = new CreateFileError('file', testPath, testReason);
-    fileError3 = new CreateFileError(
+    fileError1 = new CreateTreeError('file', testPath);
+    fileError2 = new CreateTreeError('file', testPath, testReason);
+    fileError3 = new CreateTreeError(
       'file',
       testPath,
       ({ pathExistsAsDir }) => {
@@ -28,15 +28,15 @@ suite('CreateFileError class', () => {
         return pathExistsAsDir;
       },
     );
-    dirError1 = new CreateFileError('dir', testPath);
-    dirError2 = new CreateFileError('dir', testPath, testReason);
-    dirError3 = new CreateFileError('dir', testPath, ({ pathExistsAsFile }) => {
+    dirError1 = new CreateTreeError('dir', testPath);
+    dirError2 = new CreateTreeError('dir', testPath, testReason);
+    dirError3 = new CreateTreeError('dir', testPath, ({ pathExistsAsFile }) => {
       dirReason = pathExistsAsFile;
       return pathExistsAsFile;
     });
   });
 
-  it('should create a CreateFileError instance', () => {
+  it('should create a CreateTreeError instance', () => {
     [
       fileError1,
       fileError2,
@@ -45,7 +45,7 @@ suite('CreateFileError class', () => {
       dirError2,
       dirError3,
     ].forEach((error) => {
-      expect(error).toBeInstanceOf(CreateFileError);
+      expect(error).toBeInstanceOf(CreateTreeError);
     });
   });
 

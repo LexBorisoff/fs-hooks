@@ -8,7 +8,7 @@ type ReasonCb = (
   reason: ErrorReasonType,
 ) => ErrorReasonType[keyof ErrorReasonType];
 
-export class CreateFileError extends Error {
+export class CreateTreeError extends Error {
   #path: string;
 
   #type: 'file' | 'dir';

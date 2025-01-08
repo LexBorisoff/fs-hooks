@@ -13,7 +13,7 @@ import {
 } from 'vitest';
 
 import { createTree } from '@app/create-tree/create-tree.js';
-import { CreateFileError } from '@app/errors/create-file.error.js';
+import { CreateTreeError } from '@app/errors/create-tree.error.js';
 import { FsHooks } from '@app/fs-hooks.js';
 import * as createDir from '@app/utils/create-dir.js';
 import { testSetup } from '@test-setup';
@@ -112,7 +112,7 @@ suite('createTree function', { concurrent: false }, () => {
 
       const errors = createTree(fsHooks);
       expect(errors.length).toBe(1);
-      expect(errors.at(0)).toBeInstanceOf(CreateFileError);
+      expect(errors.at(0)).toBeInstanceOf(CreateTreeError);
       expect(errors.at(0)?.type).toBe('dir');
       expect(errors.at(0)?.path).toBe(rootPath);
     });
@@ -138,7 +138,7 @@ suite('createTree function', { concurrent: false }, () => {
 
       expect(errors.length).toBe(dirPaths.length);
       dirPaths.forEach((dirPath, i) => {
-        expect(errors.at(i)).toBeInstanceOf(CreateFileError);
+        expect(errors.at(i)).toBeInstanceOf(CreateTreeError);
         expect(errors.at(i)?.type).toBe('dir');
         expect(errors.at(i)?.path).toBe(dirPath);
       });
@@ -169,7 +169,7 @@ suite('createTree function', { concurrent: false }, () => {
 
       expect(errors.length).toBe(filePaths.length);
       filePaths.forEach((filePath, i) => {
-        expect(errors.at(i)).toBeInstanceOf(CreateFileError);
+        expect(errors.at(i)).toBeInstanceOf(CreateTreeError);
         expect(errors.at(i)?.type).toBe('file');
         expect(errors.at(i)?.path).toBe(filePath);
       });

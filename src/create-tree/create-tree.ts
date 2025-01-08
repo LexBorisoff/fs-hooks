@@ -1,14 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { CreateFileError } from '@errors/create-file.error.js';
+import { CreateTreeError } from '@errors/create-tree.error.js';
 import { createDir } from '@utils/create-dir.js';
 
 import type { FsHooks } from '../fs-hooks.js';
 import type { TreeInterface } from '@app-types/tree.types.js';
 
-export function createTree(fsHooks: FsHooks<TreeInterface>): CreateFileError[] {
-  const errors: CreateFileError[] = [];
+export function createTree(fsHooks: FsHooks<TreeInterface>): CreateTreeError[] {
+  const errors: CreateTreeError[] = [];
 
   function traverse(parentPath: string, currentTree: TreeInterface): void {
     Object.entries(currentTree).forEach(([key, value]) => {
@@ -18,7 +18,7 @@ export function createTree(fsHooks: FsHooks<TreeInterface>): CreateFileError[] {
         if (typeof value === 'string') {
           if (fs.existsSync(fullPath) && fs.statSync(fullPath).isDirectory()) {
             errors.push(
-              new CreateFileError(
+              new CreateTreeError(
                 'file',
                 fullPath,
                 ({ pathExistsAsDir }) => pathExistsAsDir,
@@ -37,7 +37,7 @@ export function createTree(fsHooks: FsHooks<TreeInterface>): CreateFileError[] {
           traverse(fullPath, value);
         }
       } catch (error) {
-        if (error instanceof CreateFileError) {
+        if (error instanceof CreateTreeError) {
           errors.push(error);
         } else {
           throw error;
@@ -52,7 +52,7 @@ export function createTree(fsHooks: FsHooks<TreeInterface>): CreateFileError[] {
     createDir(rootPath);
     traverse(rootPath, tree);
   } catch (error) {
-    if (error instanceof CreateFileError) {
+    if (error instanceof CreateTreeError) {
       errors.push(error);
     } else {
       throw error;
