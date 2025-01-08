@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 
-import { CreateFileErrorReason } from '@errors/create-file-error.enums.js';
 import { CreateFileError } from '@errors/create-file.error.js';
 
 /**
@@ -16,7 +15,7 @@ export function createDir(dirPath: string, recursive = false): void {
       throw new CreateFileError(
         'dir',
         dirPath,
-        CreateFileErrorReason.PathExistsAsFile,
+        ({ pathExistsAsFile }) => pathExistsAsFile,
       );
     }
     return;

@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { CreateFileErrorReason } from '@errors/create-file-error.enums.js';
 import { CreateFileError } from '@errors/create-file.error.js';
 import { createDir } from '@utils/create-dir.js';
 
@@ -22,7 +21,7 @@ export function createTree(fsHooks: FsHooks<TreeInterface>): CreateFileError[] {
               new CreateFileError(
                 'file',
                 fullPath,
-                CreateFileErrorReason.PathExistsAsDir,
+                ({ pathExistsAsDir }) => pathExistsAsDir,
               ),
             );
             return;
