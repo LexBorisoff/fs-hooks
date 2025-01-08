@@ -35,7 +35,7 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
 
       return dirHooks({
         type: 'dir',
-        path: getPath(dirName),
+        path: dirPath,
         children: {},
       });
     },

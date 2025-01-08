@@ -1,10 +1,11 @@
 import { expect, test } from 'vitest';
 
-import { FileManager } from '@app/file-manager.js';
+import { createTree } from '@app/create-tree/create-tree.js';
+import { FsHooks } from '@app/fs-hooks.js';
 import * as index from '@app/index.js';
 
 test('file manager index file', () => {
-  const values = [FileManager];
+  const values = [FsHooks, createTree];
 
   values.forEach((value) => {
     expect(Object.values(index).includes(value)).toBe(true);
