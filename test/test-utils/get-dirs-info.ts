@@ -2,8 +2,8 @@ import type { FsHooks } from '@app/fs-hooks.js';
 import type { TreeInterface } from '@app-types/tree.types.js';
 
 export interface DirInfo {
-  pathDirs: string[];
   children: string[];
+  pathDirs: string[];
 }
 
 export function getDirsInfo(fsHooks: FsHooks<TreeInterface>): DirInfo[] {

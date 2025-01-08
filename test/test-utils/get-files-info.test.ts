@@ -1,13 +1,12 @@
 import { beforeEach, expect, it, suite } from 'vitest';
 
-import { buildOperations } from '@app/operations/build-operations.js';
+import { FsHooks } from '@app/fs-hooks.js';
 import { testSetup } from '@test-setup';
 import { getFilesInfo } from '@test-utils/get-files-info.js';
 
 import { TestEnum } from './test.enum.js';
 
-import type { FileTreeInterface } from '@app-types/file-tree.types.js';
-import type { DirOperationsType } from '@app-types/operation.types.js';
+import type { TreeInterface } from '@app-types/tree.types.js';
 
 const { testPath } = testSetup(TestEnum.GetFilesInfo, import.meta);
 
@@ -22,44 +21,36 @@ const tree = {
       },
     },
   },
-} satisfies FileTreeInterface;
+} satisfies TreeInterface;
 
 suite('getFilesInfo function', () => {
-  let operations: DirOperationsType<typeof tree>;
+  let fsHooks: FsHooks<typeof tree>;
 
   beforeEach(() => {
-    operations = buildOperations(testPath, tree);
+    fsHooks = new FsHooks(testPath, tree);
   });
 
   it('should return files information array', () => {
-    const files = getFilesInfo(operations);
+    const files = getFilesInfo(fsHooks);
     const filesInfo = [
       {
-        file: operations.file1,
         fileName: 'file1',
-        treeFile: tree.file1,
-        dir: operations,
+        fileData: tree.file1,
         pathDirs: [],
       },
       {
-        file: operations.dir1.file2,
         fileName: 'file2',
-        treeFile: tree.dir1.file2,
-        dir: operations.dir1,
+        fileData: tree.dir1.file2,
         pathDirs: ['dir1'],
       },
       {
-        file: operations.dir1.dir2.file3,
         fileName: 'file3',
-        treeFile: tree.dir1.dir2.file3,
-        dir: operations.dir1.dir2,
+        fileData: tree.dir1.dir2.file3,
         pathDirs: ['dir1', 'dir2'],
       },
       {
-        file: operations.dir1.dir2.dir3.file4,
         fileName: 'file4',
-        treeFile: tree.dir1.dir2.dir3.file4,
-        dir: operations.dir1.dir2.dir3,
+        fileData: tree.dir1.dir2.dir3.file4,
         pathDirs: ['dir1', 'dir2', 'dir3'],
       },
     ];
