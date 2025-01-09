@@ -44,6 +44,7 @@ jobs:
           node-version: latest
           cache: npm
 
+      - run: npm clean-install
       - run: npm run test:cov
 
       - name: Upload coverage reports to Codecov
