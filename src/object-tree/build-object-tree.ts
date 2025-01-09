@@ -4,20 +4,20 @@ import type {
   DirObjectInterface,
   FileObjectInterface,
   TreeInterface,
-  TreeType,
-} from '../types/tree.types.js';
+  ObjectTreeType,
+} from '@app-types/tree.types.js';
 
 export function buildObjectTree<Tree extends TreeInterface>(
   rootPath: string,
   tree: Tree,
 ): DirObjectInterface<Tree> {
-  function traverseChildren<Children extends TreeInterface>(
+  function traverseChildTree<ChildTree extends TreeInterface>(
     parentPath: string,
-    children: Children,
-  ): TreeType<Children> {
-    let result = {} as TreeType<Children>;
+    childTree: ChildTree,
+  ): ObjectTreeType<ChildTree> {
+    let result = {} as ObjectTreeType<ChildTree>;
 
-    Object.entries(children).forEach(([key, value]) => {
+    Object.entries(childTree).forEach(([key, value]) => {
       if (typeof value === 'string') {
         const file: FileObjectInterface = {
           type: 'file',
@@ -37,7 +37,7 @@ export function buildObjectTree<Tree extends TreeInterface>(
         const dir: DirObjectInterface<typeof value> = {
           type: 'dir',
           path: dirPath,
-          children: traverseChildren(dirPath, value),
+          children: traverseChildTree(dirPath, value),
         };
 
         result = {
@@ -53,6 +53,6 @@ export function buildObjectTree<Tree extends TreeInterface>(
   return {
     type: 'dir',
     path: rootPath,
-    children: traverseChildren(rootPath, tree),
+    children: traverseChildTree(rootPath, tree),
   };
 }

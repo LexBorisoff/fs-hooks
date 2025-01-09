@@ -2,14 +2,14 @@ import { expect } from 'vitest';
 
 import type { CoreHooks } from '@app-types/core-hooks.types.js';
 
-type OperationsObjectType<T extends object> = Record<
+type HooksObjectType<T extends object> = Record<
   keyof T,
   ReturnType<typeof expect.any>
 >;
 
 function buildHooksObject<T extends object>(
   methodNames: (keyof T)[],
-): OperationsObjectType<T> {
+): HooksObjectType<T> {
   return methodNames.reduce<T>(
     (acc, method) => ({ ...acc, [method]: expect.any(Function) }),
     {} as T,

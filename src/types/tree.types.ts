@@ -16,10 +16,10 @@ export interface FileObjectInterface extends PathInterface {
 export interface DirObjectInterface<Tree extends TreeInterface>
   extends PathInterface {
   type: 'dir';
-  children: TreeType<Tree>;
+  children: ObjectTreeType<Tree>;
 }
 
-export type TreeType<Tree extends TreeInterface> = {
+export type ObjectTreeType<Tree extends TreeInterface> = {
   [key in keyof Tree]: Tree[key] extends FileType
     ? FileObjectInterface
     : Tree[key] extends TreeInterface

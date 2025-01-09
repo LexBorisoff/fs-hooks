@@ -24,7 +24,7 @@ export class CreateTreeError extends Error {
         : errorReason;
     }
 
-    const fileType = type === 'dir' ? 'directory' : type;
+    const fileType = type === 'dir' ? 'directory' : 'file';
     const errorReason = reason != null ? `: ${getReason(reason)}` : '';
     const message = `Cannot create ${fileType}${errorReason}`;
 

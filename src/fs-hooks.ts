@@ -86,12 +86,9 @@ export class FsHooks<Tree extends TreeInterface> {
             if (
               typeof obj[prop] === 'object' &&
               obj[prop] != null &&
-              targetObjectTree.children[prop].type === 'dir'
+              targetObject.type === 'dir'
             ) {
-              return createProxyTree(
-                obj[prop],
-                targetObjectTree.children[prop],
-              );
+              return createProxyTree(obj[prop], targetObject);
             }
 
             return Reflect.get(obj, prop);
@@ -107,21 +104,15 @@ export class FsHooks<Tree extends TreeInterface> {
 
     function hooks(cb: HooksCb): HooksResult {
       const { target, targetObject } = getTarget(cb);
+      const { path } = targetObject;
 
       if (typeof target === 'string' && targetObject.type === 'file') {
-        return file?.({
-          type: 'file',
-          data: target,
-          path: targetObject.path,
-        });
+        return file?.({ type: 'file', data: target, path });
       }
 
       if (typeof target === 'object' && targetObject.type === 'dir') {
-        return dir?.({
-          type: 'dir',
-          children: targetObject.children,
-          path: targetObject.path,
-        });
+        const { children } = targetObject;
+        return dir?.({ type: 'dir', children, path });
       }
 
       throw new HooksError('Invalid tree target');

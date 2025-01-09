@@ -31,10 +31,12 @@ export function createTree(fsHooks: FsHooks<TreeInterface>): CreateTreeError[] {
           return;
         }
 
-        createDir(fullPath);
+        if (typeof value === 'object') {
+          createDir(fullPath);
 
-        if (Object.keys(value).length > 0) {
-          traverse(fullPath, value);
+          if (Object.keys(value).length > 0) {
+            traverse(fullPath, value);
+          }
         }
       } catch (error) {
         if (error instanceof CreateTreeError) {

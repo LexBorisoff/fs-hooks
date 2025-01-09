@@ -21,9 +21,10 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
     getPath(): string {
       return targetDir.path;
     },
-    exists(fileName: string): boolean {
-      return exists(fileName);
+    exists(name: string): boolean {
+      return exists(name);
     },
+
     dirCreate(dirName: string, recursive = false) {
       const dirPath = getPath(dirName);
 
@@ -40,10 +41,12 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
       });
     },
     dirDelete(dirName: string): void {
-      fs.rmSync(getPath(dirName), {
-        recursive: true,
-        force: true,
-      });
+      if (exists(dirName)) {
+        fs.rmSync(getPath(dirName), {
+          recursive: true,
+          force: true,
+        });
+      }
     },
 
     fileClear(fileName: string): void {
@@ -60,17 +63,19 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
 
       return fileHooks({
         type: 'file',
-        data,
         path: getPath(fileName),
+        data,
       });
     },
-    fileDelete(fileName: string) {
-      fs.rmSync(getPath(fileName));
+    fileDelete(fileName: string): void {
+      if (exists(fileName)) {
+        fs.rmSync(getPath(fileName));
+      }
     },
-    fileRead(fileName: string) {
+    fileRead(fileName: string): string | null {
       return readFile(getPath(fileName));
     },
-    fileWrite(fileName: string, fileData: string) {
+    fileWrite(fileName: string, fileData: string): void {
       fs.writeFileSync(getPath(fileName), fileData);
     },
   };
