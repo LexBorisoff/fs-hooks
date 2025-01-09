@@ -33,28 +33,6 @@ jobs:
       - run: npm clean-install
       - run: npm run ci
 
-  code-coverage:
-    name: Code Coverage
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: latest
-          cache: npm
-
-      - run: npm clean-install
-      - run: npm run test:cov
-
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          slug: LexBorisoff/fs-hooks
-
   results:
     name: CI Results
     runs-on: ubuntu-latest
