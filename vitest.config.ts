@@ -5,7 +5,11 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     coverage: {
-      exclude: ['src/types/**', ...coverageConfigDefaults.exclude],
+      exclude: [
+        'src/types/**',
+        '*config.js',
+        ...coverageConfigDefaults.exclude,
+      ],
     },
   },
 });

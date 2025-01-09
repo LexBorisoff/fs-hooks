@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import type { FileTreeInterface } from '@app-types/file-tree.types.js';
+import type { TreeInterface } from '@app-types/tree.types.js';
 
 export interface PathTreeDir {
   type: 'dir';
@@ -17,11 +17,11 @@ export type PathTreeItem = PathTreeFile | PathTreeDir;
 
 export function getPathArray(
   basePath: string,
-  fileTree: FileTreeInterface,
+  fileTree: TreeInterface,
 ): PathTreeItem[] {
   const result: PathTreeItem[] = [];
 
-  function traverse(node: FileTreeInterface, parentPath: string): void {
+  function traverse(node: TreeInterface, parentPath: string): void {
     function getPath(key: string): string {
       return path.resolve(`${parentPath}/${key}`);
     }

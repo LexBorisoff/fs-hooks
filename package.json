@@ -10,6 +10,11 @@
       "types": "./dist/types/index.d.ts",
       "import": "./dist/app/index.js",
       "default": "./dist/app/index.js"
+    },
+    "./core": {
+      "types": "./dist/types/core-hooks/index.d.ts",
+      "import": "./dist/app/core-hooks/index.js",
+      "default": "./dist/app/core-hooks/index.js"
     }
   },
   "scripts": {
@@ -42,7 +47,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
-    "@lexjs/eslint-plugin": "^1.0.0",
+    "@lexjs/eslint-plugin": "^1.1.1",
     "@types/node": "^22.3.0",
     "@vitest/coverage-v8": "^2.1.4",
     "eslint": "^9.15.0",

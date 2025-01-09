@@ -4,4 +4,5 @@ export enum TestEnum {
   GetFilesInfo = 'get-files-info',
   GetPathArray = 'get-path-array',
   UseDirs = 'use-dirs',
+  UseFiles = 'use-files',
 }

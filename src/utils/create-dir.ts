@@ -1,9 +1,6 @@
 import fs from 'node:fs';
 
-import { CreateFileErrorReason } from '@errors/create-file-error.enums.js';
-import { CreateFileError } from '@errors/create-file.error.js';
-
-import { isDirectory } from './is-directory.js';
+import { CreateTreeError } from '@errors/create-tree.error.js';
 
 /**
  * Creates a directory at the provided path
@@ -14,11 +11,11 @@ import { isDirectory } from './is-directory.js';
  */
 export function createDir(dirPath: string, recursive = false): void {
   if (fs.existsSync(dirPath)) {
-    if (!isDirectory(dirPath)) {
-      throw new CreateFileError(
+    if (!fs.statSync(dirPath).isDirectory()) {
+      throw new CreateTreeError(
         'dir',
         dirPath,
-        CreateFileErrorReason.PathExistsAsFile,
+        ({ pathExistsAsFile }) => pathExistsAsFile,
       );
     }
     return;

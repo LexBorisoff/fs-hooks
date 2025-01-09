@@ -1,13 +1,12 @@
 import { beforeEach, expect, it, suite } from 'vitest';
 
-import { buildOperations } from '@app/operations/build-operations.js';
+import { FsHooks } from '@app/fs-hooks.js';
 import { testSetup } from '@test-setup';
 import { getDirsInfo } from '@test-utils/get-dirs-info.js';
 
 import { TestEnum } from './test.enum.js';
 
-import type { FileTreeInterface } from '@app-types/file-tree.types.js';
-import type { DirOperationsType } from '@app-types/operation.types.js';
+import type { TreeInterface } from '@app-types/tree.types.js';
 
 const { testPath } = testSetup(TestEnum.GetDirsInfo, import.meta);
 
@@ -22,35 +21,32 @@ const tree = {
       },
     },
   },
-} satisfies FileTreeInterface;
+} satisfies TreeInterface;
 
 suite('getDirsInfo function', () => {
-  let operations: DirOperationsType<typeof tree>;
+  let fsHooks: FsHooks<typeof tree>;
 
   beforeEach(() => {
-    operations = buildOperations(testPath, tree);
+    fsHooks = new FsHooks(testPath, tree);
   });
 
   it('should return directories information array', () => {
-    const dirs = getDirsInfo<undefined, undefined>(operations);
+    const dirs = getDirsInfo(fsHooks);
+
     const dirsInfo = [
       {
-        dir: operations,
         children: ['file1', 'dir1'],
         pathDirs: [],
       },
       {
-        dir: operations.dir1,
         children: ['file2', 'dir2'],
         pathDirs: ['dir1'],
       },
       {
-        dir: operations.dir1.dir2,
         children: ['file3', 'dir3'],
         pathDirs: ['dir1', 'dir2'],
       },
       {
-        dir: operations.dir1.dir2.dir3,
         children: ['file4'],
         pathDirs: ['dir1', 'dir2', 'dir3'],
       },

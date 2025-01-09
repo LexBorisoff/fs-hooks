@@ -1,67 +1,29 @@
-import { isDirOperations } from '@app/operations/utils/is-operations.js';
+import type { FsHooks } from '@app/fs-hooks.js';
+import type { TreeInterface } from '@app-types/tree.types.js';
 
-import type { FileTreeInterface } from '@app-types/file-tree.types.js';
-import type {
-  DirOperationsType,
-  OperationsRecord,
-} from '@app-types/operation.types.js';
-
-export interface DirInfo<
-  T extends FileTreeInterface,
-  ExtraFileOperations extends OperationsRecord | undefined,
-  ExtraDirOperations extends OperationsRecord | undefined,
-> {
-  dir: DirOperationsType<T, ExtraFileOperations, ExtraDirOperations>;
-  pathDirs: string[];
+export interface DirInfo {
   children: string[];
+  pathDirs: string[];
 }
 
-export function getDirsInfo<
-  ExtraFileOperations extends OperationsRecord | undefined,
-  ExtraDirOperations extends OperationsRecord | undefined,
->(
-  operations: DirOperationsType<any, ExtraFileOperations, ExtraDirOperations>,
-): DirInfo<FileTreeInterface, ExtraFileOperations, ExtraDirOperations>[] {
-  type DirOperations<T extends FileTreeInterface> = DirOperationsType<
-    T,
-    ExtraFileOperations,
-    ExtraDirOperations
-  >;
+export function getDirsInfo(fsHooks: FsHooks<TreeInterface>): DirInfo[] {
+  const dirs: DirInfo[] = [];
 
-  function getChildren(dir: DirOperations<any>): string[] {
-    return Object.entries(dir)
-      .filter(([, value]) => !(value instanceof Function))
-      .map(([key]) => key);
-  }
-
-  const dirs: DirInfo<
-    FileTreeInterface,
-    ExtraFileOperations,
-    ExtraDirOperations
-  >[] = [];
-
-  function traverse(dir: DirOperations<any>, pathDirs: string[]): void {
+  (function traverse(
+    dir: TreeInterface = fsHooks.tree,
+    pathDirs: string[] = [],
+  ): void {
     dirs.push({
-      dir,
       pathDirs,
-      children: getChildren(dir),
+      children: Object.keys(dir),
     });
 
     Object.entries(dir).forEach(([key, node]) => {
-      if (
-        typeof node === 'object' &&
-        isDirOperations<
-          FileTreeInterface,
-          ExtraFileOperations,
-          ExtraDirOperations
-        >(node)
-      ) {
+      if (typeof node === 'object') {
         traverse(node, pathDirs.concat(key));
       }
     });
-  }
-
-  traverse(operations, []);
+  })();
 
   return dirs;
 }
