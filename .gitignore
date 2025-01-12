@@ -1,3 +1,7 @@
+*.ignore.*
+.npmrc
+__test__*
+
 # IDE - VSCode
 .vscode/*
 !.vscode/tasks.json
