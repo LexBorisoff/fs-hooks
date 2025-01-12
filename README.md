@@ -3,6 +3,7 @@
 ![Build](https://img.shields.io/github/actions/workflow/status/LexBorisoff/fs-hooks/release.yml)
 ![Codecov](https://img.shields.io/codecov/c/gh/LexBorisoff/fs-hooks)
 ![NPM Version](https://img.shields.io/npm/v/fs-hooks)
+![Static Badge](https://img.shields.io/badge/package-ESM--only-ffe536)
 
 This library allows you to work with the file system in Node.js by defining a tree of files and directories and a set of methods called hooks. A hook is a function that performs some action on a given file or directory from the tree, such as reading/writing to a file, creating/deleting a file/directory, checking if a file/directory exists, etc.
 
