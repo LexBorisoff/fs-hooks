@@ -71,7 +71,6 @@ import { coreHooks } from 'fs-hooks/core';
 const hooks = fsHooks.useHooks(coreHooks);
 ```
 
->
 > ⚡ Learn more about hooks, how they work, and how to define them [here](#hooks).  
 > ⚡ Learn about core hooks [here](#core-hooks).
 
@@ -150,10 +149,10 @@ import { createTree } from 'fs-hooks';
 // import an FsHooks object from your source files, e.g.
 import fsHooks from './my-app.js';
 
-createTree(fsHook);
+createTree(fsHooks);
 ```
 
-> ⚠️ This should be done only once, for example as part of a post-install script of your package or in some other way depending on your node.js application.
+> ⚠️ This should be done only once, for example as part of a post-install script of your package or in some other way depending on your Node.js application.
 
 The `createTree` function traverses through the tree properties creating files and directories that do not currently exist, and returns an array of `CreateTreeError` errors.
 
@@ -192,7 +191,6 @@ export type ObjectTreeType<Tree extends TreeInterface> = {
       ? DirTargetInterface<Tree[key]>
       : never;
 };
-
 ```
 
 ### Creating hooks
@@ -230,7 +228,7 @@ const hooks = fsHooks.useHooks({
 
 ### Target file and directory objects
 
-The `file` method accepts a `targetFile` argument of type `FileTargetInterface` and the `dir` method accepts a `targetDir` argument of type `DirTargetInterface`. These arguments are objects that *respresent* the selected file or directory from the tree when you call the `hooks` function (returned from `useHooks`). Following the above example, when calling `hooks` like this:
+The `file` method accepts a `targetFile` argument of type `FileTargetInterface` and the `dir` method accepts a `targetDir` argument of type `DirTargetInterface`. These arguments are objects that *represent* the selected file or directory from the tree when you call the `hooks` function (returned from `useHooks`). Following the above example, when calling `hooks` like this:
 
 ```typescript
 const file1 = hooks((root) => root.dir1.dir2.file1);
@@ -282,7 +280,6 @@ export const fileHooks = FsHooks.fileHooks((targetFile) => ({
   }
   /* other file hooks */
 }));
-
 
 export const dirHooks = FsHooks.dirHooks((targetDir) => ({
   createFile(fileName: string, data = '') {
