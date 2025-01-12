@@ -8,8 +8,8 @@ import type {
   HooksRecord,
 } from '@app-types/hook.types.js';
 import type {
-  DirObjectInterface,
-  FileObjectInterface,
+  DirTargetInterface,
+  FileTargetInterface,
   FileType,
   TreeInterface,
 } from '@app-types/tree.types.js';
@@ -64,7 +64,7 @@ export class FsHooks<Tree extends TreeInterface> {
     type HooksCb = Parameters<Hooks>[0];
     type HooksResult = ReturnType<Hooks> | undefined;
     type TreeTarget = FileType | TreeInterface;
-    type TargetObject = FileObjectInterface | DirObjectInterface<TreeInterface>;
+    type TargetObject = FileTargetInterface | DirTargetInterface<TreeInterface>;
 
     const objectTree = buildObjectTree(this.#rootPath, this.#tree);
     const tree = this.#tree;
@@ -77,7 +77,7 @@ export class FsHooks<Tree extends TreeInterface> {
 
       function createProxyTree<T extends TreeInterface>(
         targetTree: T,
-        targetObjectTree: DirObjectInterface<T>,
+        targetObjectTree: DirTargetInterface<T>,
       ): T {
         return new Proxy(targetTree, {
           get(obj, prop: string) {
@@ -107,7 +107,7 @@ export class FsHooks<Tree extends TreeInterface> {
       const { path } = targetObject;
 
       if (typeof target === 'string' && targetObject.type === 'file') {
-        return file?.({ type: 'file', data: target, path });
+        return file?.({ type: 'file', path });
       }
 
       if (typeof target === 'object' && targetObject.type === 'dir') {
