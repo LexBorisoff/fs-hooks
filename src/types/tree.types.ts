@@ -8,12 +8,12 @@ export interface PathInterface {
   path: string;
 }
 
-export interface FileObjectInterface extends PathInterface {
+export interface FileTargetInterface extends PathInterface {
   type: 'file';
   data: string;
 }
 
-export interface DirObjectInterface<Tree extends TreeInterface>
+export interface DirTargetInterface<Tree extends TreeInterface>
   extends PathInterface {
   type: 'dir';
   children: ObjectTreeType<Tree>;
@@ -21,8 +21,8 @@ export interface DirObjectInterface<Tree extends TreeInterface>
 
 export type ObjectTreeType<Tree extends TreeInterface> = {
   [key in keyof Tree]: Tree[key] extends FileType
-    ? FileObjectInterface
+    ? FileTargetInterface
     : Tree[key] extends TreeInterface
-      ? DirObjectInterface<Tree[key]>
+      ? DirTargetInterface<Tree[key]>
       : never;
 };
