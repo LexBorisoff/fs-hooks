@@ -36,7 +36,12 @@
   "files": [
     "dist"
   ],
-  "keywords": [],
+  "keywords": [
+    "node",
+    "fs",
+    "hooks",
+    "fs-hooks"
+  ],
   "author": "Lex Borisoff <lex@borisoff.dev>",
   "license": "ISC",
   "repository": {
