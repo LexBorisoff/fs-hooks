@@ -10,7 +10,6 @@ export interface PathInterface {
 
 export interface FileTargetInterface extends PathInterface {
   type: 'file';
-  data: string;
 }
 
 export interface DirTargetInterface<Tree extends TreeInterface>

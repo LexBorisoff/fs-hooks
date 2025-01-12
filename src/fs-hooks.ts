@@ -107,7 +107,7 @@ export class FsHooks<Tree extends TreeInterface> {
       const { path } = targetObject;
 
       if (typeof target === 'string' && targetObject.type === 'file') {
-        return file?.({ type: 'file', data: target, path });
+        return file?.({ type: 'file', path });
       }
 
       if (typeof target === 'object' && targetObject.type === 'dir') {

@@ -61,6 +61,8 @@ const fsHooks = new FsHooks('/path/to/tree/root', {
 
 Then you need to register hooks that you want to use. To register hooks, call the `useHooks` method on the created `FsHooks` instance. The method accepts an object that defines arbitrary file and directory hooks.
 
+> ⚡ Learn more about hooks, how they work, and how to define them [here](#hooks).  
+
 This library exports a pre-defined object with some common hooks, called `coreHooks` exported from `fs-hooks/core`.
 
 ```typescript
@@ -71,7 +73,6 @@ import { coreHooks } from 'fs-hooks/core';
 const hooks = fsHooks.useHooks(coreHooks);
 ```
 
-> ⚡ Learn more about hooks, how they work, and how to define them [here](#hooks).  
 > ⚡ Learn about core hooks [here](#core-hooks).
 
 ### Using hooks
@@ -173,18 +174,17 @@ The `useHooks` method accepts an object that has 2 properties:
 // describes targetFile
 interface FileTargetInterface {
   type: 'file';
-  data: string;
   path: string;
 }
 
 // describes targetDir
-export interface DirTargetInterface<Tree extends TreeInterface> {
+interface DirTargetInterface<Tree extends TreeInterface> {
   type: 'dir';
   children: ObjectTreeType<Tree>;
   path: string;
 }
 
-export type ObjectTreeType<Tree extends TreeInterface> = {
+type ObjectTreeType<Tree extends TreeInterface> = {
   [key in keyof Tree]: Tree[key] extends string
     ? FileTargetInterface
     : Tree[key] extends TreeInterface
@@ -241,7 +241,6 @@ the `targetFile` would have the following value:
 {
   type: 'file',
   path: '/root/path/dir1/dir2/file1',
-  data: 'File 1 data',
 }
 ```
 
@@ -258,7 +257,6 @@ and `targetDir` would be as follows:
       children: {
         type: 'file',
         path: '/root/path/dir1/dir2/file1',
-        data: 'File 1 data',        
       }
     }
   },
@@ -290,7 +288,6 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => ({
     return fileHooks({
       type: 'file',
       path: filePath,
-      data,
     });
   },
   createDir(dirName: string) {
@@ -378,7 +375,7 @@ getPath(): string
 #### *Example*
 
 ```typescript
-const file = hooks((root) => root.file)
+const file = hooks((root) => root.file);
 const filePath = file.getPath();
 ```
 
@@ -395,7 +392,7 @@ read(): string | null
 #### *Example*
 
 ```typescript
-const file = hooks((root) => root.file)
+const file = hooks((root) => root.file);
 const fileData = file.read();
 ```
 
@@ -412,7 +409,7 @@ write(data: string): void
 #### *Example*
 
 ```typescript
-const file = hooks((root) => root.file)
+const file = hooks((root) => root.file);
 file.write('New file data');
 ```
 
@@ -429,7 +426,7 @@ clear(): void
 #### *Example*
 
 ```typescript
-const file = hooks((root) => root.file)
+const file = hooks((root) => root.file);
 file.clear();
 ```
 
@@ -448,7 +445,7 @@ getPath(): string
 #### *Example*
 
 ```typescript
-const dir = hooks((root) => root)
+const dir = hooks((root) => root);
 const dirPath = dir.getPath();
 ```
 
@@ -465,7 +462,7 @@ exists(name: string): boolean
 #### *Example*
 
 ```typescript
-const dir = hooks((root) => root)
+const dir = hooks((root) => root);
 const fileExists = dir.exists('some-file');
 const dirExists = dir.exists('some-dir');
 ```
@@ -483,24 +480,24 @@ dirCreate(dirName: string, recursive: boolean = false): DirHooks
 #### *Example*
 
 ```typescript
-const dir = hooks((root) => root)
+const dir = hooks((root) => root);
 const newDir = dir.dirCreate('new-dir');
 
 // you can access all the directory hooks on the newDir
 newDir.getPath();
 
 // even create another new directory!
-const anotherDir = newDir.createDir('foo');
+const anotherDir = newDir.dirCreate('foo');
 ```
 
 > In the above example, `newDir` has all the directory hooks just like accessing a tree directory with the `hooks` function.
 
 #### *Creating a nested directory*
 
-To create a nested directory, provide the second argument with the value of `true`:
+To create a directory recursively, provide the second argument with the value of `true`:
 
 ```typescript
-const dir = hooks((root) => root)
+const dir = hooks((root) => root);
 const newDir = dir.dirCreate('nested/new-dir', true);
 ```
 
@@ -517,7 +514,7 @@ dirDelete(dirName: string): void
 #### *Example*
 
 ```typescript
-const dir = hooks((root) => root)
+const dir = hooks((root) => root);
 dir.dirDelete('some-dir');
 ```
 
@@ -534,7 +531,7 @@ fileRead(fileName: string): string | null
 #### *Example*
 
 ```typescript
-const dir = hooks((root) => root)
+const dir = hooks((root) => root);
 const fileData = dir.fileRead('some-file');
 ```
 
@@ -551,7 +548,7 @@ fileWrite(fileName: string, fileData: string): void
 #### *Example*
 
 ```typescript
-const dir = hooks((root) => root)
+const dir = hooks((root) => root);
 dir.fileWrite('some-file', 'some file data');
 ```
 
@@ -568,7 +565,7 @@ fileClear(fileName: string): void
 #### *Example*
 
 ```typescript
-const dir = hooks((root) => root)
+const dir = hooks((root) => root);
 dir.fileClear('some-file');
 ```
 
@@ -585,7 +582,7 @@ fileCreate(fileName: string, data: string = ''): FileHooks
 #### *Example*
 
 ```typescript
-const dir = hooks((root) => root)
+const dir = hooks((root) => root);
 const newFile = dir.fileCreate('new-file', 'new file data');
 
 // you can access all the file hooks on the newFile
@@ -610,6 +607,6 @@ fileDelete(fileName: string): void
 #### *Example*
 
 ```typescript
-const dir = hooks((root) => root)
+const dir = hooks((root) => root);
 dir.fileDelete('some-file');
 ```

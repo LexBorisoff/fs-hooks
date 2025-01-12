@@ -70,7 +70,6 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
       return fileHooks({
         type: 'file',
         path: getPath(fileName),
-        data,
       });
     },
     fileDelete(fileName: string): void {

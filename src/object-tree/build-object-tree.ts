@@ -21,7 +21,6 @@ export function buildObjectTree<Tree extends TreeInterface>(
       if (typeof value === 'string') {
         const file: FileTargetInterface = {
           type: 'file',
-          data: value,
           path: path.resolve(parentPath, key),
         };
 
