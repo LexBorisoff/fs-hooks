@@ -49,6 +49,12 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
       }
     },
 
+    fileRead(fileName: string): string | null {
+      return readFile(getPath(fileName));
+    },
+    fileWrite(fileName: string, fileData: string): void {
+      fs.writeFileSync(getPath(fileName), fileData);
+    },
     fileClear(fileName: string): void {
       if (exists(fileName)) {
         this.fileWrite(fileName, '');
@@ -71,12 +77,6 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
       if (exists(fileName)) {
         fs.rmSync(getPath(fileName));
       }
-    },
-    fileRead(fileName: string): string | null {
-      return readFile(getPath(fileName));
-    },
-    fileWrite(fileName: string, fileData: string): void {
-      fs.writeFileSync(getPath(fileName), fileData);
     },
   };
 });
