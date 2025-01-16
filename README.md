@@ -470,12 +470,18 @@ const dirExists = dir.exists('some-dir');
 
 ### `dirCreate`
 
-Creates a new directory inside the target directory. Returns the created directory hooks.
+Creates a new directory inside the target directory.
+
+#### *Returns*
+
+- The created directory hooks
+- The directory hooks if it already exists
+- `false` if the directory could not be created
 
 #### *Definition*
 
 ```typescript
-dirCreate(dirName: string, recursive: boolean = false): DirHooks
+dirCreate(dirName: string, recursive: boolean = false): DirHooks | false
 ```
 
 #### *Example*
@@ -572,12 +578,18 @@ dir.fileClear('some-file');
 
 ### `fileCreate`
 
-Creates a new file inside the target directory. Returns the created file hooks.
+Creates a new file inside the target directory.
+
+#### *Returns*
+
+- The created file hooks
+- The file hooks if it already exists
+- `false` if the file could not be created
 
 #### *Definition*
 
 ```typescript
-fileCreate(fileName: string, data: string = ''): FileHooks
+fileCreate(fileName: string, data: string = ''): FileHooks | false
 ```
 
 #### *Example*
