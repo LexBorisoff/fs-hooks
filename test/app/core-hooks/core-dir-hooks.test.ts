@@ -113,7 +113,7 @@ suite('core directory hooks', { concurrent: false }, () => {
       });
     });
 
-    it('should return false when creating existing directories', () => {
+    it('should return directory hooks when creating existing directories', () => {
       const dirName = 'new-dir';
 
       useDirs((hooks, { pathDirs }) => {
@@ -124,14 +124,15 @@ suite('core directory hooks', { concurrent: false }, () => {
         }
 
         const result = hooks.dirCreate(dirName);
-        expect(result).toBe(false);
+        expect(result).toEqual(coreHooksObject.dir);
       });
     });
 
-    it('should fail creating nested directories without recursive flag', () => {
+    it('should return false when creating nested directories without recursive flag', () => {
       const dirName = 'nested-dir/new-dir';
       useDirs((hooks) => {
-        expect(() => hooks.dirCreate(dirName)).toThrow();
+        const result = hooks.dirCreate(dirName);
+        expect(result).toBe(false);
       });
     });
 
@@ -187,7 +188,7 @@ suite('core directory hooks', { concurrent: false }, () => {
       });
     });
 
-    it('should return false when creating existing files', () => {
+    it('should return file hooks when creating existing files', () => {
       const fileName = 'new-file';
 
       useDirs((hooks, { pathDirs }) => {
@@ -198,7 +199,7 @@ suite('core directory hooks', { concurrent: false }, () => {
         fs.writeFileSync(filePath, '');
 
         const createdFile = hooks.fileCreate(fileName);
-        expect(createdFile).toBe(false);
+        expect(createdFile).toEqual(coreHooksObject.file);
       });
     });
 
@@ -220,9 +221,10 @@ suite('core directory hooks', { concurrent: false }, () => {
       });
     });
 
-    it('should throw when creating a nested file in a non-existing folder', () => {
+    it('should return false when creating a nested file in a non-existing folder', () => {
       useDirs((hooks) => {
-        expect(() => hooks.fileCreate('nested-dir/new-file')).toThrow();
+        const result = hooks.fileCreate('nested-dir/new-file');
+        expect(result).toBe(false);
       });
     });
   });

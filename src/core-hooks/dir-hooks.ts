@@ -8,6 +8,12 @@ import { FsHooks } from '../fs-hooks.js';
 
 import { fileHooks } from './file-hooks.js';
 
+import type {
+  DirTargetInterface,
+  FileTargetInterface,
+  TreeInterface,
+} from '@app-types/tree.types.js';
+
 export const dirHooks = FsHooks.dirHooks((targetDir) => {
   function getPath(name: string): string {
     return path.resolve(targetDir.path, name);
@@ -25,20 +31,28 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
       return exists(name);
     },
 
-    dirCreate(dirName: string, recursive = false) {
+    dirCreate(
+      dirName: string,
+      recursive = false,
+    ): ReturnType<typeof dirHooks> | false {
       const dirPath = getPath(dirName);
-
-      if (exists(dirName)) {
-        return false;
-      }
-
-      createDir(dirPath, recursive);
-
-      return dirHooks({
+      const createdDir: DirTargetInterface<TreeInterface> = {
         type: 'dir',
         path: dirPath,
         children: {},
-      });
+      };
+
+      if (exists(dirName)) {
+        return dirHooks(createdDir);
+      }
+
+      try {
+        createDir(dirPath, recursive);
+      } catch {
+        return false;
+      }
+
+      return dirHooks(createdDir);
     },
     dirDelete(dirName: string): void {
       if (exists(dirName)) {
@@ -60,17 +74,26 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
         this.fileWrite(fileName, '');
       }
     },
-    fileCreate(fileName: string, data = '') {
+    fileCreate(
+      fileName: string,
+      data: string = '',
+    ): ReturnType<typeof fileHooks> | false {
+      const createdFile: FileTargetInterface = {
+        type: 'file',
+        path: getPath(fileName),
+      };
+
       if (exists(fileName)) {
+        return fileHooks(createdFile);
+      }
+
+      try {
+        this.fileWrite(fileName, data);
+      } catch {
         return false;
       }
 
-      this.fileWrite(fileName, data);
-
-      return fileHooks({
-        type: 'file',
-        path: getPath(fileName),
-      });
+      return fileHooks(createdFile);
     },
     fileDelete(fileName: string): void {
       if (exists(fileName)) {
