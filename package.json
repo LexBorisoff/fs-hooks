@@ -3,6 +3,10 @@
   "version": "0.0.0-semantically-released",
   "description": "Library for working with the file system in Node.js",
   "type": "module",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
