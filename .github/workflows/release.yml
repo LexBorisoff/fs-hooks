@@ -15,12 +15,18 @@ permissions:
 jobs:
   release:
     name: Release
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
     uses: LexBorisoff/workflows/.github/workflows/release.yml@main
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   sync-dev:
     name: Sync main to dev
+    permissions:
+      contents: write
     uses: LexBorisoff/workflows/.github/workflows/sync-dev.yml@main
     secrets:
       DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
