@@ -269,7 +269,7 @@ and `targetDir` would be as follows:
 
 ### Utility methods
 
-The `FsHooks` class has static utility methods that help you create hooks that can be then provided to the `useHooks` method. This could be useful when you want to export common hooks, or if some of your hooks need to return the hooks themselves, for example when creating a new file or directory.
+The `FsHooks` class has static utility methods that help you create hooks that can be provided to the `useHooks` method. This could be useful when you want to export common hooks, or if some of your hooks need to return the hooks themselves, for example when creating a new file or directory.
 
 ```typescript
 import fs from 'node:fs';
