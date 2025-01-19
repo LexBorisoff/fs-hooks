@@ -5,7 +5,7 @@
 ![NPM Version](https://img.shields.io/npm/v/fs-hooks)
 ![Static Badge](https://img.shields.io/badge/package-ESM--only-ffe536)
 
-This library allows you to work with the file system in Node.js by defining a tree of files and directories and a set of methods called hooks. A hook is a function that performs some action on a given file or directory from the tree, such as reading/writing to a file, creating/deleting a file/directory, checking if a file/directory exists, etc.
+This library allows you to work with the file system in Node.js by defining a tree of files and directories and a set of methods called hooks. A hook is a function that performs some action on a given file or directory from the tree, such as reading/writing to a file, creating/deleting a file/directory, etc. Any action that is often performed on files and directories and that could be abstracted away is a candidate for a hook.
 
 - [Installation](#installation)
 - [Usage](#usage)
@@ -56,11 +56,11 @@ const fsHooks = new FsHooks('/path/to/tree/root', {
 });
 ```
 
-> ⚠️ It is important to create the tree in the file system before using hooks - [see here](#creating-the-tree-in-the-file-system).
+> ⚠️ It is important to create the tree in the file system, if it doesn't already exist, before using hooks - [see here](#creating-the-tree-in-the-file-system).
 
 ### Hooks registration
 
-Then you need to register hooks that you want to use. To register hooks, call the `useHooks` method on the created `FsHooks` instance. The method accepts an object that defines arbitrary file and directory hooks.
+To register hooks, call the `useHooks` method on the created `FsHooks` instance. The method accepts an object that defines arbitrary file and directory hooks.
 
 > ⚡ Learn more about hooks, how they work, and how to define them [here](#hooks).  
 
@@ -78,7 +78,7 @@ const hooks = fsHooks.useHooks(coreHooks);
 
 ### Using hooks
 
-You are now able to work with the tree by using hooks. The returned value from calling the `useHooks` method is a function that accepts a callback whose only argument is the tree, and whose return value is a property of that tree that you want to work with (*"hook into"*).
+The returned value from calling the `useHooks` method is a function that accepts a callback whose only argument is the tree, and whose return value is a property of that tree that you want to work with (*"hook into"*). You are now able to work with the tree by using hooks.
 
 ```typescript
 const file1 = hooks((root) => root.file1);
@@ -107,7 +107,7 @@ dir1.fileDelete('new-file');
 The tree object represents a structure of files and directories that you will be working with via hooks. Each property key is the name of the corresponding file or directory, and its value determines whether the property is a file or a directory:
 
 - A ***file*** is represented as a `string` whose value is the initial content of the file. This content will be written when calling the `createTree` function ([see here](#creating-the-tree-in-the-file-system)).
-- A ***directory*** is represented as an object of type `TreeInterface` and contains files and/or other directories (the tree itself is also such a directory).
+- A ***directory*** is represented as an object of type `TreeInterface` and contains files and/or other directories (the tree itself is of type `TreeInterface`).
 
 For example:
 
@@ -144,19 +144,22 @@ const fsHooks = new FsHooks('/path/to/tree/root', tree);
 
 ### Creating the tree in the file system
 
-Before you can start interacting with the tree, it is important that you create it in the file system. To help you with that, this library exports a function called `createTree` that accepts an `FsHooks` instance:
+If the tree that was provided when instantiating the `FsHooks` class does not exist in the file system, it is important that you create it before using hooks. The tree can be created by calling the `createTree` function that accepts an `FsHooks` instance:
 
 ```typescript
 import { createTree } from 'fs-hooks';
 // import an FsHooks object from your source files, e.g.
-import fsHooks from './my-app.js';
+import fsHooks from './my-hooks.js';
 
 createTree(fsHooks);
 ```
 
-> ⚠️ This should be done only once, for example as part of a post-install script of your package or in some other way depending on your Node.js application.
+The `createTree` function traverses through the tree properties creating files and directories.
 
-The `createTree` function traverses through the tree properties creating files and directories that do not currently exist, and returns an array of `CreateTreeError` errors.
+- If the file already exists, the function overwrites its contents.
+- If the directory exists, the function skips it.
+
+It returns an array of `CreateTreeError` errors.
 
 ```typescript
 function createTree(fsHooks: FsHooks<TreeInterface>): CreateTreeError[]
@@ -213,14 +216,14 @@ const fsHooks = new FsHooks('/root/path', {
 const hooks = fsHooks.useHooks({
   file: (targetFile) => ({
     read() {
-      return fs.readFileSync(targetFile.path, { encoding: 'utf-8' });
+      return fs.readFileSync(targetFile.path, 'utf-8');
     },
     /* other file hooks */
   }),
   dir: (targetDir) => ({
     readFile(fileName: string) {
       const filePath = path.resolve(targetDir.path, fileName);
-      return fs.readFileSync(filePath, { encoding: 'utf-8' });
+      return fs.readFileSync(filePath, 'utf-8');
     },
     /* other directory hooks */
   }),
@@ -229,7 +232,7 @@ const hooks = fsHooks.useHooks({
 
 ### Target file and directory objects
 
-The `file` method accepts a `targetFile` argument of type `FileTargetInterface` and the `dir` method accepts a `targetDir` argument of type `DirTargetInterface`. These arguments are objects that *represent* the selected file or directory from the tree when you call the `hooks` function (returned from `useHooks`). Following the above example, when calling `hooks` like this:
+The `file` method accepts an argument of type `FileTargetInterface` and the `dir` method accepts an argument of type `DirTargetInterface`. These arguments are objects that *represent* the selected file or directory from the tree when you call the function returned from the `useHooks` method. Following the above example, when selecting a file and a directory like this:
 
 ```typescript
 const file1 = hooks((root) => root.dir1.dir2.file1);
@@ -266,7 +269,7 @@ and `targetDir` would be as follows:
 
 ### Utility methods
 
-The `FsHooks` class has static utility methods that help you create your custom file and directory hooks that can be later provided to the `useHooks` method. This could be useful when you want to export common hooks, or if some of your hooks need to return the hooks themselves, for example when creating a new file or directory.
+The `FsHooks` class has static utility methods that help you create hooks that can be provided to the `useHooks` method. This could be useful when you want to export common hooks, or if some of your hooks need to return the hooks themselves, for example when creating a new file or directory.
 
 ```typescript
 import fs from 'node:fs';
@@ -275,13 +278,13 @@ import { FsHooks } from 'fs-hooks';
 
 export const fileHooks = FsHooks.fileHooks((targetFile) => ({
   read() {
-    return fs.readFileSync(targetFile.path, { encoding: 'utf-8' });
+    return fs.readFileSync(targetFile.path, 'utf-8');
   }
   /* other file hooks */
 }));
 
 export const dirHooks = FsHooks.dirHooks((targetDir) => ({
-  createFile(fileName: string, data = '') {
+  createFile(fileName: string, data: string = '') {
     const filePath = path.resolve(targetDir.path, fileName);
     fs.writeFileSync(filePath, data);
 
@@ -311,13 +314,8 @@ This allows for the following scenario:
 ```typescript
 import { FsHooks } from 'fs-hooks';
 
-const fileHooks = FsHooks.fileHooks((targetFile) => ({
-  /* file hooks */
-}));
-
-const dirHooks = FsHooks.dirHooks((targetDir) => ({
-  /* directory hooks */
-}));
+const fileHooks = FsHooks.fileHooks((targetFile) => ({ /* file hooks */ }));
+const dirHooks = FsHooks.dirHooks((targetDir) => ({ /* directory hooks */ }));
 
 const fsHooks = new FsHooks('/path/to/tree/root', {
   dir1: {
@@ -363,7 +361,12 @@ const hooks = fsHooks.useHooks(coreHooks);
 
 ### File Core Hooks
 
-### `getPath`
+- [`getPath`](#getpath-file-hook)
+- [`read`](#read)
+- [`write`](#write)
+- [`clear`](#clear)
+
+### `getPath` (file hook)
 
 Returns the path of the target file.
 
@@ -382,7 +385,12 @@ const filePath = file.getPath();
 
 ### `read`
 
-Reads the content of the target file. Returns the file data or null if the file cannot be read.
+Reads the contents of the target file.
+
+#### *Returns*
+
+- file data as a `string`
+- `null` if the file cannot be read
 
 #### *Definition*
 
@@ -416,7 +424,7 @@ file.write('New file data');
 
 ### `clear`
 
-Clears the content of the target file.
+Clears the contents of the target file.
 
 #### *Definition*
 
@@ -433,7 +441,17 @@ file.clear();
 
 ### Directory Core Hooks
 
-### `getPath`
+- [`getPath`](#getpath-directory-hook)
+- [`exists`](#exists)
+- [`dirCreate`](#dircreate)
+- [`dirDelete`](#dirdelete)
+- [`fileCreate`](#filecreate)
+- [`fileDelete`](#filedelete)
+- [`fileRead`](#fileread)
+- [`fileWrite`](#filewrite)
+- [`fileClear`](#fileclear)
+
+### `getPath` (directory hook)
 
 Returns the path of the target directory.
 
@@ -475,7 +493,7 @@ Creates a new directory inside the target directory.
 #### *Returns*
 
 - The created directory hooks
-- The directory hooks if it already exists
+- The directory hooks if the directory already exists
 - `false` if the directory could not be created
 
 #### *Definition*
@@ -501,7 +519,7 @@ const anotherDir = newDir.dirCreate('foo');
 
 #### *Creating a nested directory*
 
-To create a directory recursively, provide the second argument with the value of `true`:
+To create a nested directory, set the `recursive` flag to `true`:
 
 ```typescript
 const dir = hooks((root) => root);
@@ -525,57 +543,6 @@ const dir = hooks((root) => root);
 dir.dirDelete('some-dir');
 ```
 
-### `fileRead`
-
-Reads the content of a file inside the target directory. Returns the file data or null if the file cannot be read.
-
-#### *Definition*
-
-```typescript
-fileRead(fileName: string): string | null
-```
-
-#### *Example*
-
-```typescript
-const dir = hooks((root) => root);
-const fileData = dir.fileRead('some-file');
-```
-
-### `fileWrite`
-
-Writes new data to a file inside the target directory.
-
-#### *Definition*
-
-```typescript
-fileWrite(fileName: string, fileData: string): void
-```
-
-#### *Example*
-
-```typescript
-const dir = hooks((root) => root);
-dir.fileWrite('some-file', 'some file data');
-```
-
-### `fileClear`
-
-Clears the content of a file inside the target directory.
-
-#### *Definition*
-
-```typescript
-fileClear(fileName: string): void
-```
-
-#### *Example*
-
-```typescript
-const dir = hooks((root) => root);
-dir.fileClear('some-file');
-```
-
 ### `fileCreate`
 
 Creates a new file inside the target directory.
@@ -583,7 +550,7 @@ Creates a new file inside the target directory.
 #### *Returns*
 
 - The created file hooks
-- The file hooks if it already exists
+- The file hooks if the file already exists
 - `false` if the file could not be created
 
 #### *Definition*
@@ -592,11 +559,13 @@ Creates a new file inside the target directory.
 fileCreate(fileName: string, data: string = ''): FileHooks | false
 ```
 
+> If the `data` argument is provided and the file already exists, the file will be overwritten.
+
 #### *Example*
 
 ```typescript
 const dir = hooks((root) => root);
-const newFile = dir.fileCreate('new-file', 'new file data');
+const newFile = dir.fileCreate('new-file', 'file data');
 
 // you can access all the file hooks on the newFile
 newFile.getPath();
@@ -622,4 +591,60 @@ fileDelete(fileName: string): void
 ```typescript
 const dir = hooks((root) => root);
 dir.fileDelete('some-file');
+```
+
+### `fileRead`
+
+Reads the contents of a file inside the target directory.
+
+#### *Returns*
+
+- file data as a `string`
+- `null` if the file cannot be read
+
+#### *Definition*
+
+```typescript
+fileRead(fileName: string): string | null
+```
+
+#### *Example*
+
+```typescript
+const dir = hooks((root) => root);
+const fileData = dir.fileRead('some-file');
+```
+
+### `fileWrite`
+
+Writes new data to a file inside the target directory.
+
+#### *Definition*
+
+```typescript
+fileWrite(fileName: string, data: string): void
+```
+
+#### *Example*
+
+```typescript
+const dir = hooks((root) => root);
+dir.fileWrite('some-file', 'some data');
+```
+
+### `fileClear`
+
+Clears the contents of a file inside the target directory.
+
+#### *Definition*
+
+```typescript
+fileClear(fileName: string): void
+```
+
+#### *Example*
+
+```typescript
+const dir = hooks((root) => root);
+dir.fileClear('some-file');
 ```
