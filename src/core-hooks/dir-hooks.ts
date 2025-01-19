@@ -10,7 +10,6 @@ import { fileHooks } from './file-hooks.js';
 
 import type {
   DirTargetInterface,
-  FileTargetInterface,
   TreeInterface,
 } from '@app-types/tree.types.js';
 
@@ -78,22 +77,16 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
       fileName: string,
       data: string = '',
     ): ReturnType<typeof fileHooks> | false {
-      const createdFile: FileTargetInterface = {
-        type: 'file',
-        path: getPath(fileName),
-      };
-
-      if (exists(fileName)) {
-        return fileHooks(createdFile);
-      }
-
       try {
         this.fileWrite(fileName, data);
       } catch {
         return false;
       }
 
-      return fileHooks(createdFile);
+      return fileHooks({
+        type: 'file',
+        path: getPath(fileName),
+      });
     },
     fileDelete(fileName: string): void {
       if (exists(fileName)) {
