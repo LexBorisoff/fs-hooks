@@ -10,7 +10,7 @@ export function readFile(filePath: string): string | null {
   }
 
   try {
-    return fs.readFileSync(filePath, { encoding: 'utf-8' });
+    return fs.readFileSync(filePath, 'utf-8');
   } catch {
     return null;
   }

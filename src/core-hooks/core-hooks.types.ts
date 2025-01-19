@@ -1,4 +1,8 @@
-import type { DirHooksFn, FileHooksFn, HooksRecord } from './hook.types.js';
+import type {
+  DirHooksFn,
+  FileHooksFn,
+  HooksRecord,
+} from '@app-types/hook.types.js';
 import type { coreHooks } from '@core-hooks/core-hooks.js';
 
 export type FileHooksType<Fn extends FileHooksFn<HooksRecord>> =

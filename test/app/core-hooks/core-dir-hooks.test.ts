@@ -288,7 +288,7 @@ suite('core directory hooks', { concurrent: false }, () => {
 
         fileDataArray.forEach((fileData) => {
           hooks.fileWrite(fileName, fileData);
-          const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
+          const data = fs.readFileSync(filePath, 'utf-8');
           expect(data).toBe(fileData);
         });
       });
@@ -309,7 +309,7 @@ suite('core directory hooks', { concurrent: false }, () => {
         fileDataArray.forEach((fileData) => {
           fs.writeFileSync(filePath, fileData);
           hooks.fileClear(fileName);
-          const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
+          const data = fs.readFileSync(filePath, 'utf-8');
           expect(data).toBe('');
         });
       });

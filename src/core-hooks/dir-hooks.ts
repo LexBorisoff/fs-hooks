@@ -10,7 +10,6 @@ import { fileHooks } from './file-hooks.js';
 
 import type {
   DirTargetInterface,
-  FileTargetInterface,
   TreeInterface,
 } from '@app-types/tree.types.js';
 
@@ -24,13 +23,34 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
   }
 
   return {
+    /**
+     * Returns the path of the target directory.
+     */
     getPath(): string {
       return targetDir.path;
     },
+
+    /**
+     * Checks if a file or directory exists inside the target directory.
+     *
+     * @param name file or directory name to check
+     */
     exists(name: string): boolean {
       return exists(name);
     },
 
+    /**
+     * Creates a new directory inside the target directory.
+     *
+     * @param dirName directory name to create
+     * @param recursive indicates whether parent folders should be created
+     *
+     * @returns
+     * - The created directory hooks
+     * - The directory hooks if the directory already exists
+     * - `false` if the directory could not be created
+     *
+     */
     dirCreate(
       dirName: string,
       recursive = false,
@@ -54,6 +74,12 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
 
       return dirHooks(createdDir);
     },
+
+    /**
+     * Deletes a directory inside the target directory.
+     *
+     * @param dirName directory name to delete
+     */
     dirDelete(dirName: string): void {
       if (exists(dirName)) {
         fs.rmSync(getPath(dirName), {
@@ -63,41 +89,75 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
       }
     },
 
-    fileRead(fileName: string): string | null {
-      return readFile(getPath(fileName));
-    },
-    fileWrite(fileName: string, fileData: string): void {
-      fs.writeFileSync(getPath(fileName), fileData);
-    },
-    fileClear(fileName: string): void {
-      if (exists(fileName)) {
-        this.fileWrite(fileName, '');
-      }
-    },
+    /**
+     * Creates a new file inside the target directory.
+     *
+     * @param fileName file name to create
+     * @param data data string to write. If this argument is provided and the file already exists, the file will be overwritten
+     *
+     * @returns
+     * - The created file hooks
+     * - The file hooks if it already exists
+     * - `false` if the file could not be created
+     */
     fileCreate(
       fileName: string,
       data: string = '',
     ): ReturnType<typeof fileHooks> | false {
-      const createdFile: FileTargetInterface = {
-        type: 'file',
-        path: getPath(fileName),
-      };
-
-      if (exists(fileName)) {
-        return fileHooks(createdFile);
-      }
-
       try {
         this.fileWrite(fileName, data);
       } catch {
         return false;
       }
 
-      return fileHooks(createdFile);
+      return fileHooks({
+        type: 'file',
+        path: getPath(fileName),
+      });
     },
+
+    /**
+     * Deletes a file inside the target directory.
+     *
+     * @param fileName file name to delete
+     */
     fileDelete(fileName: string): void {
       if (exists(fileName)) {
         fs.rmSync(getPath(fileName));
+      }
+    },
+
+    /**
+     * Reads the contents of a file inside the target directory.
+     *
+     * @param fileName file name to read
+     *
+     * @returns
+     * - file data as a `string`
+     * - `null` if the file cannot be read
+     */
+    fileRead(fileName: string): string | null {
+      return readFile(getPath(fileName));
+    },
+
+    /**
+     * Writes new data to a file inside the target directory.
+     *
+     * @param fileName file name to write data to
+     * @param data data string to write
+     */
+    fileWrite(fileName: string, data: string): void {
+      fs.writeFileSync(getPath(fileName), data);
+    },
+
+    /**
+     * Clears the contents of a file inside the target directory.
+     *
+     * @param fileName file name to clear
+     */
+    fileClear(fileName: string): void {
+      if (exists(fileName)) {
+        this.fileWrite(fileName, '');
       }
     },
   };

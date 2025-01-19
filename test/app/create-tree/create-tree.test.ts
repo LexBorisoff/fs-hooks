@@ -83,7 +83,7 @@ suite('createTree function', { concurrent: false }, () => {
       pathArray
         .filter((item): item is PathTreeFile => item.type === 'file')
         .forEach((file) => {
-          const data = fs.readFileSync(file.path, { encoding: 'utf-8' });
+          const data = fs.readFileSync(file.path, 'utf-8');
           expect(data).toBe(file.data);
         });
     });
