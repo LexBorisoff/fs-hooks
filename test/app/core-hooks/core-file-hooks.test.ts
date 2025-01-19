@@ -97,7 +97,7 @@ suite('core file hooks', { concurrent: false }, () => {
 
         fileDataArray.forEach((fileData) => {
           hooks.write(fileData);
-          const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
+          const data = fs.readFileSync(filePath, 'utf-8');
           expect(data).toBe(fileData);
         });
       });
@@ -116,7 +116,7 @@ suite('core file hooks', { concurrent: false }, () => {
         fileDataArray.forEach((fileData) => {
           fs.writeFileSync(filePath, fileData);
           hooks.clear();
-          const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
+          const data = fs.readFileSync(filePath, 'utf-8');
           expect(data).toBe('');
         });
       });
