@@ -103,7 +103,7 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
      */
     fileCreate(
       fileName: string,
-      data: string = '',
+      data: unknown = '',
     ): ReturnType<typeof fileHooks> | false {
       try {
         this.fileWrite(fileName, data);
