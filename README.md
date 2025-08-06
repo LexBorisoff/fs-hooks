@@ -412,7 +412,7 @@ Writes data to the target file. Data can be of type `string` or `NodeJS.ArrayBuf
 #### *Definition*
 
 ```typescript
-write(data: unknown): void
+write<Data>(data: Data): void
 ```
 
 #### *Example*
@@ -622,7 +622,7 @@ Writes new data to a file inside the target directory. Data can be of type `stri
 #### *Definition*
 
 ```typescript
-fileWrite(fileName: string, data: unknown): void
+fileWrite<Data>(fileName: string, data: Data): void
 ```
 
 #### *Example*
