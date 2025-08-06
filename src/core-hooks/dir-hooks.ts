@@ -147,7 +147,7 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
      * @param fileName file name to write data to
      * @param data data string to write
      */
-    fileWrite(fileName: string, data: unknown): void {
+    fileWrite<Data>(fileName: string, data: Data): void {
       fs.writeFileSync(getPath(fileName), getFileData(data));
     },
 
