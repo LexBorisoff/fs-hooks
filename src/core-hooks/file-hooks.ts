@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 
-import { getFileData } from '@utils/get-file-data.js';
 import { readFile } from '@utils/read-file.js';
 
 import { FsHooks } from '../fs-hooks.js';
@@ -29,8 +28,8 @@ export const fileHooks = FsHooks.fileHooks((targetFile) => ({
    *
    * @param data data string to write
    */
-  write(data: unknown): void {
-    fs.writeFileSync(targetFile.path, getFileData(data));
+  write(data: string): void {
+    fs.writeFileSync(targetFile.path, data);
   },
 
   /**
