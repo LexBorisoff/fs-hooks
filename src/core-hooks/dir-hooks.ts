@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { createDir } from '@utils/create-dir.js';
+import { getFileData } from '@utils/get-file-data.js';
 import { readFile } from '@utils/read-file.js';
 
 import { FsHooks } from '../fs-hooks.js';
@@ -146,8 +147,8 @@ export const dirHooks = FsHooks.dirHooks((targetDir) => {
      * @param fileName file name to write data to
      * @param data data string to write
      */
-    fileWrite(fileName: string, data: string): void {
-      fs.writeFileSync(getPath(fileName), data);
+    fileWrite(fileName: string, data: unknown): void {
+      fs.writeFileSync(getPath(fileName), getFileData(data));
     },
 
     /**
