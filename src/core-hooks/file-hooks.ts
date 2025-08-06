@@ -29,7 +29,7 @@ export const fileHooks = FsHooks.fileHooks((targetFile) => ({
    *
    * @param data data string to write
    */
-  write(data: unknown): void {
+  write<Data>(data: Data): void {
     fs.writeFileSync(targetFile.path, getFileData(data));
   },
 
