@@ -407,12 +407,12 @@ const fileData = file.read();
 
 ### `write`
 
-Writes data to the target file.
+Writes data to the target file. Data can be of type `string` or `NodeJS.ArrayBufferView`, otherwise it gets stringified.
 
 #### *Definition*
 
 ```typescript
-write(data: string): void
+write(data: unknown): void
 ```
 
 #### *Example*
@@ -556,10 +556,10 @@ Creates a new file inside the target directory.
 #### *Definition*
 
 ```typescript
-fileCreate(fileName: string, data: string = ''): FileHooks | false
+fileCreate(fileName: string, data: unknown = ''): FileHooks | false
 ```
 
-> If the `data` argument is provided and the file already exists, the file will be overwritten.
+> If the `data` argument is provided and the file already exists, the file will be overwritten. Data can be of type `string` or `NodeJS.ArrayBufferView`, otherwise it gets stringified.
 
 #### *Example*
 
@@ -617,12 +617,12 @@ const fileData = dir.fileRead('some-file');
 
 ### `fileWrite`
 
-Writes new data to a file inside the target directory.
+Writes new data to a file inside the target directory. Data can be of type `string` or `NodeJS.ArrayBufferView`, otherwise it gets stringified.
 
 #### *Definition*
 
 ```typescript
-fileWrite(fileName: string, data: string): void
+fileWrite(fileName: string, data: unknown): void
 ```
 
 #### *Example*
