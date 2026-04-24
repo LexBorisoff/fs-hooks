@@ -12,6 +12,11 @@ concurrency:
 jobs:
   release:
     name: Release
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write # enable use of OIDC for trusted publishing and npm provenance
     uses: LexBorisoff/workflows/.github/workflows/release.yml@main
 
   sync-dev:
